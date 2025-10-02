@@ -14,12 +14,6 @@
     "preview": "vite preview",
     "prepare": "husky"
   },
-  "lint-staged": {
-    "*": [
-      "prettier . -c",
-      "oxlint ."
-    ]
-  },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "react": "^19.1.1",
@@ -33,7 +27,6 @@
     "@vitejs/plugin-react": "^5.0.3",
     "globals": "^16.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.3",
     "oxlint": "^1.19.0",
     "prettier": "3.6.2",
     "typescript": "~5.8.3",
