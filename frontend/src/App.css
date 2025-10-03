@@ -1,9 +1,0 @@
-@import "tailwindcss";
-
-@theme {
-  --color-primary: rgba(20 150 150 / 200);
-  --font-weight-test: 600;
-
-  --color-primary-dark: rgba(5 5 5);
-  --font-primary: "Segoe UI", sans-serif;
-}
