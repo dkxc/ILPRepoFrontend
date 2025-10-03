@@ -37,3 +37,6 @@ package-lock.json
 
 # Ignore pnpm store
 .pnpm-store/
+
+# Build dirs
+.react-router/

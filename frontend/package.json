@@ -4,26 +4,29 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "react-router dev",
+    "build": "tsc -b && react-router build",
     "format": "prettier . -c",
     "format-fix": "prettier . --write",
     "lint": "oxlint .",
     "lint-fix": "oxlint . --fix",
     "flf": "prettier . --write && oxlint . --fix",
-    "preview": "vite preview",
+    "preview": "react-router-serve ./build/server/index.js",
     "prepare": "husky"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
+    "@react-router/node": "^7.9.3",
     "@tailwindcss/vite": "^4.1.13",
     "class-variance-authority": "^0.7.1",
+    "isbot": "^5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.3",
+    "react-router": "^7.9.3",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
+    "@react-router/dev": "^7.9.3",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.3",
