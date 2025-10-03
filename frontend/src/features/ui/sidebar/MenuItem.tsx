@@ -1,0 +1,45 @@
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+
+/**
+ * Unlike other components, Sidebar components are fixed.
+ */
+const menuItemVariants = cva(
+  "relative z-0 inline-flex items-center gap-3 whitespace-nowrap rounded-md p-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer overflow-hidden before:absolute before:inset-0 before:bg-primary before:w-0 before:transition-all before:duration-300 before:-z-10 hover:bg-primary/5 hover:text-primary",
+  {
+    variants: {
+      isActive: {
+        true: "bg-primary-700/5 text-primary",
+        false: "",
+      },
+    },
+    defaultVariants: {
+      isActive: false,
+    },
+  },
+);
+
+export interface MenuItemProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
+    VariantProps<typeof menuItemVariants> {
+  asChild?: boolean;
+}
+
+function MenuItem({
+  isActive,
+  className = "",
+  asChild = false,
+  ref,
+  ...props
+}: MenuItemProps & { ref?: React.Ref<HTMLAnchorElement> }) {
+  const Comp = asChild ? Slot : "a";
+  return (
+    <Comp
+      className={menuItemVariants({ isActive, className })}
+      ref={ref}
+      {...props}
+    />
+  );
+}
+
+export default MenuItem;
