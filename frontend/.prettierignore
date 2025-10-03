@@ -16,3 +16,4 @@ yarn.lock
 dist/
 build/
 out/
+.react-router
