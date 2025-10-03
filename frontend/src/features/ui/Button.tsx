@@ -23,7 +23,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface ButtonProps
@@ -43,11 +43,11 @@ function Button({
   const Comp = asChild ? Slot : "button";
   return (
     <>
-    <Comp
-      className={buttonVariants({ variant, size, className })}
-      ref={ref}
-      {...props}
-    />
+      <Comp
+        className={buttonVariants({ variant, size, className })}
+        ref={ref}
+        {...props}
+      />
     </>
   );
 }
