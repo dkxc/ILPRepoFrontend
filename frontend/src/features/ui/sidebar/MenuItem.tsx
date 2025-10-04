@@ -20,7 +20,7 @@ const menuItemVariants = cva(
 );
 
 export interface MenuItemProps
-  extends React.AnchorHTMLAttributes<HTMLSpanElement>,
+  extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof menuItemVariants> {
   asChild?: boolean;
 }
