@@ -20,7 +20,7 @@ function SideBar({
   ...props
 }: SideBarProps & { ref?: React.Ref<HTMLElement> }) {
   return (
-    <aside className={`h-screen border-r ${className}`} ref={ref} {...props}>
+    <aside className={`h-full ${className}`} ref={ref} {...props}>
       <MenuBar>
         {navItems.map((item) => (
           <NavLink key={item.to.toString()} to={item.to} end={item.end}>
