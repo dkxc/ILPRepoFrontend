@@ -1,3 +1,5 @@
+import { cn } from "../../../lib/utils";
+
 export interface HeaderBarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 function HeaderBar({
@@ -8,7 +10,7 @@ function HeaderBar({
   return (
     <div
       ref={ref}
-      className={`flex items-center-safe gap-1 px-4 ${className}`}
+      className={cn("flex items-center-safe gap-1 px-4", className)}
       {...props}
     />
   );

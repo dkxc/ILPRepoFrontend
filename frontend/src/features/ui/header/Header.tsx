@@ -1,3 +1,5 @@
+import { cn } from "../../../lib/utils";
+
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
   logo: string | React.ReactNode;
   logoWidth: string;
@@ -13,7 +15,7 @@ function Header({
 }: HeaderProps & { ref?: React.Ref<HTMLElement> }) {
   return (
     <header
-      className={`flex align-middle justify-between ${className}`}
+      className={cn("flex align-middle justify-between", className)}
       ref={ref}
       {...props}
     >
