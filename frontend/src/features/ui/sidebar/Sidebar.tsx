@@ -1,6 +1,7 @@
 import { NavLink, type To } from "react-router";
 import MenuBar from "./MenuBar";
 import MenuItem from "./MenuItem";
+import { cn } from "../../../lib/utils";
 
 export interface NavItem {
   to: To;
@@ -20,7 +21,7 @@ function SideBar({
   ...props
 }: SideBarProps & { ref?: React.Ref<HTMLElement> }) {
   return (
-    <aside className={`h-full ${className}`} ref={ref} {...props}>
+    <aside className={cn("h-full", className)} ref={ref} {...props}>
       <MenuBar>
         {navItems.map((item) => (
           <NavLink
