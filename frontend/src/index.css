@@ -3,8 +3,7 @@
 @theme {
   --color-background: rgb(248 250 252);
   --color-primary: var(--color-blue-600);
-  --color-primary-foreground: var(--color-blue-50);
-
+  
   --color-primary-50: var(--color-blue-50);
   --color-primary-100: var(--color-blue-100);
   --color-primary-200: var(--color-blue-200);
@@ -16,6 +15,9 @@
   --color-primary-800: var(--color-blue-800);
   --color-primary-900: var(--color-blue-900);
   --color-primary-950: var(--color-blue-950);
+  --color-primary-foreground: var(--color-blue-50);
+
+  --color-sidebar-and-header-background: rgb(254 254 254);
 
   --font-primary: "Montserrat", Arial, sans-serif;
   --font-secondary: var(--font-sans);
