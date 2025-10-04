@@ -6,6 +6,7 @@ export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
 function Header({
   logo,
   logoWidth,
+  children,
   className = "",
   ref,
   ...props
@@ -19,6 +20,8 @@ function Header({
       <div className={`${logoWidth} flex p-4 align-middle justify-center-safe`}>
         {typeof logo === "string" ? <img src={logo} alt="Logo" /> : logo}
       </div>
+
+      {children}
     </header>
   );
 }
