@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 import SideBar from "./features/ui/sidebar/Sidebar";
 import { ChartNoAxesCombined, FolderGit2, GitMerge, House } from "lucide-react";
 import Header from "./features/ui/header/Header";
-import experionLogo from './assets/experionlogo.svg';
+import experionLogo from "./assets/experionlogo.svg";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
@@ -17,9 +17,16 @@ function App() {
   return (
     <>
       <div className="flex flex-col h-screen">
-        <Header className={`${headerWidth} bg-sidebar-and-header-background`} logo={experionLogo} logoWidth={sideBarWidth} />
+        <Header
+          className={`${headerWidth} bg-sidebar-and-header-background`}
+          logo={experionLogo}
+          logoWidth={sideBarWidth}
+        />
         <div className="flex h-full">
-          <SideBar navItems={navItems} className={`${sideBarWidth} bg-sidebar-and-header-background`} />
+          <SideBar
+            navItems={navItems}
+            className={`${sideBarWidth} bg-sidebar-and-header-background`}
+          />
           <main className="flex-1 bg-background ">
             <Outlet />
           </main>
