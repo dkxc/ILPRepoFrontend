@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [tailwindcss(), reactRouter()],
   css: {
     modules: {
-      localsConvention: 'camelCase',
+      localsConvention: "camelCase",
     },
   },
   // Ensure node_modules CSS can be imported
   optimizeDeps: {
-    include: ['@mantine/core', '@mantine/hooks'],
+    include: ["@mantine/core", "@mantine/hooks"],
   },
 });
