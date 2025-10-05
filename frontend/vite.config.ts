@@ -5,4 +5,13 @@ import { reactRouter } from "@react-router/dev/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter()],
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+    },
+  },
+  // Ensure node_modules CSS can be imported
+  optimizeDeps: {
+    include: ['@mantine/core', '@mantine/hooks'],
+  },
 });
