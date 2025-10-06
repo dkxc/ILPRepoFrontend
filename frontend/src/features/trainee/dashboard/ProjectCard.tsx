@@ -1,28 +1,42 @@
+import { type Project } from "../types/Project.types";
 import * as Card from "../../ui/card";
 import Button from "../../ui/Button";
 
-export interface ProjectCardProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+import { cn } from "../../../lib/utils";
+
+export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
+    project: Project
+}
 
 function ProjectCard({
-  className,
-  ref,
-  ...props
+    project,
+    className,
+    ref,
+    ...props
 }: ProjectCardProps & { ref?: React.Ref<HTMLDivElement> }) {
-  return (
-    <Card.Card className={className} ref={ref} {...props}>
-      <Card.CardHeader>
-        <Card.CardTitle>Test Total</Card.CardTitle>
-        <Card.CardDescription>22.22% last year</Card.CardDescription>
-      </Card.CardHeader>
-      <Card.CardContent>
-        <div className="text-4xl font-bold">123,456</div>
-      </Card.CardContent>
-      <Card.CardFooter>
-        <Button size="sm">View Details</Button>
-      </Card.CardFooter>
-    </Card.Card>
-  );
+    return (
+        <Card.Card className={cn("bg-sidebar-and-header-background col-span-2 flex align-middle justify-between gap-4", className)} ref={ref} {...props}>
+            <div>
+            <Card.CardHeader>
+                <Card.CardTitle>{project.title}</Card.CardTitle>
+                <Card.CardDescription>Team {project.team.number}</Card.CardDescription>
+            </Card.CardHeader>
+
+            <Card.CardContent>
+                <div>Status: {project.status}</div>
+                <div>Technology Used: </div>
+                <div>No. of Team Members: {project.team.members.length}</div>
+            </Card.CardContent>
+            
+            <Card.CardFooter>
+                <Button size="sm" className="rounded-2xl px-4">Upload Documents</Button>
+            </Card.CardFooter>
+            </div>
+            <div className="flex-1">
+                { /* Pie Chart */ }
+            </div>
+        </Card.Card>
+    )
 }
 
 export default ProjectCard;
