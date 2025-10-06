@@ -26,7 +26,7 @@ function App() {
   const headerWidth = "h-16 max-h-16";
   return (
     <>
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-screen font-secondary text-text-base">
         <Header
           className={`${headerWidth} bg-sidebar-and-header-background`}
           logo={experionLogo}
