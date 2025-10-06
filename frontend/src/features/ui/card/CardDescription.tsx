@@ -13,7 +13,7 @@ function CardDescription({
   ...props
 }: CardDescriptionProps & { ref?: React.Ref<HTMLParagraphElement> }) {
   const Comp = asChild ? Slot : "p";
-  return <Comp className={cn("text-sm", className)} ref={ref} {...props} />;
+  return <Comp className={cn("text-sm font-medium", className)} ref={ref} {...props} />;
 }
 
 export default CardDescription;

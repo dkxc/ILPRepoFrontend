@@ -12,7 +12,7 @@ function CardContent({
   ...props
 }: CardContentProps & { ref?: React.Ref<HTMLDivElement> }) {
   const Comp = asChild ? Slot : "div";
-  return <Comp className={cn("p-6 pt-0", className)} ref={ref} {...props} />;
+  return <Comp className={cn("p-6 pt-0 font-normal", className)} ref={ref} {...props} />;
 }
 
 export default CardContent;
