@@ -1,5 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "../../../lib/utils";
 
 /**
  * Unlike other components, Header components are fixed.
@@ -34,7 +35,7 @@ function HeaderItem({
   const Comp = asChild ? Slot : "a";
   return (
     <Comp
-      className={headerItemVariants({ variant, className })}
+      className={cn(headerItemVariants({ variant }), className)}
       ref={ref}
       {...props}
     />
