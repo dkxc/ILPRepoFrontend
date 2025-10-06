@@ -69,11 +69,10 @@ export interface DataTableProps<T = any> {
   rowStyle?: React.CSSProperties;
   hideRowBorders?: boolean;
   // Table header section (optional)
-  showHeaderSection?: boolean;     // enable/disable the top header bar
-  headerTitle?: string;            // text for the header (like "All Trainees")
+  showHeaderSection?: boolean; // enable/disable the top header bar
+  headerTitle?: string; // text for the header (like "All Trainees")
   headerTitleStyle?: React.CSSProperties; // optional custom style for the title
-  headerRightContent?: ReactNode;  // allow user to inject extra actions (e.g. add button)
-
+  headerRightContent?: ReactNode; // allow user to inject extra actions (e.g. add button)
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -111,7 +110,6 @@ export default function DataTable<T extends Record<string, any>>({
   headerTitle = "Table",
   headerTitleStyle,
   headerRightContent,
-
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [filterValue, setFilterValue] = useState<string | null>(null);
@@ -217,9 +215,9 @@ export default function DataTable<T extends Record<string, any>>({
     : 1;
   const paginatedData = enablePagination
     ? filteredData.slice(
-      (activePage - 1) * currentPageSize,
-      activePage * currentPageSize,
-    )
+        (activePage - 1) * currentPageSize,
+        activePage * currentPageSize,
+      )
     : filteredData;
 
   return (
@@ -306,7 +304,10 @@ export default function DataTable<T extends Record<string, any>>({
                         data={options}
                         value={multipleFilters[key] || null}
                         onChange={(value) =>
-                          setMultipleFilters((prev) => ({ ...prev, [key]: value }))
+                          setMultipleFilters((prev) => ({
+                            ...prev,
+                            [key]: value,
+                          }))
                         }
                         clearable
                         style={{ width: 180 }}
@@ -327,8 +328,6 @@ export default function DataTable<T extends Record<string, any>>({
                   style={{ width: 200 }}
                 />
               )}
-
-              
             </div>
           </div>
 
@@ -336,7 +335,6 @@ export default function DataTable<T extends Record<string, any>>({
           <div className="h-0 border-t border-gray-300 pb-3"></div>
         </>
       )}
-
 
       {/* Selection info */}
       {enableSelection && selectedRows.length > 0 && (
