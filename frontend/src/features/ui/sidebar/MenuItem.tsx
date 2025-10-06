@@ -1,5 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "../../../lib/utils";
 
 /**
  * Unlike other components, Sidebar components are fixed.
@@ -35,7 +36,7 @@ function MenuItem({
   const Comp = asChild ? Slot : "span";
   return (
     <Comp
-      className={menuItemVariants({ isActive, className })}
+      className={cn(menuItemVariants({ isActive }), className)}
       ref={ref}
       {...props}
     />
