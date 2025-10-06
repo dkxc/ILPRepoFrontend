@@ -27,7 +27,7 @@ const adminNavItems = [
   { to: "/batches", label: "Batches", icon: GitMerge },
   { to: "/projects", label: "Projects", icon: FolderGit2 },
   { to: "/documents", label: "Documents", icon: ChartNoAxesCombined },
-  { to: "/adminres", label: "Results", icon: ChartNoAxesCombined }
+  { to: "/adminres", label: "Results", icon: ChartNoAxesCombined },
 ];
 
 function App() {
@@ -35,19 +35,18 @@ function App() {
   const headerWidth = "h-16 max-h-16";
   // TODO: Remove this after auth
   const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const handleToggle = () => {
     const nextIsAdmin = !isAdmin;
-    setIsAdmin(nextIsAdmin)
-      
-      if (nextIsAdmin) {
-        navigate("/admindash");
-      } else {
-        navigate("/");
-      }
-  }
-  return (
+    setIsAdmin(nextIsAdmin);
 
+    if (nextIsAdmin) {
+      navigate("/admindash");
+    } else {
+      navigate("/");
+    }
+  };
+  return (
     <>
       <div className="flex flex-col h-screen font-secondary text-text-base">
         <Header
@@ -56,17 +55,17 @@ function App() {
           logoWidth={sideBarWidth}
         >
           <HeaderBar>
-            { /* TODO: Remove this after auth */}
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="admin-toggle"
-                  checked={isAdmin}
-                  onChange={handleToggle}
-                  className="mr-2"
-                />
-                <label htmlFor="admin-toggle">Admin View</label>
-                </div>
+            {/* TODO: Remove this after auth */}
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="admin-toggle"
+                checked={isAdmin}
+                onChange={handleToggle}
+                className="mr-2"
+              />
+              <label htmlFor="admin-toggle">Admin View</label>
+            </div>
             <SearchBar placeholder="Search for batches, projects & trainees" />
             <HeaderItem aria-label="Notifications">
               <Bell className="size-4" />
@@ -77,7 +76,7 @@ function App() {
           </HeaderBar>
         </Header>
         <div className="flex h-full">
-          { /* TODO: Remove this after auth */}
+          {/* TODO: Remove this after auth */}
           <SideBar
             navItems={isAdmin ? adminNavItems : navItems}
             className={`${sideBarWidth} bg-sidebar-and-header-background`}

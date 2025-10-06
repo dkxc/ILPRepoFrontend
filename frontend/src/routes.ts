@@ -11,6 +11,6 @@ export default [
     route("batches", "./pages/admin/Batches.tsx"),
     route("projects", "./pages/admin/Projects.tsx"),
     route("documents", "./pages/admin/Documents.tsx"),
-    route("adminres", "./pages/admin/Results.tsx")
+    route("adminres", "./pages/admin/Results.tsx"),
   ]),
 ] satisfies RouteConfig;
