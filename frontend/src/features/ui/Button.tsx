@@ -1,5 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "../../lib/utils";
 
 /**
  * Referenced from https://github.com/shadcn-ui/ui/blob/main/apps/www/registry/default/ui/button.tsx
@@ -44,7 +45,7 @@ function Button({
   return (
     <>
       <Comp
-        className={buttonVariants({ variant, size, className })}
+        className={cn(buttonVariants({ variant, size }), className)}
         ref={ref}
         {...props}
       />
