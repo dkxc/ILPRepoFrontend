@@ -1,6 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { MantineProvider } from "@mantine/core";
-import "@mantine/core/styles.css";
+// import "@mantine/core/styles.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
