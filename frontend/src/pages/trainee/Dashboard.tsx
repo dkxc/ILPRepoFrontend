@@ -17,10 +17,10 @@ function Dashboard() {
         "Nandhu Krishna",
         "Mohammed Aiman",
         "Alex Joseph Pius",
-      ]
+      ],
     },
-    progress: 60
-  }
+    progress: 60,
+  };
 
   return (
     <>
