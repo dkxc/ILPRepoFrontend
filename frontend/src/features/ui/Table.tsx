@@ -247,34 +247,36 @@ export default function DataTable<T extends Record<string, any>>({
     : filteredData;
 
   return (
-    <Stack gap="md">
+    <Stack gap="md" className="bg-white ml-10 mr-10">
       {/* Search and Filter Bar */}
       {/* ✅ Header Section with Title + Search/Filters */}
       {showHeaderSection && (
         <>
-          <div className="flex items-center justify-between  pl-4 pr-4">
+          <div className="flex items-center justify-between ml-5 mr-5 pt-4">
             {/* Left side: Header Title */}
             <h2
               className="text-lg font-medium"
               style={{
                 color: "#565E6C",
                 ...(headerTitleStyle || {}),
+                // paddingLeft:"20px"
+                
               }}
             >
               {headerTitle || "Table"}
             </h2>
 
             {/* Right side: Search + Filters + Custom content */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center ">
               {/* Allow external content like buttons */}
               {headerRightContent}
               {/* Search */}
               {enableSearch && (
                 <div
-                  className="relative flex h-10 items-center rounded-md transition-all duration-300 ease-in-out cursor-pointer"
+                  className="relative flex  items-center rounded-md transition-all duration-300 ease-in-out cursor-pointer"
                   style={{
                     width: searchExpanded ? "250px" : "40px",
-                    backgroundColor: searchExpanded ? "#F3F4F6" : "transparent",
+                    // backgroundColor: searchExpanded ? "#F3F4F6" : "transparent",
                   }}
                   onMouseEnter={() => setSearchExpanded(true)}
                   onMouseLeave={() => {
@@ -405,7 +407,7 @@ export default function DataTable<T extends Record<string, any>>({
           </div>
 
           {/* Divider below header */}
-          {/* <div className="h-0 border-t border-gray-300 pb-3"></div> */}
+          <div className="h-0 border-t border-gray-300 ml-5 mr-5"></div>
         </>
       )}
 
@@ -419,7 +421,7 @@ export default function DataTable<T extends Record<string, any>>({
       {/* Table */}
       <Paper withBorder={false} p={withPadding ? "md" : 0}>
         <Box style={{ overflowX: "auto",
-        borderTop: "2px solid #E5E7EB",  
+        // borderTop: "2px solid #E5E7EB",  
 
         }}>
           <Table
@@ -458,7 +460,10 @@ export default function DataTable<T extends Record<string, any>>({
                       key={column.key}
                       style={{
                         width: column.width,
+                        fontWeight:'700',
+                        color:"#565E6C",
                         textAlign: column.align || "left",
+                         paddingLeft:"20px",
                         cursor:
                           column.sortable && enableSort ? "pointer" : "default",
                       }}
@@ -509,7 +514,9 @@ export default function DataTable<T extends Record<string, any>>({
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        style={{ textAlign: column.align || "left" }}
+                        style={{ textAlign: column.align || "left" ,
+                          paddingLeft:"20px"
+                        }}
                       >
                         {column.render
                           ? column.render(row[column.key], row, index)

@@ -118,9 +118,9 @@ export default function Projects() {
     };
 
     const columns: ColumnDef<Project>[] = [
-        { key: 'name', header: 'Name', sortable: true, width: '20%' },
-        { key: 'batch', header: 'Batch', sortable: true, width: '20%' },
-        { key: 'teamLead', header: 'Team Lead', sortable: true, width: '20%' },
+        { key: 'name', header: 'Name', sortable: true, width: '25%' },
+        { key: 'batch', header: 'Batch', sortable: true, width: '25%' },
+        { key: 'teamLead', header: 'Team Lead', sortable: true, width: '25%' },
         {
             key: 'status',
             header: 'Status',
@@ -170,13 +170,14 @@ export default function Projects() {
                 </div>
                 
             </div>
-            <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6">
+            <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w">
                 <ProjectCard type="all" title="All Projects" value={10} />
                 <ProjectCard type="inProgress" title="Projects In Progress" value={1} />
                 <ProjectCard type="live" title="Live Projects" value={8} />
                 <ProjectCard type="notLive" title="Not Live Projects" value={1} />
             </div>
-            <DataTable
+            <div className='bg'>
+                <DataTable
                 columns={columns}
                 data={filteredData}
                 showHeaderSection={true}
@@ -203,7 +204,7 @@ export default function Projects() {
                 rowStyle={{
                     fontSize: "16px",
                     height: "56px",
-                    padding: "12px 0",
+                    // padding: "12px 0",
                     lineHeight: "1",
                     // borderBottom: "1px solid #E5E7EB",
                 }}
@@ -214,6 +215,8 @@ export default function Projects() {
                     background: "#F8F9FA"
                 }}
             />
+            </div>
+            
         </>
     );
 }
