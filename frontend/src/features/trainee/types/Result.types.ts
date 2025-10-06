@@ -1,6 +1,9 @@
 // types/Result.ts
 
-export type Phase = "Tech Fundamentals" | "Frontend Development" | "Backend Development";
+export type Phase =
+  | "Tech Fundamentals"
+  | "Frontend Development"
+  | "Backend Development";
 
 export interface Feedback {
   conceptualClarity: string;

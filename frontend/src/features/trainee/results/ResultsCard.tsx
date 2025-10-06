@@ -6,11 +6,11 @@ interface ResultCardProps {
   data: PhaseData;
 }
 
-const FeedbackCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({
-  icon,
-  title,
-  description,
-}) => {
+const FeedbackCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}> = ({ icon, title, description }) => {
   return (
     <Card.Card className="bg-white p-5 border border-gray-200">
       <div className="flex items-start gap-3">
@@ -61,7 +61,10 @@ const ResultCard: React.FC<ResultCardProps> = ({ data }) => {
           </div>
           <ul className="space-y-2">
             {data.strengths.map((strength, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+              <li
+                key={index}
+                className="flex items-start gap-2 text-sm text-gray-700"
+              >
                 <span className="text-green-500 mt-0.5">●</span>
                 <span>{strength}</span>
               </li>
@@ -73,11 +76,16 @@ const ResultCard: React.FC<ResultCardProps> = ({ data }) => {
         <Card.Card className="bg-white p-6 border border-gray-200">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-            <h3 className="text-base font-semibold text-gray-900">Areas for Improvement</h3>
+            <h3 className="text-base font-semibold text-gray-900">
+              Areas for Improvement
+            </h3>
           </div>
           <ul className="space-y-2">
             {data.improvements.map((improvement, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+              <li
+                key={index}
+                className="flex items-start gap-2 text-sm text-gray-700"
+              >
                 <span className="text-yellow-500 mt-0.5">●</span>
                 <span>{improvement}</span>
               </li>
