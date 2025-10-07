@@ -6,7 +6,7 @@ import {
   useEffect,
 } from "react";
 import { Upload, Download } from "lucide-react";
-import ExcelJS from "exceljs";
+import * as XLSX from "xlsx";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 
 interface ProjectData {
@@ -81,24 +81,23 @@ export default function CreateProject() {
 
   const parseExcelFile = async (file: File): Promise<void> => {
     try {
-      const buffer = await file.arrayBuffer();
-      const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(buffer);
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
 
-      const worksheet = workbook.worksheets[0];
-      const parsedProjects: ProjectData[] = [];
-
-      // Assuming first row is the header
-      worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return; // Skip header row
-
-        parsedProjects.push({
-          projectName: row.getCell(1).text || "",
-          teamLead: row.getCell(2).text || "",
-          scrumMaster: row.getCell(3).text || "",
-          teamMembers: row.getCell(4).text || "",
-        });
+      // Convert to JSON
+      const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
+        defval: "",
       });
+
+      // Map rows to ProjectData structure
+      const parsedProjects: ProjectData[] = jsonData.map((row) => ({
+        projectName: row["Project Name"] || "",
+        teamLead: row["Team Lead"] || "",
+        scrumMaster: row["Scrum Master"] || "",
+        teamMembers: row["Team Members"] || "",
+      }));
 
       setProjectsData(parsedProjects);
     } catch (error) {
@@ -175,48 +174,22 @@ export default function CreateProject() {
     setProjectsData([]);
   };
 
-  const handleDownloadTemplate = async (): Promise<void> => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Projects");
-
-    worksheet.columns = [
-      { header: "Project Name", key: "projectName", width: 25 },
-      { header: "Team Lead", key: "teamLead", width: 20 },
-      { header: "Scrum Master", key: "scrumMaster", width: 20 },
-      { header: "Team Members", key: "teamMembers", width: 50 },
+  const handleDownloadTemplate = (): void => {
+    const sampleData = [
+      {
+        "Project Name": "ILP Repo Project",
+        "Team Lead": "Alex Jose Philip",
+        "Scrum Master": "Nino Jagadish",
+        "Team Members":
+          "Carol George, Maria Mathew, Jacob Holmes, Garvin Haines",
+      },
     ];
 
-    worksheet.addRows([
-      {
-        projectName: "ILP Repo Project",
-        teamLead: "Alex Jose Philip",
-        scrumMaster: "Nino Jagadish",
-        teamMembers: "Carol George, Maria Mathew, Jacob Holmes, Garvin Haines",
-      },
-      // {
-      //     projectName: "ILP 2025-26 Batch 7",
-      //     teamLead: "Amal George Koder",
-      //     scrumMaster: "Kavya S",
-      //     teamMembers: "Carol George, Maria Mathew, Jacob Holmes, Garvin Haines",
-      // },
-      // {
-      //     projectName: "ILP 2025-26 Batch 8",
-      //     teamLead: "John Doe",
-      //     scrumMaster: "Mary Catherine",
-      //     teamMembers: "Carol George, Maria Mathew, Jacob Holmes, Garvin Haines",
-      // },
-    ]);
+    const worksheet = XLSX.utils.json_to_sheet(sampleData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
 
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "project_template.xlsx";
-    a.click();
-    window.URL.revokeObjectURL(url);
+    XLSX.writeFile(workbook, "project_template.xlsx");
   };
 
   return (
