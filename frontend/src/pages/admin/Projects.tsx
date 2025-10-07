@@ -94,7 +94,6 @@ export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number | string;
 }
 
-
 const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
   ({ className, type, title, value, ...props }, ref) => {
     const icon = logos[type];
@@ -281,7 +280,7 @@ export default function Projects() {
   };
   const handleRowClick = (row: Project) => {
     // console.log("Clicked project:", row);
-  }
+  };
   const columns: ColumnDef<Project>[] = [
     { key: "name", header: "Name", sortable: true, width: "25%" },
     { key: "batch", header: "Batch", sortable: true, width: "25%" },
@@ -329,7 +328,10 @@ export default function Projects() {
   return (
     <>
       <div className="flex items-center justify-between mt-10">
-        <h1 className="text-2xl font-bold ml-10 text-[#565E6C] font-primary" style={{ color: "#565E6C" }}>
+        <h1
+          className="text-2xl font-bold ml-10 text-[#565E6C] font-primary"
+          style={{ color: "#565E6C" }}
+        >
           Projects
         </h1>
         <div className="pr-6 mr-6">
@@ -343,10 +345,30 @@ export default function Projects() {
         </div>
       </div>
       <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w ml-4">
-        <ProjectCard type="all" title="All Projects" value={10} className="text-sm w-60 h-16" />
-        <ProjectCard type="inProgress" title="Projects In Progress" value={1} className="text-sm w-60 h-16" />
-        <ProjectCard type="live" title="Live Projects" value={8} className="text-sm w-60 h-16" />
-        <ProjectCard type="notLive" title="Not Live Projects" value={1} className="text-sm w-60 h-16" />
+        <ProjectCard
+          type="all"
+          title="All Projects"
+          value={10}
+          className="text-sm w-60 h-16"
+        />
+        <ProjectCard
+          type="inProgress"
+          title="Projects In Progress"
+          value={1}
+          className="text-sm w-60 h-16"
+        />
+        <ProjectCard
+          type="live"
+          title="Live Projects"
+          value={8}
+          className="text-sm w-60 h-16"
+        />
+        <ProjectCard
+          type="notLive"
+          title="Not Live Projects"
+          value={1}
+          className="text-sm w-60 h-16"
+        />
       </div>
       <div className="bg">
         <DataTable

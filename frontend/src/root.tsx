@@ -1,7 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { MantineProvider } from "@mantine/core";
 
-
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
