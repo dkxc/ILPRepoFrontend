@@ -1,4 +1,6 @@
 import { useRef, useState, type ReactNode } from "react";
+import { DatePickerInput } from "@mantine/dates";
+import "@mantine/core/styles.css";
 import {
   Table,
   Badge,
@@ -73,6 +75,10 @@ export interface DataTableProps<T = any> {
   headerTitle?: string; // text for the header (like "All Trainees")
   headerTitleStyle?: React.CSSProperties; // optional custom style for the title
   headerRightContent?: ReactNode; // allow user to inject extra actions (e.g. add button)
+  // Date Filter Options
+  enableDateFilter?: boolean;
+  dateFilterColumn?: string; // which column to apply it on
+
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -110,6 +116,8 @@ export default function DataTable<T extends Record<string, any>>({
   headerTitle = "Table",
   headerTitleStyle,
   headerRightContent,
+  enableDateFilter = false,
+  dateFilterColumn,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [filterValue, setFilterValue] = useState<string | null>(null);
@@ -196,6 +204,24 @@ export default function DataTable<T extends Record<string, any>>({
       });
     });
   }
+  const [dateFilter, setDateFilter] = useState<{ from: Date | null; to: Date | null }>({
+    from: null,
+    to: null,
+  });
+
+
+  if (enableDateFilter && dateFilterColumn && (dateFilter.from || dateFilter.to)) {
+    filteredData = filteredData.filter((row) => {
+      const cellValue = row[dateFilterColumn];
+      if (!cellValue) return false;
+      const rowDate = new Date(cellValue);
+      if (dateFilter.from && rowDate < dateFilter.from) return false;
+      if (dateFilter.to && rowDate > dateFilter.to) return false;
+      return true;
+    });
+  }
+
+
 
   // Apply sorting
   if (enableSort && sortBy) {
@@ -215,40 +241,42 @@ export default function DataTable<T extends Record<string, any>>({
     : 1;
   const paginatedData = enablePagination
     ? filteredData.slice(
-        (activePage - 1) * currentPageSize,
-        activePage * currentPageSize,
-      )
+      (activePage - 1) * currentPageSize,
+      activePage * currentPageSize,
+    )
     : filteredData;
 
   return (
-    <Stack gap="md">
+    <Stack gap="md" className="bg-white ml-10 mr-10">
       {/* Search and Filter Bar */}
       {/* ✅ Header Section with Title + Search/Filters */}
       {showHeaderSection && (
         <>
-          <div className="flex items-center justify-between pt-4 pb-2">
+          <div className="flex items-center justify-between ml-5 mr-5 pt-4">
             {/* Left side: Header Title */}
             <h2
               className="text-lg font-medium"
               style={{
                 color: "#565E6C",
                 ...(headerTitleStyle || {}),
+                // paddingLeft:"20px"
+                
               }}
             >
               {headerTitle || "Table"}
             </h2>
 
             {/* Right side: Search + Filters + Custom content */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center ">
               {/* Allow external content like buttons */}
               {headerRightContent}
               {/* Search */}
               {enableSearch && (
                 <div
-                  className="relative flex h-10 items-center rounded-md transition-all duration-300 ease-in-out cursor-pointer"
+                  className="relative flex  items-center rounded-md transition-all duration-300 ease-in-out cursor-pointer"
                   style={{
                     width: searchExpanded ? "250px" : "40px",
-                    backgroundColor: searchExpanded ? "#F3F4F6" : "transparent",
+                    // backgroundColor: searchExpanded ? "#F3F4F6" : "transparent",
                   }}
                   onMouseEnter={() => setSearchExpanded(true)}
                   onMouseLeave={() => {
@@ -293,6 +321,53 @@ export default function DataTable<T extends Record<string, any>>({
                 </div>
               )}
               {/* Multiple Filters */}
+              {/* Single Filter */}
+              {/* {enableFilter && !enableMultipleFilters && filterColumn && (
+                <Select
+                  placeholder={filterPlaceholder}
+                  data={filterOptions}
+                  value={filterValue}
+                  onChange={setFilterValue}
+                  clearable
+                  style={{ width: 200 }}
+                />
+              )} */}
+              {/* ✅ Date Range Filter (Independent) */}
+              {enableDateFilter && dateFilterColumn && (
+                <div className="flex gap-2 items-end">
+                  {/* From Date */}
+                  <div className="flex flex-row items-center gap-2">
+                    <label className="text-sm text-gray-700">From: </label>
+                    <input
+                      type="date"
+                      value={dateFilter.from ? dateFilter.from.toISOString().split("T")[0] : ""}
+                      onChange={(e) =>
+                        setDateFilter({
+                          ...dateFilter,
+                          from: e.target.value ? new Date(e.target.value) : null,
+                        })
+                      }
+                      className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                  </div>
+
+                  {/* To Date */}
+                  <div className="flex flex-row items-center gap-2">
+                    <label className="text-sm text-gray-700">To: </label>
+                    <input
+                      type="date"
+                      value={dateFilter.to ? dateFilter.to.toISOString().split("T")[0] : ""}
+                      onChange={(e) =>
+                        setDateFilter({
+                          ...dateFilter,
+                          to: e.target.value ? new Date(e.target.value) : null,
+                        })
+                      }
+                      className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                  </div>
+                </div>
+              )}
               {enableMultipleFilters && (
                 <>
                   {Object.entries(columnFilters).map(([key, options]) => {
@@ -332,7 +407,7 @@ export default function DataTable<T extends Record<string, any>>({
           </div>
 
           {/* Divider below header */}
-          <div className="h-0 border-t border-gray-300 pb-3"></div>
+          <div className="h-0 border-t border-gray-300 ml-5 mr-5"></div>
         </>
       )}
 
@@ -344,8 +419,11 @@ export default function DataTable<T extends Record<string, any>>({
       )}
 
       {/* Table */}
-      <Paper withBorder={withBorder} p={withPadding ? "md" : 0}>
-        <Box style={{ overflowX: "auto" }}>
+      <Paper withBorder={false} p={withPadding ? "md" : 0}>
+        <Box style={{ overflowX: "auto",
+        // borderTop: "2px solid #E5E7EB",  
+
+        }}>
           <Table
             striped={striped}
             highlightOnHover={highlightOnHover}
@@ -382,7 +460,10 @@ export default function DataTable<T extends Record<string, any>>({
                       key={column.key}
                       style={{
                         width: column.width,
+                        fontWeight:'700',
+                        color:"#565E6C",
                         textAlign: column.align || "left",
+                         paddingLeft:"20px",
                         cursor:
                           column.sortable && enableSort ? "pointer" : "default",
                       }}
@@ -433,7 +514,9 @@ export default function DataTable<T extends Record<string, any>>({
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        style={{ textAlign: column.align || "left" }}
+                        style={{ textAlign: column.align || "left" ,
+                          paddingLeft:"20px"
+                        }}
                       >
                         {column.render
                           ? column.render(row[column.key], row, index)
