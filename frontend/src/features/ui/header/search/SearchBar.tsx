@@ -57,7 +57,7 @@ function SearchBar({
     <div
       className={cn(
         "relative flex h-10 items-center-safe rounded-md transition-all duration-300 ease-in-out",
-        isExpanded ? "w-96 bg-primary-700/5" : "w-10",
+        isExpanded ? "w-96 bg-brand-700/5" : "w-10",
         className,
       )}
       onMouseEnter={() => setIsExpanded(true)}

@@ -6,11 +6,11 @@ import { cn } from "../../../lib/utils";
  * Unlike other components, Sidebar components are fixed.
  */
 const menuItemVariants = cva(
-  "relative z-0 inline-flex items-center gap-3 whitespace-nowrap rounded-md p-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer overflow-hidden before:absolute before:inset-0 before:bg-primary before:w-0 before:transition-all before:duration-300 before:-z-10 hover:bg-primary/5 hover:text-primary w-full",
+  "relative z-0 inline-flex items-center gap-3 whitespace-nowrap rounded-md p-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer overflow-hidden before:absolute before:inset-0 before:bg-brand before:w-0 before:transition-all before:duration-300 before:-z-10 hover:bg-brand/5 hover:text-brand w-full",
   {
     variants: {
       isActive: {
-        true: "bg-primary-700/5 text-primary",
+        true: "bg-brand-700/5 text-brand",
         false: "",
       },
     },
