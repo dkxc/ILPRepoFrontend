@@ -15,9 +15,9 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@nivo/pie": "^0.99.0",
     "@mantine/core": "^8.3.3",
     "@mantine/hooks": "^8.3.3",
+    "@nivo/pie": "^0.99.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-router/node": "^7.9.3",
     "@tailwindcss/vite": "^4.1.13",
