@@ -4,9 +4,10 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { Trash2, Users, RefreshCw, CheckCircle, Clock } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import "@mantine/core/styles.css";
+import { useNavigate } from "react-router";
+// import "@mantine/core/styles.css";
 import Button from "../../features/ui/Button";
-// import DataTable, { type ColumnDef } from './DataTable';
+//  import DataTable, { type ColumnDef } from './DataTable';
 
 interface Project {
   name: string;
@@ -93,6 +94,7 @@ export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number | string;
 }
 
+
 const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
   ({ className, type, title, value, ...props }, ref) => {
     const icon = logos[type];
@@ -117,6 +119,8 @@ ProjectCard.displayName = "ProjectCard";
 
 export default function Projects() {
   const [selectedBatch, setSelectedBatch] = useState<string | null>("");
+  const navigate = useNavigate();
+  // const [selectedBatch, setSelectedBatch] = useState<string | null>("");
 
   const projectsData: Project[] = [
     {
@@ -275,7 +279,9 @@ export default function Projects() {
       },
     });
   };
-
+  const handleRowClick = (row: Project) => {
+    // console.log("Clicked project:", row);
+  }
   const columns: ColumnDef<Project>[] = [
     { key: "name", header: "Name", sortable: true, width: "25%" },
     { key: "batch", header: "Batch", sortable: true, width: "25%" },
@@ -322,19 +328,25 @@ export default function Projects() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold" style={{ color: "#565E6C" }}>
+      <div className="flex items-center justify-between mt-10">
+        <h1 className="text-2xl font-bold ml-10 text-[#565E6C] font-primary" style={{ color: "#565E6C" }}>
           Projects
         </h1>
-        <div className="pr-6">
-          <Button size="sm">+ Create Project</Button>
+        <div className="pr-6 mr-6">
+          <Button
+            size="sm"
+            className="font-secondary"
+            onClick={() => navigate("/createProject")}
+          >
+            + Create Project
+          </Button>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w">
-        <ProjectCard type="all" title="All Projects" value={10} />
-        <ProjectCard type="inProgress" title="Projects In Progress" value={1} />
-        <ProjectCard type="live" title="Live Projects" value={8} />
-        <ProjectCard type="notLive" title="Not Live Projects" value={1} />
+      <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w ml-4">
+        <ProjectCard type="all" title="All Projects" value={10} className="text-sm w-60 h-16" />
+        <ProjectCard type="inProgress" title="Projects In Progress" value={1} className="text-sm w-60 h-16" />
+        <ProjectCard type="live" title="Live Projects" value={8} className="text-sm w-60 h-16" />
+        <ProjectCard type="notLive" title="Not Live Projects" value={1} className="text-sm w-60 h-16" />
       </div>
       <div className="bg">
         <DataTable
@@ -361,6 +373,7 @@ export default function Projects() {
           striped={false}
           highlightOnHover={true}
           withBorder={true}
+          onRowClick={handleRowClick}
           rowStyle={{
             fontSize: "16px",
             height: "56px",
