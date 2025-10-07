@@ -15,7 +15,7 @@ function Header({
 }: HeaderProps & { ref?: React.Ref<HTMLElement> }) {
   return (
     <header
-      className={cn("flex align-middle justify-between", className)}
+      className={cn("flex align-middle justify-between shrink-0", className)}
       ref={ref}
       {...props}
     >
