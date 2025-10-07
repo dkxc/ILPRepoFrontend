@@ -19,6 +19,7 @@
   --color-brand-foreground: var(--color-blue-50);
 
   --color-sidebar-and-header-background: rgb(254 254 254);
+  --color-inactive-badge: rgb(240 244 254);
   --color-text-base: rgb(33 36 39);
 
   --font-brand: "Montserrat", Arial, sans-serif;
