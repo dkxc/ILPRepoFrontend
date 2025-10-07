@@ -5,9 +5,7 @@ import { notifications } from "@mantine/notifications";
 import { Trash2, Users, RefreshCw, CheckCircle, Clock } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { useNavigate } from "react-router";
-// import "@mantine/core/styles.css";
 import Button from "../../features/ui/Button";
-//  import DataTable, { type ColumnDef } from './DataTable';
 
 interface Project {
   name: string;
@@ -119,7 +117,6 @@ ProjectCard.displayName = "ProjectCard";
 export default function Projects() {
   const [selectedBatch, setSelectedBatch] = useState<string | null>("");
   const navigate = useNavigate();
-  // const [selectedBatch, setSelectedBatch] = useState<string | null>("");
 
   const projectsData: Project[] = [
     {
@@ -369,6 +366,66 @@ export default function Projects() {
           value={1}
           className="text-sm w-60 h-16"
         />
+
+  const columns: ColumnDef<Project>[] = [
+    { key: "name", header: "Name", sortable: true, width: "25%" },
+    { key: "batch", header: "Batch", sortable: true, width: "25%" },
+    { key: "teamLead", header: "Team Lead", sortable: true, width: "25%" },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      width: "15%",
+      render: (value) => (
+        <Badge
+          color={getStatusColor(value)}
+          variant="light"
+          size="lg"
+          radius="sm"
+        >
+          {value}
+        </Badge>
+      ),
+    },
+    {
+      key: "action",
+      header: "Action",
+      align: "center",
+      width: "10%",
+      render: (_, row) => (
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(row);
+          }}
+        >
+          <Trash2 size={18} />
+        </ActionIcon>
+      ),
+    },
+  ];
+
+  const filteredData = selectedBatch
+    ? projectsData.filter((project) => project.batch === selectedBatch)
+    : projectsData;
+
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold" style={{ color: "#565E6C" }}>
+          Projects
+        </h1>
+        <div className="pr-6">
+          <Button size="sm">+ Create Project</Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w">
+        <ProjectCard type="all" title="All Projects" value={10} />
+        <ProjectCard type="inProgress" title="Projects In Progress" value={1} />
+        <ProjectCard type="live" title="Live Projects" value={8} />
+        <ProjectCard type="notLive" title="Not Live Projects" value={1} />
       </div>
       <div className="bg">
         <DataTable

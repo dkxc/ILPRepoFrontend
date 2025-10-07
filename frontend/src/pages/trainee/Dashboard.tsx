@@ -1,7 +1,15 @@
+import BatchCard from "../../features/trainee/dashboard/BatchCard";
+import DocumentsCard from "../../features/trainee/dashboard/DocumentsCard";
 import ProjectCard from "../../features/trainee/dashboard/ProjectCard";
+import RecentActivityCard from "../../features/trainee/dashboard/RecentActivityCard";
+import ScoreCard from "../../features/trainee/dashboard/ScoreCard";
+import WelcomeHeader from "../../features/trainee/dashboard/WelcomeHeader";
+import type { Batch } from "../../features/trainee/types/Batch.types";
+import type { TraineeDocument } from "../../features/trainee/types/TraineeDocument.types";
 import type { Project } from "../../features/trainee/types/Project.types";
 
 function Dashboard() {
+  const firstName = "Name";
   const project: Project = {
     id: 21231,
     title: "ILP Repo",
@@ -22,10 +30,41 @@ function Dashboard() {
     progress: 60,
   };
 
+  const batch: Batch = {
+    id: 12345,
+    title: "ILP 2025-26 Batch 1",
+    type: "Associate Software Developer Training",
+    startDate: new Date(2025, 7, 4),
+    endDate: new Date(2025, 11, 9),
+    day: 23,
+  };
+
+  const documents: TraineeDocument[] = [
+    {
+      id: 1,
+      title: "JS Module Test File",
+      uploadDate: new Date(2025, 7, 12, 11, 11, 11),
+      type: "xlsx",
+      url: "https://example.com/",
+    },
+    {
+      id: 2,
+      title: "BRD Template",
+      uploadDate: new Date(2024, 1, 1, 12, 11, 11),
+      type: "pdf",
+      url: "https://github.com/",
+    },
+  ];
+
   return (
     <>
-      <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4">
-        <ProjectCard project={project} />
+      <WelcomeHeader className="pt-6" firstName={firstName} />
+      <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-6">
+        <ProjectCard className="col-span-4" project={project} />
+        <BatchCard className="col-span-2" batch={batch} />
+        <ScoreCard className="col-span-2" project={project} />
+        <DocumentsCard className="col-span-2" documents={documents} />
+        <RecentActivityCard className="col-span-2" project={project} />
       </div>
     </>
   );
