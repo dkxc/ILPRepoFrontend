@@ -48,7 +48,7 @@ function App() {
   };
   return (
     <>
-      <div className="flex flex-col h-screen font-secondary text-text-base">
+      <div className="flex flex-col h-screen font-secondary text-text-base overflow-hidden">
         <Header
           className={`${headerWidth} bg-sidebar-and-header-background`}
           logo={experionLogo}
@@ -75,13 +75,13 @@ function App() {
             </HeaderItem>
           </HeaderBar>
         </Header>
-        <div className="flex h-full">
+        <div className="flex grow min-h-0">
           {/* TODO: Remove this after auth */}
           <SideBar
             navItems={isAdmin ? adminNavItems : navItems}
             className={`${sideBarWidth} bg-sidebar-and-header-background`}
           />
-          <main className="flex-1 bg-background ">
+          <main className="flex-1 bg-background overflow-y-auto">
             <Outlet />
           </main>
         </div>
