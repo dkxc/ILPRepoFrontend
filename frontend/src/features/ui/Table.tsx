@@ -78,7 +78,6 @@ export interface DataTableProps<T = any> {
   // Date Filter Options
   enableDateFilter?: boolean;
   dateFilterColumn?: string; // which column to apply it on
-
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -204,13 +203,19 @@ export default function DataTable<T extends Record<string, any>>({
       });
     });
   }
-  const [dateFilter, setDateFilter] = useState<{ from: Date | null; to: Date | null }>({
+  const [dateFilter, setDateFilter] = useState<{
+    from: Date | null;
+    to: Date | null;
+  }>({
     from: null,
     to: null,
   });
 
-
-  if (enableDateFilter && dateFilterColumn && (dateFilter.from || dateFilter.to)) {
+  if (
+    enableDateFilter &&
+    dateFilterColumn &&
+    (dateFilter.from || dateFilter.to)
+  ) {
     filteredData = filteredData.filter((row) => {
       const cellValue = row[dateFilterColumn];
       if (!cellValue) return false;
@@ -220,8 +225,6 @@ export default function DataTable<T extends Record<string, any>>({
       return true;
     });
   }
-
-
 
   // Apply sorting
   if (enableSort && sortBy) {
@@ -241,9 +244,9 @@ export default function DataTable<T extends Record<string, any>>({
     : 1;
   const paginatedData = enablePagination
     ? filteredData.slice(
-      (activePage - 1) * currentPageSize,
-      activePage * currentPageSize,
-    )
+        (activePage - 1) * currentPageSize,
+        activePage * currentPageSize,
+      )
     : filteredData;
 
   return (
@@ -260,7 +263,6 @@ export default function DataTable<T extends Record<string, any>>({
                 color: "#565E6C",
                 ...(headerTitleStyle || {}),
                 // paddingLeft:"20px"
-                
               }}
             >
               {headerTitle || "Table"}
@@ -340,11 +342,17 @@ export default function DataTable<T extends Record<string, any>>({
                     <label className="text-sm text-gray-700">From: </label>
                     <input
                       type="date"
-                      value={dateFilter.from ? dateFilter.from.toISOString().split("T")[0] : ""}
+                      value={
+                        dateFilter.from
+                          ? dateFilter.from.toISOString().split("T")[0]
+                          : ""
+                      }
                       onChange={(e) =>
                         setDateFilter({
                           ...dateFilter,
-                          from: e.target.value ? new Date(e.target.value) : null,
+                          from: e.target.value
+                            ? new Date(e.target.value)
+                            : null,
                         })
                       }
                       className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -356,7 +364,11 @@ export default function DataTable<T extends Record<string, any>>({
                     <label className="text-sm text-gray-700">To: </label>
                     <input
                       type="date"
-                      value={dateFilter.to ? dateFilter.to.toISOString().split("T")[0] : ""}
+                      value={
+                        dateFilter.to
+                          ? dateFilter.to.toISOString().split("T")[0]
+                          : ""
+                      }
                       onChange={(e) =>
                         setDateFilter({
                           ...dateFilter,
@@ -420,10 +432,12 @@ export default function DataTable<T extends Record<string, any>>({
 
       {/* Table */}
       <Paper withBorder={false} p={withPadding ? "md" : 0}>
-        <Box style={{ overflowX: "auto",
-        // borderTop: "2px solid #E5E7EB",  
-
-        }}>
+        <Box
+          style={{
+            overflowX: "auto",
+            // borderTop: "2px solid #E5E7EB",
+          }}
+        >
           <Table
             striped={striped}
             highlightOnHover={highlightOnHover}
@@ -460,10 +474,10 @@ export default function DataTable<T extends Record<string, any>>({
                       key={column.key}
                       style={{
                         width: column.width,
-                        fontWeight:'700',
-                        color:"#565E6C",
+                        fontWeight: "700",
+                        color: "#565E6C",
                         textAlign: column.align || "left",
-                         paddingLeft:"20px",
+                        paddingLeft: "20px",
                         cursor:
                           column.sortable && enableSort ? "pointer" : "default",
                       }}
@@ -514,8 +528,9 @@ export default function DataTable<T extends Record<string, any>>({
                     {columns.map((column) => (
                       <td
                         key={column.key}
-                        style={{ textAlign: column.align || "left" ,
-                          paddingLeft:"20px"
+                        style={{
+                          textAlign: column.align || "left",
+                          paddingLeft: "20px",
                         }}
                       >
                         {column.render
