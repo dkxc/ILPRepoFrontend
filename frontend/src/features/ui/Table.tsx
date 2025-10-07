@@ -17,7 +17,7 @@ import {
   Box,
 } from "@mantine/core";
 import { Search, X } from "lucide-react";
-
+import "@mantine/core/styles.css";
 // Column definition type
 export interface ColumnDef<T = any> {
   key: string;

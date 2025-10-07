@@ -1,19 +1,19 @@
 import { useState, forwardRef } from "react";
-import { Badge, ActionIcon, Select } from "@mantine/core";
+import { Badge, ActionIcon } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { Trash2, Users, RefreshCw, CheckCircle, Clock } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
+import { useNavigate } from "react-router";
 import Button from "../../features/ui/Button";
-// import DataTable, { type ColumnDef } from './DataTable';
 
 interface Project {
   name: string;
   batch: string;
   teamLead: string;
   status: "In Progress" | "Live" | "Not Live";
-  startDate: string; // ISO date string - not displayed in table
-  endDate: string; // ISO date string - not displayed in table
+  startDate: string;
+  endDate: string;
 }
 
 // Logo list
@@ -29,9 +29,9 @@ export const logos = {
       <path
         d="M22 27C22 29.7614 24.2386 32 27 32C29.7614 32 32 29.7614 32 27C32 24.2386 29.7614 22 27 22C24.2386 22 22 24.2386 22 27ZM22 27C18.0218 27 14.2064 25.4196 11.3934 22.6066C8.58035 19.7936 7 15.9782 7 12M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12ZM7 12V32"
         stroke="#DEE1E6"
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),
@@ -46,9 +46,9 @@ export const logos = {
       <path
         d="M29.3327 14.3332C28.9251 11.4002 27.5645 8.6826 25.4604 6.599C23.3564 4.51539 20.6256 3.18137 17.6888 2.80242C14.752 2.42348 11.7721 3.02064 9.20802 4.50191C6.64398 5.98318 4.6381 8.2664 3.49935 10.9998M2.66602 4.33317V10.9998H9.33268M2.66602 17.6665C3.07361 20.5995 4.43423 23.3171 6.53828 25.4007C8.64233 27.4843 11.3731 28.8183 14.3099 29.1972C17.2467 29.5762 20.2266 28.979 22.7907 27.4977C25.3547 26.0165 27.3606 23.7333 28.4993 20.9998M29.3327 27.6665V20.9998H22.666"
         stroke="#DEE1E6"
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),
@@ -66,7 +66,6 @@ export const logos = {
       />
     </svg>
   ),
-
   notLive: (
     <svg
       width="34"
@@ -78,9 +77,9 @@ export const logos = {
       <path
         d="M21.5 12.5L12.5 21.5M12.5 12.5L21.5 21.5M32 17C32 25.2843 25.2843 32 17 32C8.71573 32 2 25.2843 2 17C2 8.71573 8.71573 2 17 2C25.2843 2 32 8.71573 32 17Z"
         stroke="#DEDEDE"
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),
@@ -116,6 +115,7 @@ ProjectCard.displayName = "ProjectCard";
 
 export default function Projects() {
   const [selectedBatch, setSelectedBatch] = useState<string | null>("");
+  const navigate = useNavigate();
 
   const projectsData: Project[] = [
     {
@@ -270,9 +270,12 @@ export default function Projects() {
           message: `${project.name} was removed.`,
           color: "red",
         });
-        // Here you can add your delete logic
       },
     });
+  };
+
+  const handleRowClick = (row: Project) => {
+    console.log("Clicked project:", row);
   };
 
   const columns: ColumnDef<Project>[] = [
@@ -321,19 +324,48 @@ export default function Projects() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold" style={{ color: "#565E6C" }}>
+      <div className="flex items-center justify-between mt-10">
+        <h1
+          className="text-2xl font-bold ml-10 text-[#565E6C] font-primary"
+          style={{ color: "#565E6C" }}
+        >
           Projects
         </h1>
-        <div className="pr-6">
-          <Button size="sm">+ Create Project</Button>
+        <div className="pr-6 mr-6 ">
+          <Button
+            size="sm"
+            className="font-secondary"
+            onClick={() => navigate("/createProject")}
+          >
+            + Create Project
+          </Button>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w">
-        <ProjectCard type="all" title="All Projects" value={10} />
-        <ProjectCard type="inProgress" title="Projects In Progress" value={1} />
-        <ProjectCard type="live" title="Live Projects" value={8} />
-        <ProjectCard type="notLive" title="Not Live Projects" value={1} />
+      <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w ml-4">
+        <ProjectCard
+          type="all"
+          title="All Projects"
+          value={15}
+          className="text-sm w-60 h-16"
+        />
+        <ProjectCard
+          type="inProgress"
+          title="Projects In Progress"
+          value={9}
+          className="text-sm w-60 h-16"
+        />
+        <ProjectCard
+          type="live"
+          title="Live Projects"
+          value={4}
+          className="text-sm w-60 h-16"
+        />
+        <ProjectCard
+          type="notLive"
+          title="Not Live Projects"
+          value={2}
+          className="text-sm w-60 h-16"
+        />
       </div>
       <div className="bg">
         <DataTable
@@ -343,7 +375,7 @@ export default function Projects() {
           headerTitle="All Projects"
           headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
           enableFilter={true}
-          filterColumn="batch" // ✅ the key in your data to filter
+          filterColumn="batch"
           filterOptions={[
             "ILP 2025-26 Batch 5",
             "ILP 2025-26 Batch 6",
@@ -360,12 +392,11 @@ export default function Projects() {
           striped={false}
           highlightOnHover={true}
           withBorder={true}
+          onRowClick={handleRowClick}
           rowStyle={{
             fontSize: "16px",
             height: "56px",
-            // padding: "12px 0",
             lineHeight: "1",
-            // borderBottom: "1px solid #E5E7EB",
           }}
           headerStyle={{
             fontWeight: 500,
