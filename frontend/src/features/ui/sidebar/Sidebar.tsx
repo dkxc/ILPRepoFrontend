@@ -21,15 +21,10 @@ function SideBar({
   ...props
 }: SideBarProps & { ref?: React.Ref<HTMLElement> }) {
   return (
-    <aside className={cn("h-full", className)} ref={ref} {...props}>
+    <aside className={cn("h-full shrink-0", className)} ref={ref} {...props}>
       <MenuBar>
         {navItems.map((item) => (
-          <NavLink
-            key={item.to.toString()}
-            to={item.to}
-            end={item.end}
-            viewTransition
-          >
+          <NavLink key={item.to.toString()} to={item.to} end={item.end}>
             {({ isActive }) => (
               <MenuItem isActive={isActive}>
                 <>
