@@ -4,7 +4,6 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { Trash2, Users, RefreshCw, CheckCircle, Clock } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import "@mantine/core/styles.css";
 import Button from "../../features/ui/Button";
 // import DataTable, { type ColumnDef } from './DataTable';
 
