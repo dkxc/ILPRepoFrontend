@@ -11,7 +11,7 @@ function MenuBar({
   return (
     <nav
       ref={ref}
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-2 py-6 px-4", className)}
       {...props}
     >
       {children}

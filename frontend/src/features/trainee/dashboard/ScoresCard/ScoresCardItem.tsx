@@ -22,9 +22,9 @@ function ScoreCardItem({
       {...props}
     >
       <div>
-        <h2 className="font-medium text-2xl">{item.value}</h2>
+        <h2 className="font-medium text-xl">{item.value}</h2>
       </div>
-      <div className="text-sm overflow-hidden">{item.caption}</div>
+      <div className="text-xs overflow-hidden">{item.caption}</div>
     </div>
   );
 }

@@ -14,7 +14,7 @@ function CardHeader({
   const Comp = asChild ? Slot : "div";
   return (
     <Comp
-      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      className={cn("flex flex-col space-y-1.5 p-5", className)}
       ref={ref}
       {...props}
     />

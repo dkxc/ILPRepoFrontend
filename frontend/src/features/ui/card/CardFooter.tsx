@@ -14,7 +14,7 @@ function CardFooter({
   const Comp = asChild ? Slot : "div";
   return (
     <Comp
-      className={cn("flex items-center p-6 pt-0", className)}
+      className={cn("flex items-center p-5 pt-0", className)}
       ref={ref}
       {...props}
     />
