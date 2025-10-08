@@ -1,4 +1,12 @@
-import { Lightbulb, Code, Target, TrendingUp } from "lucide-react";
+import {
+  Lightbulb,
+  Code,
+  Target,
+  TrendingUp,
+  CheckCircle,
+  AlertTriangle,
+  Star,
+} from "lucide-react";
 import * as Card from "../../ui/card";
 import type { PhaseData } from "../types/Result.types";
 
@@ -14,7 +22,7 @@ const FeedbackCard: React.FC<{
   return (
     <Card.Card className="bg-white p-5 border border-gray-200">
       <div className="flex items-start gap-3">
-        <div className="text-gray-600 mt-0.5">{icon}</div>
+        <div className="text-[#2563EB] mt-0.5">{icon}</div>
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-gray-900 mb-1">{title}</h3>
           <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
@@ -28,7 +36,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ data }) => {
   return (
     <div>
       {/* Feedback Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-[#2563EB]">
         <FeedbackCard
           icon={<Lightbulb size={20} />}
           title="Conceptual Clarity"
@@ -56,7 +64,8 @@ const ResultCard: React.FC<ResultCardProps> = ({ data }) => {
         {/* Strengths Card */}
         <Card.Card className="bg-white p-6 border border-gray-200">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            {/* <div className="w-2 h-2 rounded-full bg-green-500"></div> */}
+            <CheckCircle size={18} className="text-green-500" />
             <h3 className="text-base font-semibold text-gray-900">Strengths</h3>
           </div>
           <ul className="space-y-2">
@@ -75,7 +84,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ data }) => {
         {/* Areas for Improvement Card */}
         <Card.Card className="bg-white p-6 border border-gray-200">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+            <Star size={18} className="text-yellow-500" />
             <h3 className="text-base font-semibold text-gray-900">
               Areas for Improvement
             </h3>

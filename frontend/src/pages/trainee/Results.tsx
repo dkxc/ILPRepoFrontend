@@ -107,28 +107,28 @@ function Results() {
             <span className="text-base font-medium text-gray-700">
               Overall Score
             </span>
-            <span className="text-4xl font-bold text-primary-600">
+            <span className="text-4xl font-bold text-brand-600">
               {resultData.overallScore}%
             </span>
           </div>
         </Card.Card>
 
         {/* Phase-wise Feedback Section */}
-        <div className="mb-6">
+        <Card.Card className="bg-white p-4 border border-gray-200 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Phase-wise Feedback
           </h2>
 
           {/* Phase Tabs */}
-          <div className="flex gap-3 mb-6">
+          <div className="flex flex-wrap justify-between mb-6 bg-bg-results-tabs px-3 py-1.5 rounded-lg">
             {resultData.phases.map((phase) => (
               <button
                 key={phase.phaseName}
                 onClick={() => setActivePhase(phase.phaseName)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-16 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
                   phase.phaseName === activePhase
-                    ? "bg-blue-50 text-primary-600 border border-blue-200"
-                    : "text-gray-600 hover:bg-gray-50 border border-transparent"
+                    ? "bg-blue-50 text-brand-600"
+                    : "text-gray-600 hover:bg-gray-100 "
                 }`}
               >
                 {getPhaseIcon(phase.phaseName)}
@@ -139,9 +139,9 @@ function Results() {
 
           {/* Phase Score */}
           <div className="mb-6">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
               <span className="text-base font-medium text-gray-700">Score</span>
-              <span className="text-3xl font-bold text-primary-600">
+              <span className="text-3xl font-bold text-brand-600">
                 {currentPhaseData?.score}%
               </span>
             </div>
@@ -149,7 +149,7 @@ function Results() {
 
           {/* Results Card */}
           {currentPhaseData && <ResultCard data={currentPhaseData} />}
-        </div>
+        </Card.Card>
       </div>
     </div>
   );
