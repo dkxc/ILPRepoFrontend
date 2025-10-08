@@ -1,4 +1,4 @@
-import { ResponsivePie } from '@nivo/pie';
+import { ResponsivePie } from "@nivo/pie";
 
 interface SubmissionRateProps {
   rate?: number;
@@ -12,8 +12,8 @@ function SubmissionRate({
   title = "Submission Rate",
 }: SubmissionRateProps) {
   const completionData = [
-    { id: 'completed', value: rate, color: '#2563EB' },
-    { id: 'remaining', value: 100 - rate, color: '#E5E7EB' },
+    { id: "completed", value: rate, color: "#2563EB" },
+    { id: "remaining", value: 100 - rate, color: "#E5E7EB" },
   ];
 
   return (
@@ -28,14 +28,16 @@ function SubmissionRate({
             padAngle={0.6}
             cornerRadius={2}
             activeOuterRadiusOffset={4}
-            colors={{ datum: 'data.color' }}
+            colors={{ datum: "data.color" }}
             enableArcLabels={false}
             enableArcLinkLabels={false}
             legends={[]}
           />
         </div>
         <div className="flex items-center justify-center mt-2">
-          <span className="text-sm font-semibold text-gray-700">Completed:{rate}%</span>
+          <span className="text-sm font-semibold text-gray-700">
+            Completed:{rate}%
+          </span>
         </div>
       </div>
     </div>

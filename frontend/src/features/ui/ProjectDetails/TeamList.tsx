@@ -37,8 +37,8 @@ export default function TeamList({
   showTitle = true,
 }: TeamListProps) {
   return (
-  <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto">
-  {showTitle && <h2 className="text-base font-semibold mb-6">{title}</h2>}
+    <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto">
+      {showTitle && <h2 className="text-base font-semibold mb-6">{title}</h2>}
       <div className="w-full">
         <DataTable
           columns={columns}

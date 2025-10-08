@@ -40,9 +40,16 @@ function BatchMetadata({
 
   return (
     <>
-  <div className="px-2 mt-5 mb-6 flex items-center gap-3">
-        <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: '#565E6C' }}>{projectName || "ILP Project"}</h1>
-  <span className="px-4 py-1 rounded-full bg-bolder text-blue-700 text-sm font-semibold shadow-sm select-none border border-blue-200">Ongoing</span>
+      <div className="px-2 mt-5 mb-6 flex items-center gap-3">
+        <h1
+          className="text-3xl font-extrabold tracking-tight"
+          style={{ color: "#565E6C" }}
+        >
+          {projectName || "ILP Project"}
+        </h1>
+        <span className="px-4 py-1 rounded-full bg-bolder text-blue-700 text-sm font-semibold shadow-sm select-none border border-blue-200">
+          Ongoing
+        </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 gap-y-4 gap-x-2 rounded-t-lg">
         <div className="flex flex-col items-start px-2 py-2">
@@ -72,7 +79,7 @@ function BatchMetadata({
                 <span
                   key={idx}
                   className="px-3 py-1 rounded-full text-sm font-medium bg-bolder text-blue-700 border border-blue-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                  style={{ boxShadow: '0 1px 4px rgba(37,99,235,0.08)' }}
+                  style={{ boxShadow: "0 1px 4px rgba(37,99,235,0.08)" }}
                 >
                   {stack}
                 </span>
