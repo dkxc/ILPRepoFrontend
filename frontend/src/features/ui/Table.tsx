@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
+import "@mantine/core/styles.css";
 import { DatePickerInput } from "@mantine/dates";
 import {
   Table,
