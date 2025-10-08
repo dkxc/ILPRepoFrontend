@@ -21,6 +21,7 @@
   --color-sidebar-and-header-background: rgb(254 254 254);
   --color-inactive-badge: rgb(240 244 254);
   --color-text-base: rgb(33 36 39);
+  --color-bg-results-tabs: rgb(249 249 249);
 
   --font-brand: "Montserrat", Arial, sans-serif;
   --font-secondary: "Poppins", var(--font-sans);
