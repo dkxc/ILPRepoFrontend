@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { SquarePen, Plus, X, Copy, FolderPen, Users, ChartBarStacked, Link2 } from "lucide-react";
+import {
+  SquarePen,
+  Plus,
+  X,
+  Copy,
+  FolderPen,
+  Users,
+  ChartBarStacked,
+  Link2,
+} from "lucide-react";
 
 interface BatchMetadataProps {
   name: string;
@@ -7,6 +16,7 @@ interface BatchMetadataProps {
   techStack: string[];
   repositoryUrl: string;
   figmaUrl: string;
+  editable?: boolean;
 }
 
 function BatchMetadata({
@@ -15,6 +25,7 @@ function BatchMetadata({
   techStack,
   repositoryUrl,
   figmaUrl,
+  editable = true,
 }: BatchMetadataProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTechStackArr, setEditTechStackArr] = useState<string[]>(techStack);
@@ -27,26 +38,24 @@ function BatchMetadata({
 
   return (
     <>
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 mt-5 gap-y-4 gap-x-2"
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 mt-5 gap-y-4 gap-x-2">
         <div className="flex flex-col items-start px-2 py-2">
           <span className="font-bold mb-2 flex items-center gap-2">
-            <FolderPen className="h-5 w-5" style={{ color: '#7B7575' }} />
+            <FolderPen className="h-5 w-5" style={{ color: "#7B7575" }} />
             Batch
           </span>
           <span className="text-gray-800">{name}</span>
         </div>
         <div className="flex flex-col items-start px-2 py-2">
           <span className="font-bold mb-2 flex items-center gap-2">
-            <Users className="h-5 w-5" style={{ color: '#7B7575' }} />
+            <Users className="h-5 w-5" style={{ color: "#7B7575" }} />
             No of Trainees
           </span>
           <span className="text-gray-800">{trainees}</span>
         </div>
         <div className="flex flex-col items-start px-2 py-2">
           <span className="font-bold mb-2 flex items-center gap-2">
-            <ChartBarStacked className="h-5 w-5" style={{ color: '#7B7575' }} />
+            <ChartBarStacked className="h-5 w-5" style={{ color: "#7B7575" }} />
             Tech Stack
           </span>
           <div className="flex flex-wrap gap-2">
@@ -67,7 +76,7 @@ function BatchMetadata({
         {/* Links placeholder */}
         <div className="flex flex-col items-start px-2 py-2">
           <span className="font-bold mb-2 flex items-center gap-2">
-            <Link2 className="h-5 w-5" style={{ color: '#7B7575' }} />
+            <Link2 className="h-5 w-5" style={{ color: "#7B7575" }} />
             Links
           </span>
           <span className="flex gap-4 items-center">
@@ -110,18 +119,20 @@ function BatchMetadata({
           </span>
         </div>
         {/* Edit placeholder */}
-        <div className="col-span-1 md:col-span-1 flex w-full md:w-auto justify-center md:justify-end items-center px-2 py-2 mt-4 md:mt-0">
-          <button
-            className="bg-blue-100 rounded-full p-2 flex items-center justify-center w-full md:w-auto"
-            title="Edit"
-            onClick={() => setIsEditing(true)}
-          >
-            <SquarePen className="h-6 w-6 text-blue-700" />
-          </button>
-        </div>
+        {editable && (
+          <div className="col-span-1 md:col-span-1 flex w-full md:w-auto justify-center md:justify-end items-center px-2 py-2 mt-4 md:mt-0">
+            <button
+              className="bg-blue-100 rounded-full p-2 flex items-center justify-center w-full md:w-auto"
+              title="Edit"
+              onClick={() => setIsEditing(true)}
+            >
+              <SquarePen className="h-6 w-6 text-blue-700" />
+            </button>
+          </div>
+        )}
       </div>
-      {/* Modal for editing */}
-      {isEditing && (
+  {/* Modal for editing */}
+  {editable && isEditing && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Edit Project Details</h2>

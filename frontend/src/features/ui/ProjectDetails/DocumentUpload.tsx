@@ -9,9 +9,12 @@ interface Document {
 
 interface ProjectDocumentsProps {
   initialDocuments?: Document[];
+  canUpload?: boolean;
+  canDelete?: boolean;
+  canNotify?: boolean;
 }
 
-function ProjectDocuments({ initialDocuments = [] }: ProjectDocumentsProps) {
+function ProjectDocuments({ initialDocuments = [], canUpload = true, canDelete = true, canNotify = false }: ProjectDocumentsProps) {
   const [documents, setDocuments] = useState<Document[]>(
     initialDocuments.length > 0
       ? initialDocuments
@@ -25,9 +28,6 @@ function ProjectDocuments({ initialDocuments = [] }: ProjectDocumentsProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newDocName, setNewDocName] = useState("");
   const [newDocFilename, setNewDocFilename] = useState("");
-  const [showNotifModal, setShowNotifModal] = useState(false);
-  const [notifSubject, setNotifSubject] = useState("");
-  const [notifMessage, setNotifMessage] = useState("");
 
   const handleDelete = (id: string) => {
     setDocuments(documents.filter((doc) => doc.id !== id));
@@ -48,33 +48,24 @@ function ProjectDocuments({ initialDocuments = [] }: ProjectDocumentsProps) {
   };
 
   return (
-    <div
-      className="bg-white px-4 md:px-8 py-6 mt-10"
-    >
+    <div className="bg-white px-4 md:px-8 py-6 mt-10">
       <div className="pl-4 pr-5">
         <div className="flex items-center justify-between mb-12">
-          <h2 className="text-lg font-bold text-gray-900">
-            Project Document
-          </h2>
-          <div className="flex gap-3">
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ fontSize: "0.85rem" }}
-              onClick={() => setShowNotifModal(true)}
-            >
-              Send Notification
-            </button>
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ fontSize: "0.85rem" }}
-              onClick={() => setIsAdding(true)}
-            >
-              Upload Documents
-            </button>
-          </div>
+          <h2 className="text-lg font-bold text-gray-900">Project Document</h2>
+          {canUpload && (
+            <div className="flex gap-3">
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
+                style={{ fontSize: "0.85rem" }}
+                onClick={() => setIsAdding(true)}
+              >
+                Upload Documents
+              </button>
+            </div>
+          )}
         </div>
 
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {documents.map((doc, idx) => (
             <div
               key={doc.id}
@@ -88,70 +79,28 @@ function ProjectDocuments({ initialDocuments = [] }: ProjectDocumentsProps) {
                   {doc.filename}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {idx < 3 && (
-                  <CircleCheckBig className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                )}
-                <button
-                  className="ml-1 transition-colors flex-shrink-0"
-                  onClick={() => handleDelete(doc.id)}
-                  title="Delete document"
-                >
-                  <Trash2 className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                </button>
-              </div>
+              {(canDelete || canNotify) && (
+                <div className="flex items-center gap-2">
+                  {canNotify && idx < 3 && (
+                    <CircleCheckBig className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
+                  {canDelete && (
+                    <button
+                      className="ml-1 transition-colors flex-shrink-0"
+                      onClick={() => handleDelete(doc.id)}
+                      title="Delete document"
+                    >
+                      <Trash2 className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Send Notification Modal */}
-      {showNotifModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold mb-2">Send Message</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">
-                Subject
-              </label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={notifSubject}
-                onChange={(e) => setNotifSubject(e.target.value)}
-                placeholder="Enter subject"
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm font-semibold mb-1">
-                Message
-              </label>
-              <textarea
-                className="border border-gray-300 rounded px-3 py-2 w-full h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={notifMessage}
-                onChange={(e) => setNotifMessage(e.target.value)}
-                placeholder="Enter message"
-              />
-            </div>
-            <div className="flex justify-center gap-3 mt-2">
-              <button
-                className="bg-white border border-blue-600 text-gray-500 px-3 py-1.5 rounded-lg text-xs font-medium"
-                style={{ fontSize: "0.85rem" }}
-                onClick={() => setShowNotifModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
-                style={{ fontSize: "0.85rem" }}
-                onClick={() => setShowNotifModal(false)}
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Send Notification Modal removed for trainee side */}
       {isAdding && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">

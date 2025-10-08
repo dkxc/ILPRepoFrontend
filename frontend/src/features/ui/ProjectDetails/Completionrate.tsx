@@ -1,18 +1,18 @@
-import React from "react";
+
 
 interface SubmissionRateProps {
   rate?: number;
+  showTitle?: boolean;
+  title?: string;
 }
 
-function SubmissionRate({ rate = 75 }: SubmissionRateProps) {
+function SubmissionRate({ rate = 75, showTitle = true, title = "Submission Rate" }: SubmissionRateProps) {
   const circumference = 2 * Math.PI * 70;
   const offset = circumference - (rate / 100) * circumference;
 
   return (
-  <div className="bg-white p-4 md:p-6 rounded-lg mt-4">
-      <h3 className="text-lg font-bold mb-4">
-        Submission Rate
-      </h3>
+    <div className="bg-white p-4 md:p-6 rounded-lg mt-4">
+      {showTitle && <h3 className="text-lg font-bold mb-4">{title}</h3>}
       <div className="flex items-center justify-center">
         <div className="relative w-full max-w-xs h-40 mx-auto">
           <svg className="w-full h-full">

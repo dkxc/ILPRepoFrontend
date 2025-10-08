@@ -1,7 +1,7 @@
-import BatchMetadata from "../../features/trainee/myproject/BatchMetadata";
-import ProjectDocuments from "../../features/trainee/myproject/DocumentUpload";
-import TeamList from "../../features/trainee/myproject/TeamList";
-import CompletionRate from "../../features/trainee/myproject/Completionrate";
+import BatchMetadata from "../../features/ui/ProjectDetails/BatchMetadata";
+import ProjectDocuments from "../../features/ui/ProjectDetails/DocumentUpload";
+import TeamList from "../../features/ui/ProjectDetails/TeamList";
+import CompletionRate from "../../features/ui/ProjectDetails/Completionrate";
 
 function MyProject() {
   return (
