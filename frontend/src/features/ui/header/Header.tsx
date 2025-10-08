@@ -23,7 +23,10 @@ function Header({
       {...props}
     >
       <div
-        className={`${logoWidth} flex p-4 items-center-safe justify-center-safe`}
+        className={cn(
+          "flex p-4 items-center-safe justify-center-safe",
+          logoWidth,
+        )}
       >
         {typeof logo === "string" ? <img src={logo} alt="Logo" /> : logo}
       </div>

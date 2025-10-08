@@ -25,8 +25,8 @@ function DocumentItem({
       <div className="flex">
         <div></div>
         <div className="flex flex-col">
-          <div>{document.title}</div>
-          <div className="font-light text-sm">
+          <div className="text-sm">{document.title}</div>
+          <div className="font-light text-xs">
             {document.uploadDate.toDateString()}
           </div>
         </div>

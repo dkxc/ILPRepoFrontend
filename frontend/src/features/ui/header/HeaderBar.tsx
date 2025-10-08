@@ -10,7 +10,7 @@ function HeaderBar({
   return (
     <div
       ref={ref}
-      className={cn("flex items-center-safe gap-1 px-4", className)}
+      className={cn("flex items-center-safe gap-1 px-2", className)}
       {...props}
     />
   );

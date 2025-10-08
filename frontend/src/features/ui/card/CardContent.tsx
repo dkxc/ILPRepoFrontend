@@ -14,7 +14,7 @@ function CardContent({
   const Comp = asChild ? Slot : "div";
   return (
     <Comp
-      className={cn("p-6 pt-0 font-normal", className)}
+      className={cn("p-5 pt-0 font-normal text-sm", className)}
       ref={ref}
       {...props}
     />

@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from "react-router";
 import SideBar from "./features/ui/sidebar/Sidebar";
 import {
   Bell,
+  ChartLine,
   ChartNoAxesCombined,
   FolderGit2,
   GitMerge,
@@ -28,12 +29,12 @@ const adminNavItems = [
   { to: "/batches", label: "Batches", icon: GitMerge },
   { to: "/projects", label: "Projects", icon: FolderGit2 },
   { to: "/documents", label: "Documents", icon: ChartNoAxesCombined },
-  { to: "/adminres", label: "Results", icon: ChartNoAxesCombined },
+  { to: "/adminres", label: "Reports", icon: ChartLine },
 ];
 
 function App() {
-  const sideBarWidth = "w-48";
-  const headerHeight = "h-16 max-h-16";
+  const sideBarWidth = "w-52";
+  const headerHeight = "h-14 max-h-14";
   // TODO: Remove this after auth
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
@@ -57,22 +58,22 @@ function App() {
         >
           <HeaderBar>
             {/* TODO: Remove this after auth */}
-            <div className="flex items-center">
+            <div className="flex items-center text-sm">
               <input
                 type="checkbox"
                 id="admin-toggle"
                 checked={isAdmin}
                 onChange={handleToggle}
-                className="mr-2"
+                className="mr-4"
               />
               <label htmlFor="admin-toggle">Admin View</label>
             </div>
             <SearchBar placeholder="Search for batches, projects & trainees" />
             <HeaderItem aria-label="Notifications">
-              <Bell className="size-4" />
+              <Bell className="size-3.5" />
             </HeaderItem>
             <HeaderItem aria-label="Dark Mode">
-              <Moon className="size-4" />
+              <Moon className="size-3.5" />
             </HeaderItem>
           </HeaderBar>
         </Header>
