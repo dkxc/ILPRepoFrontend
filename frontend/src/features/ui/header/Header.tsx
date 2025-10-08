@@ -15,11 +15,19 @@ function Header({
 }: HeaderProps & { ref?: React.Ref<HTMLElement> }) {
   return (
     <header
-      className={cn("flex align-middle justify-between shrink-0", className)}
+      className={cn(
+        "flex items-center-safe justify-between shrink-0",
+        className,
+      )}
       ref={ref}
       {...props}
     >
-      <div className={`${logoWidth} flex p-4 align-middle justify-center-safe`}>
+      <div
+        className={cn(
+          "flex p-4 items-center-safe justify-center-safe",
+          logoWidth,
+        )}
+      >
         {typeof logo === "string" ? <img src={logo} alt="Logo" /> : logo}
       </div>
 

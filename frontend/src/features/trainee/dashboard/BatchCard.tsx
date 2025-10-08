@@ -43,7 +43,7 @@ function BatchCard({
       </Card.CardContent>
 
       <Card.CardFooter>
-        <div className="flex bg-inactive-badge w-full p-4 align-middle justify-center font-medium rounded-md">
+        <div className="flex bg-inactive-badge w-full p-4 items-center-safe justify-center font-medium rounded-md">
           DAY {batch.day}
         </div>
       </Card.CardFooter>
