@@ -17,7 +17,7 @@ function ProjectCard({
   return (
     <Card.Card
       className={cn(
-        "bg-sidebar-and-header-background flex align-middle justify-between gap-4",
+        "bg-sidebar-and-header-background flex justify-between gap-4",
         className,
       )}
       ref={ref}

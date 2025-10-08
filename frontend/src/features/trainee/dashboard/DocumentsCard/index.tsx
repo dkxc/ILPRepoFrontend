@@ -19,7 +19,7 @@ function DocumentsCard({
   return (
     <Card.Card
       className={cn(
-        "bg-sidebar-and-header-background flex align-middle justify-between gap-4",
+        "bg-sidebar-and-header-background flex justify-between gap-4",
         className,
       )}
       ref={ref}
@@ -32,7 +32,12 @@ function DocumentsCard({
 
         <Card.CardContent className="flex flex-col">
           {documents.map((doc) => (
-            <NavLink key={doc.url} to={doc.url}>
+            <NavLink
+              key={doc.url}
+              to={doc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <>
                 <DocumentItem document={doc} />
               </>

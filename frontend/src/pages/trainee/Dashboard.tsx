@@ -2,12 +2,14 @@ import BatchCard from "../../features/trainee/dashboard/BatchCard";
 import DocumentsCard from "../../features/trainee/dashboard/DocumentsCard";
 import ProjectCard from "../../features/trainee/dashboard/ProjectCard";
 import RecentActivityCard from "../../features/trainee/dashboard/RecentActivityCard";
-import ScoreCard from "../../features/trainee/dashboard/ScoreCard";
+import ScoreCard from "../../features/trainee/dashboard/ScoresCard";
 import WelcomeHeader from "../../features/trainee/dashboard/WelcomeHeader";
 import type { Batch } from "../../features/trainee/types/Batch.types";
 import type { TraineeDocument } from "../../features/trainee/types/TraineeDocument.types";
 import type { Project } from "../../features/trainee/types/Project.types";
+import type { Scores } from "../../features/trainee/types/scores/Score.types";
 
+/* TODO: Remove this dummy data */
 function Dashboard() {
   const firstName = "Name";
   const project: Project = {
@@ -56,13 +58,23 @@ function Dashboard() {
     },
   ];
 
+  const scores: Scores = {
+    average: 79.75,
+    rank: 19,
+    courses: [
+      { caption: "Ranking in Current Batch", value: 19 },
+      { caption: "Tech Fundamentals", value: 78.1 },
+      { caption: "React Fundamentals", value: 81.4 },
+    ],
+  };
+
   return (
     <>
       <WelcomeHeader className="pt-6" firstName={firstName} />
       <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-6">
         <ProjectCard className="col-span-4" project={project} />
         <BatchCard className="col-span-2" batch={batch} />
-        <ScoreCard className="col-span-2" project={project} />
+        <ScoreCard className="col-span-2" scores={scores} />
         <DocumentsCard className="col-span-2" documents={documents} />
         <RecentActivityCard className="col-span-2" project={project} />
       </div>
