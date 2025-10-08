@@ -39,19 +39,15 @@ function ScoreCard({
         </Card.CardContent>
 
         <Card.CardFooter>
-          <div>
-
-          </div>
+          <div></div>
           <div className="flex gap-4">
-            {
-              scores.courses.map((scoreItem) => (
-                <div key={scoreItem.caption} className="flex-1">
+            {scores.courses.map((scoreItem) => (
+              <div key={scoreItem.caption} className="flex-1">
                 <>
                   <ScoreCardItem item={scoreItem} />
                 </>
-                </div>
-              ))
-            }
+              </div>
+            ))}
           </div>
         </Card.CardFooter>
       </div>

@@ -32,7 +32,12 @@ function DocumentsCard({
 
         <Card.CardContent className="flex flex-col">
           {documents.map((doc) => (
-            <NavLink key={doc.url} to={doc.url} target="_blank" rel="noopener noreferrer">
+            <NavLink
+              key={doc.url}
+              to={doc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <>
                 <DocumentItem document={doc} />
               </>
