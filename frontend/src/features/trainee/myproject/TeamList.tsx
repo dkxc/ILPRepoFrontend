@@ -26,9 +26,21 @@ const data: TeamMember[] = [
 
 export default function TeamList() {
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
+    <div className="bg-white p-4 md:p-6 rounded-lg shadow mt-4 overflow-x-auto">
       <h2 className="text-lg font-bold mb-4">Team Members</h2>
-      <DataTable columns={columns} data={data} enableSearch={false} enablePagination={false} />
+      <DataTable
+        columns={columns}
+        data={data}
+        enableSearch={false}
+        enablePagination={false}
+        rowStyle={{
+          lineHeight: '3',
+          borderBottom: '1px solid #e5e7eb', // Tailwind's gray-200
+        }}
+        headerStyle={{
+          height: '3rem',
+        }}
+      />
     </div>
   );
 }

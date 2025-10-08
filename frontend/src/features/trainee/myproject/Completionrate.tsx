@@ -1,19 +1,21 @@
-import React from 'react';
+import React from "react";
 
 interface SubmissionRateProps {
   rate?: number;
 }
 
-function SubmissionRate({ rate = 98 }: SubmissionRateProps) {
+function SubmissionRate({ rate = 75 }: SubmissionRateProps) {
   const circumference = 2 * Math.PI * 70;
   const offset = circumference - (rate / 100) * circumference;
 
   return (
-    <div className="bg-white p-6 rounded-lg">
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">Submission Rate</h3>
+  <div className="bg-white p-4 md:p-6 rounded-lg mt-4">
+      <h3 className="text-lg font-bold mb-4">
+        Submission Rate
+      </h3>
       <div className="flex items-center justify-center">
-        <div className="relative w-40 h-40">
-          <svg className="w-full h-full transform -rotate-90">
+        <div className="relative w-full max-w-xs h-40 mx-auto">
+          <svg className="w-full h-full">
             {/* Background circle */}
             <circle
               cx="80"
@@ -37,8 +39,8 @@ function SubmissionRate({ rate = 98 }: SubmissionRateProps) {
               className="transition-all duration-1000 ease-out"
             />
           </svg>
-          {/* Center text */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          {/* Right side text */}
+          <div className="absolute inset-y-0 right-0 flex items-center pr-4">
             <span className="text-3xl font-bold text-gray-900">{rate}%</span>
           </div>
         </div>
