@@ -1,4 +1,3 @@
-
 import BatchMetadata from "../../features/ui/ProjectDetails/BatchMetadata";
 import ProjectDocuments from "../../features/ui/ProjectDetails/DocumentUpload";
 import TeamList from "../../features/ui/ProjectDetails/TeamList";
@@ -13,14 +12,32 @@ interface BatchMetadataProps {
   figmaUrl: string;
 }
 
-function BatchMetadataReadOnly({ name, trainees, techStack, repositoryUrl, figmaUrl }: BatchMetadataProps) {
+function BatchMetadataReadOnly({
+  name,
+  trainees,
+  techStack,
+  repositoryUrl,
+  figmaUrl,
+}: BatchMetadataProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 mt-5 gap-y-4 gap-x-2">
       <div className="flex flex-col items-start px-2 py-2">
         <span className="font-bold mb-2 flex items-center gap-2">
           {/* FolderPen icon */}
-          <span className="inline-block" style={{ color: '#7B7575' }}>
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9z"/><path d="M18 12.5V12a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v.5"/></svg>
+          <span className="inline-block" style={{ color: "#7B7575" }}>
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              viewBox="0 0 24 24"
+            >
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9z" />
+              <path d="M18 12.5V12a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v.5" />
+            </svg>
           </span>
           Batch
         </span>
@@ -28,8 +45,21 @@ function BatchMetadataReadOnly({ name, trainees, techStack, repositoryUrl, figma
       </div>
       <div className="flex flex-col items-start px-2 py-2">
         <span className="font-bold mb-2 flex items-center gap-2">
-          <span className="inline-block" style={{ color: '#7B7575' }}>
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="17" cy="7" r="4"/></svg>
+          <span className="inline-block" style={{ color: "#7B7575" }}>
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              viewBox="0 0 24 24"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <circle cx="17" cy="7" r="4" />
+            </svg>
           </span>
           No of Trainees
         </span>
@@ -37,8 +67,19 @@ function BatchMetadataReadOnly({ name, trainees, techStack, repositoryUrl, figma
       </div>
       <div className="flex flex-col items-start px-2 py-2">
         <span className="font-bold mb-2 flex items-center gap-2">
-          <span className="inline-block" style={{ color: '#7B7575' }}>
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm2 2h14v14H5V5zm2 2v10h10V7H7z"/></svg>
+          <span className="inline-block" style={{ color: "#7B7575" }}>
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              viewBox="0 0 24 24"
+            >
+              <path d="M3 3v18h18V3H3zm2 2h14v14H5V5zm2 2v10h10V7H7z" />
+            </svg>
           </span>
           Tech Stack
         </span>
@@ -59,8 +100,21 @@ function BatchMetadataReadOnly({ name, trainees, techStack, repositoryUrl, figma
       </div>
       <div className="flex flex-col items-start px-2 py-2">
         <span className="font-bold mb-2 flex items-center gap-2">
-          <span className="inline-block" style={{ color: '#7B7575' }}>
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+          <span className="inline-block" style={{ color: "#7B7575" }}>
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12" y2="16" />
+            </svg>
           </span>
           Links
         </span>

@@ -1,12 +1,14 @@
-
-
 interface SubmissionRateProps {
   rate?: number;
   showTitle?: boolean;
   title?: string;
 }
 
-function SubmissionRate({ rate = 75, showTitle = true, title = "Submission Rate" }: SubmissionRateProps) {
+function SubmissionRate({
+  rate = 75,
+  showTitle = true,
+  title = "Submission Rate",
+}: SubmissionRateProps) {
   const circumference = 2 * Math.PI * 70;
   const offset = circumference - (rate / 100) * circumference;
 

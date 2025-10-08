@@ -14,7 +14,12 @@ interface ProjectDocumentsProps {
   canNotify?: boolean;
 }
 
-function ProjectDocuments({ initialDocuments = [], canUpload = true, canDelete = true, canNotify = false }: ProjectDocumentsProps) {
+function ProjectDocuments({
+  initialDocuments = [],
+  canUpload = true,
+  canDelete = true,
+  canNotify = false,
+}: ProjectDocumentsProps) {
   const [documents, setDocuments] = useState<Document[]>(
     initialDocuments.length > 0
       ? initialDocuments

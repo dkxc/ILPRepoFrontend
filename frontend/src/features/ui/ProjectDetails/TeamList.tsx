@@ -1,7 +1,5 @@
-
 import DataTable from "../../admin/Table";
 import type { ColumnDef } from "../../admin/Table";
-
 
 export interface TeamMember {
   name: string;
