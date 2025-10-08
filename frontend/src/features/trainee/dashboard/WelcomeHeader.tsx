@@ -13,7 +13,7 @@ function WelcomeHeader({
 }: WelcomeHeaderProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <h1
-      className={cn("px-6 pt-4 font-semibold text-3xl", className)}
+      className={cn("px-6 pt-4 font-semibold text-2xl", className)}
       ref={ref}
       {...props}
     >

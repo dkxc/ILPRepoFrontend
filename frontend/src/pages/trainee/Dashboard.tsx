@@ -71,12 +71,13 @@ function Dashboard() {
   return (
     <>
       <WelcomeHeader className="pt-6" firstName={firstName} />
-      <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-6">
-        <ProjectCard className="col-span-4" project={project} />
-        <BatchCard className="col-span-2" batch={batch} />
-        <ScoreCard className="col-span-2" scores={scores} />
-        <DocumentsCard className="col-span-2" documents={documents} />
-        <RecentActivityCard className="col-span-2" project={project} />
+      <div className="grid gap-2 p-4 md:grid-cols-2 lg:grid-cols-10">
+        <ProjectCard className="col-span-6" project={project} />
+        <BatchCard className="col-span-4" batch={batch} />
+
+        <ScoreCard className="col-span-3" scores={scores} />
+        <DocumentsCard className="col-span-3" documents={documents} />
+        <RecentActivityCard className="col-span-4" project={project} />
       </div>
     </>
   );
