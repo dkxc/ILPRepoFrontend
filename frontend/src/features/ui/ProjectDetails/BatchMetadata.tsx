@@ -12,6 +12,7 @@ import {
 
 interface BatchMetadataProps {
   name: string;
+  projectName: string;
   trainees: number;
   techStack: string[];
   repositoryUrl: string;
@@ -21,6 +22,7 @@ interface BatchMetadataProps {
 
 function BatchMetadata({
   name,
+  projectName,
   trainees,
   techStack,
   repositoryUrl,
@@ -38,7 +40,11 @@ function BatchMetadata({
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 mt-5 gap-y-4 gap-x-2">
+  <div className="px-2 mt-5 mb-6 flex items-center gap-3">
+        <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: '#565E6C' }}>{projectName || "ILP Project"}</h1>
+  <span className="px-4 py-1 rounded-full bg-bolder text-blue-700 text-sm font-semibold shadow-sm select-none border border-blue-200">Ongoing</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 gap-y-4 gap-x-2 rounded-t-lg">
         <div className="flex flex-col items-start px-2 py-2">
           <span className="font-bold mb-2 flex items-center gap-2">
             <FolderPen className="h-5 w-5" style={{ color: "#7B7575" }} />
@@ -65,7 +71,8 @@ function BatchMetadata({
               currentTechStack.map((stack, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700"
+                  className="px-3 py-1 rounded-full text-sm font-medium bg-bolder text-blue-700 border border-blue-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  style={{ boxShadow: '0 1px 4px rgba(37,99,235,0.08)' }}
                 >
                   {stack}
                 </span>
@@ -122,7 +129,7 @@ function BatchMetadata({
         {editable && (
           <div className="col-span-1 md:col-span-1 flex w-full md:w-auto justify-center md:justify-end items-center px-2 py-2 mt-4 md:mt-0">
             <button
-              className="bg-blue-100 rounded-full p-2 flex items-center justify-center w-full md:w-auto"
+              className="bg-bolder rounded-full p-2 flex items-center justify-center w-full md:w-auto"
               title="Edit"
               onClick={() => setIsEditing(true)}
             >
@@ -147,7 +154,7 @@ function BatchMetadata({
                   placeholder="Add tech stack"
                 />
                 <button
-                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 flex items-center justify-center"
+                  className="bg-bolder text-white rounded-full p-2 flex items-center justify-center"
                   type="button"
                   onClick={() => {
                     const val = editTechStackInput.trim();
@@ -164,7 +171,7 @@ function BatchMetadata({
                 {editTechStackArr.map((stack, idx) => (
                   <span
                     key={idx}
-                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center"
+                    className="bg-bolder text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center"
                   >
                     {stack}
                     <button
@@ -208,7 +215,7 @@ function BatchMetadata({
                 Cancel
               </button>
               <button
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                className="px-4 py-2 rounded bg-bolder text-white"
                 onClick={() => {
                   setCurrentTechStack(editTechStackArr);
                   setCurrentRepo(editRepo);

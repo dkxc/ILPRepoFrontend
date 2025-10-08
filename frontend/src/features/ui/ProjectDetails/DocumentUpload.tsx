@@ -60,7 +60,7 @@ function ProjectDocuments({
           {canUpload && (
             <div className="flex gap-3">
               <button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
+                className="bg-bolder text-white px-3 py-1.5 rounded-lg text-xs font-medium"
                 style={{ fontSize: "0.85rem" }}
                 onClick={() => setIsAdding(true)}
               >
@@ -159,7 +159,7 @@ function ProjectDocuments({
                 Cancel
               </button>
               <button
-                className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
+                className="px-4 py-2 rounded bg-bolder text-white"
                 onClick={handleAdd}
               >
                 Upload

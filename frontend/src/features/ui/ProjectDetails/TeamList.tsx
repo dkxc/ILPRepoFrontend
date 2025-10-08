@@ -37,20 +37,22 @@ export default function TeamList({
   showTitle = true,
 }: TeamListProps) {
   return (
-    <div className="bg-white px-2 sm:px-4 md:px-6 py-4 rounded-lg shadow mt-4 w-full overflow-x-auto">
-      {showTitle && <h2 className="text-lg font-bold mb-4">{title}</h2>}
-      <div className="min-w-[400px]">
+  <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto">
+  {showTitle && <h2 className="text-base font-semibold mb-6">{title}</h2>}
+      <div className="w-full">
         <DataTable
           columns={columns}
           data={data}
           enableSearch={false}
           enablePagination={false}
           rowStyle={{
-            lineHeight: "3",
-            borderBottom: "1px solid #e5e7eb", // Tailwind's gray-200
+            lineHeight: "2.8",
+            fontSize: "0.95rem",
+            borderBottom: "1px solid #e5e7eb",
           }}
           headerStyle={{
-            height: "3rem",
+            height: "2.2rem",
+            fontSize: "0.98rem",
           }}
         />
       </div>
