@@ -114,7 +114,7 @@ function Results() {
         </Card.Card>
 
         {/* Phase-wise Feedback Section */}
-        <div className="mb-6">
+        <Card.Card className="bg-white p-4 border border-gray-200 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Phase-wise Feedback
           </h2>
@@ -139,7 +139,7 @@ function Results() {
 
           {/* Phase Score */}
           <div className="mb-6">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
               <span className="text-base font-medium text-gray-700">Score</span>
               <span className="text-3xl font-bold text-primary-600">
                 {currentPhaseData?.score}%
@@ -149,7 +149,7 @@ function Results() {
 
           {/* Results Card */}
           {currentPhaseData && <ResultCard data={currentPhaseData} />}
-        </div>
+        </Card.Card>
       </div>
     </div>
   );
