@@ -1,6 +1,4 @@
 import { useRef, useState, type ReactNode } from "react";
-import "@mantine/core/styles.css";
-import { DatePickerInput } from "@mantine/dates";
 import {
   Table,
   Badge,
@@ -18,6 +16,9 @@ import {
   Box,
 } from "@mantine/core";
 import { Search, X } from "lucide-react";
+import DataTablePagination from "./DataTablePagination";
+import DataTableInfo from "./DataTableInfo";
+import DataTableFilter from "./DataTableFilter";
 
 // Column definition type
 export interface ColumnDef<T = any> {
@@ -34,7 +35,6 @@ export interface ColumnDef<T = any> {
 export interface DataTableProps<T = any> {
   columns: ColumnDef<T>[];
   data: T[];
-  // Styling options
   striped?: boolean;
   highlightOnHover?: boolean;
   withBorder?: boolean;
@@ -42,42 +42,33 @@ export interface DataTableProps<T = any> {
   headerBgColor?: string;
   headerTextColor?: string;
   hideHeader?: boolean;
-  // Feature toggles
   enableSearch?: boolean;
   enableFilter?: boolean;
   enableSort?: boolean;
   enablePagination?: boolean;
   enableSelection?: boolean;
-  // Pagination options
   pageSize?: number;
   pageSizeOptions?: number[];
-  // Filter options
   filterColumn?: string;
   filterOptions?: string[];
   filterPlaceholder?: string;
   enableMultipleFilters?: boolean;
   columnFilters?: { [key: string]: string[] };
-  // Search options
   searchPlaceholder?: string;
   searchColumns?: string[];
-  // Callbacks
   onRowClick?: (row: T, index: number) => void;
   onSelectionChange?: (selectedRows: T[]) => void;
-  // Custom empty state
   emptyState?: ReactNode;
-  // Additional styles
   tableStyle?: React.CSSProperties;
   headerStyle?: React.CSSProperties;
   rowStyle?: React.CSSProperties;
   hideRowBorders?: boolean;
-  // Table header section (optional)
-  showHeaderSection?: boolean; // enable/disable the top header bar
-  headerTitle?: string; // text for the header (like "All Trainees")
-  headerTitleStyle?: React.CSSProperties; // optional custom style for the title
-  headerRightContent?: ReactNode; // allow user to inject extra actions (e.g. add button)
-  // Date Filter Options
+  showHeaderSection?: boolean;
+  headerTitle?: string;
+  headerTitleStyle?: React.CSSProperties;
+  headerRightContent?: ReactNode;
   enableDateFilter?: boolean;
-  dateFilterColumn?: string; // which column to apply it on
+  dateFilterColumn?: string;
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -120,7 +111,6 @@ export default function DataTable<T extends Record<string, any>>({
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [filterValue, setFilterValue] = useState<string | null>(null);
-  const [searchExpanded, setSearchExpanded] = useState(false);
   const [multipleFilters, setMultipleFilters] = useState<{
     [key: string]: string | null;
   }>({});
@@ -129,9 +119,15 @@ export default function DataTable<T extends Record<string, any>>({
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [dateFilter, setDateFilter] = useState<{
+    from: Date | null;
+    to: Date | null;
+  }>({
+    from: null,
+    to: null,
+  });
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle sorting
   const handleSort = (key: string) => {
     if (!enableSort) return;
     const column = columns.find((col) => col.key === key);
@@ -145,7 +141,6 @@ export default function DataTable<T extends Record<string, any>>({
     }
   };
 
-  // Handle row selection
   const toggleRowSelection = (index: number) => {
     const newSelection = selectedRows.includes(index)
       ? selectedRows.filter((i) => i !== index)
@@ -170,10 +165,8 @@ export default function DataTable<T extends Record<string, any>>({
     }
   };
 
-  // Filter data
   let filteredData = [...data];
 
-  // Apply search
   if (enableSearch && search) {
     filteredData = filteredData.filter((row) => {
       const columnsToSearch =
@@ -187,14 +180,12 @@ export default function DataTable<T extends Record<string, any>>({
     });
   }
 
-  // Apply single filter
   if (enableFilter && !enableMultipleFilters && filterValue && filterColumn) {
     filteredData = filteredData.filter(
       (row) => row[filterColumn] === filterValue,
     );
   }
 
-  // Apply multiple filters
   if (enableMultipleFilters) {
     filteredData = filteredData.filter((row) => {
       return Object.entries(multipleFilters).every(([key, value]) => {
@@ -203,13 +194,6 @@ export default function DataTable<T extends Record<string, any>>({
       });
     });
   }
-  const [dateFilter, setDateFilter] = useState<{
-    from: Date | null;
-    to: Date | null;
-  }>({
-    from: null,
-    to: null,
-  });
 
   if (
     enableDateFilter &&
@@ -226,7 +210,6 @@ export default function DataTable<T extends Record<string, any>>({
     });
   }
 
-  // Apply sorting
   if (enableSort && sortBy) {
     filteredData.sort((a, b) => {
       const aValue = a[sortBy];
@@ -238,7 +221,6 @@ export default function DataTable<T extends Record<string, any>>({
     });
   }
 
-  // Pagination
   const totalPages = enablePagination
     ? Math.ceil(filteredData.length / currentPageSize)
     : 1;
@@ -250,51 +232,55 @@ export default function DataTable<T extends Record<string, any>>({
     : filteredData;
 
   return (
-    <Stack gap="md" className="bg-white ml-10 mr-10">
-      {/* Search and Filter Bar */}
-      {/* ✅ Header Section with Title + Search/Filters */}
-      {showHeaderSection && (
-        <>
-          <div className="flex items-center justify-between ml-5 mr-5 pt-4">
-            {/* Left side: Header Title */}
+    <Stack
+      className="ml-10 mr-10"
+      gap="md"
+      style={{ backgroundColor: "white" }}
+    >
+      <Box style={{ paddingLeft: "2.5rem", paddingRight: "2.5rem" }}>
+        {/* Header Section */}
+        {showHeaderSection && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingTop: "1rem",
+              marginBottom: "1rem",
+            }}
+          >
             <h2
-              className="text-lg font-medium"
               style={{
+                fontSize: "1.125rem",
+                fontWeight: 500,
                 color: "#565E6C",
-                ...(headerTitleStyle || {}),
-                // paddingLeft:"20px"
+                margin: 0,
+                ...headerTitleStyle,
               }}
             >
               {headerTitle || "Table"}
             </h2>
 
-            {/* Right side: Search + Filters + Custom content */}
-            <div className="flex items-center ">
-              {/* Allow external content like buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               {headerRightContent}
-              {/* Search */}
+
               {enableSearch && (
                 <div
-                  className="relative flex  items-center rounded-md transition-all duration-300 ease-in-out cursor-pointer"
                   style={{
-                    width: searchExpanded ? "250px" : "40px",
-                    // backgroundColor: searchExpanded ? "#F3F4F6" : "transparent",
-                  }}
-                  onMouseEnter={() => setSearchExpanded(true)}
-                  onMouseLeave={() => {
-                    if (document.activeElement !== searchInputRef.current) {
-                      setSearchExpanded(false);
-                    }
-                  }}
-                  onClick={() => {
-                    if (searchExpanded) {
-                      searchInputRef.current?.focus();
-                    }
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 transition-opacity"
                     size={16}
+                    style={{
+                      position: "absolute",
+                      left: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#9CA3AF",
+                    }}
                   />
                   <input
                     ref={searchInputRef}
@@ -302,44 +288,36 @@ export default function DataTable<T extends Record<string, any>>({
                     placeholder={searchPlaceholder}
                     value={search}
                     onChange={(e) => setSearch(e.currentTarget.value)}
-                    className="h-full w-full bg-transparent pl-9 pr-3 text-sm transition-opacity duration-200 ease-in-out focus:outline-none"
                     style={{
-                      opacity: searchExpanded ? 1 : 0,
-                    }}
-                    onFocus={() => setSearchExpanded(true)}
-                    onBlur={() => {
-                      if (document.activeElement !== searchInputRef.current) {
-                        setSearchExpanded(false);
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") {
-                        e.preventDefault();
-                        setSearchExpanded(false);
-                        searchInputRef.current?.blur();
-                      }
+                      height: "2rem",
+                      paddingLeft: "2.25rem",
+                      paddingRight: "0.75rem",
+                      border: "1px solid #D1D5DB",
+                      borderRadius: "0.375rem",
                     }}
                   />
                 </div>
               )}
-              {/* Multiple Filters */}
-              {/* Single Filter */}
-              {/* {enableFilter && !enableMultipleFilters && filterColumn && (
-                <Select
-                  placeholder={filterPlaceholder}
-                  data={filterOptions}
-                  value={filterValue}
-                  onChange={setFilterValue}
-                  clearable
-                  style={{ width: 200 }}
+
+              {(enableFilter || enableMultipleFilters) && (
+                <DataTableFilter
+                  filterColumn={filterColumn}
+                  filterOptions={filterOptions}
+                  filterPlaceholder={filterPlaceholder}
+                  enableMultipleFilters={enableMultipleFilters}
+                  multipleFilters={multipleFilters}
+                  columnFilters={columnFilters}
+                  onFilterChange={(value) => setFilterValue(value)}
+                  onMultipleFilterChange={(filters) =>
+                    setMultipleFilters(filters)
+                  }
                 />
-              )} */}
-              {/* ✅ Date Range Filter (Independent) */}
+              )}
+
               {enableDateFilter && dateFilterColumn && (
                 <div className="flex gap-2 items-end">
-                  {/* From Date */}
-                  <div className="flex flex-row items-center gap-2">
-                    <label className="text-sm text-gray-700">From: </label>
+                  <div className="flex gap-2 items-center">
+                    <label>From:</label>
                     <input
                       type="date"
                       value={
@@ -355,13 +333,11 @@ export default function DataTable<T extends Record<string, any>>({
                             : null,
                         })
                       }
-                      className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      className="border px-2 py-1 rounded"
                     />
                   </div>
-
-                  {/* To Date */}
-                  <div className="flex flex-row items-center gap-2">
-                    <label className="text-sm text-gray-700">To: </label>
+                  <div className="flex gap-2 items-center">
+                    <label>To:</label>
                     <input
                       type="date"
                       value={
@@ -375,206 +351,205 @@ export default function DataTable<T extends Record<string, any>>({
                           to: e.target.value ? new Date(e.target.value) : null,
                         })
                       }
-                      className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      className="border px-2 py-1 rounded"
                     />
                   </div>
                 </div>
               )}
-              {enableMultipleFilters && (
-                <>
-                  {Object.entries(columnFilters).map(([key, options]) => {
-                    const column = columns.find((col) => col.key === key);
-                    return (
-                      <Select
-                        key={key}
-                        placeholder={`Filter ${column?.header || key}`}
-                        data={options}
-                        value={multipleFilters[key] || null}
-                        onChange={(value) =>
-                          setMultipleFilters((prev) => ({
-                            ...prev,
-                            [key]: value,
-                          }))
-                        }
-                        clearable
-                        style={{ width: 180 }}
-                      />
-                    );
-                  })}
-                </>
-              )}
-
-              {/* Single Filter */}
-              {enableFilter && !enableMultipleFilters && filterColumn && (
-                <Select
-                  placeholder={filterPlaceholder}
-                  data={filterOptions}
-                  value={filterValue}
-                  onChange={setFilterValue}
-                  clearable
-                  style={{ width: 200 }}
-                />
-              )}
             </div>
           </div>
+        )}
 
-          {/* Divider below header */}
-          <div className="h-0 border-t border-gray-300 ml-5 mr-5"></div>
-        </>
-      )}
+        {/* Divider */}
+        {showHeaderSection && (
+          <div
+            style={{
+              height: "0",
+              borderTop: "1px solid #E5E7EB",
+              marginBottom: "1rem",
+            }}
+          />
+        )}
 
-      {/* Selection info */}
-      {enableSelection && selectedRows.length > 0 && (
-        <Text size="sm" color="dimmed">
-          {selectedRows.length} row(s) selected
-        </Text>
-      )}
+        {/* Selection info */}
+        {enableSelection && selectedRows.length > 0 && (
+          <Text size="sm" c="dimmed" style={{ marginBottom: "0.5rem" }}>
+            {selectedRows.length} row(s) selected
+          </Text>
+        )}
 
-      {/* Table */}
-      <Paper withBorder={false} p={withPadding ? "md" : 0}>
-        <Box
-          style={{
-            overflowX: "auto",
-            // borderTop: "2px solid #E5E7EB",
-          }}
-        >
-          <Table
-            striped={striped}
-            highlightOnHover={highlightOnHover}
-            style={tableStyle}
-          >
-            {!hideHeader && (
-              <thead>
-                <tr
-                  style={{
-                    backgroundColor: headerBgColor,
-                    color: headerTextColor,
-                    ...headerStyle,
-                  }}
-                >
-                  {enableSelection && (
-                    <th
-                      style={{
-                        width: 40,
-                        textAlign: "center", // ✅ Fixed - just use a hardcoded value
-                        borderBottom: hideRowBorders ? "none" : undefined,
-                      }}
-                    >
-                      <Checkbox
-                        checked={
-                          selectedRows.length === filteredData.length &&
-                          filteredData.length > 0
-                        }
-                        onChange={toggleSelectAll}
-                      />
-                    </th>
-                  )}
-                  {columns.map((column) => (
-                    <th
-                      key={column.key}
-                      style={{
-                        width: column.width,
-                        fontWeight: "700",
-                        color: "#565E6C",
-                        textAlign: column.align || "left",
-                        paddingLeft: "20px",
-                        cursor:
-                          column.sortable && enableSort ? "pointer" : "default",
-                      }}
-                      onClick={() => column.sortable && handleSort(column.key)}
-                    >
-                      {column.header}
-                      {enableSort &&
-                        column.sortable &&
-                        sortBy === column.key && (
-                          <span style={{ marginLeft: 4 }}>
-                            {sortOrder === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-            )}
-            <tbody>
-              {paginatedData.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={columns.length + (enableSelection ? 1 : 0)}
-                    style={{ textAlign: "center", padding: 40 }}
-                  >
-                    {emptyState || <Text color="dimmed">No data found</Text>}
-                  </td>
-                </tr>
-              ) : (
-                paginatedData.map((row, index) => (
+        {/* Table */}
+        <Paper withBorder={withBorder} p={0}>
+          <Box style={{ overflowX: "auto", width: "100%" }}>
+            <Table
+              striped={striped}
+              highlightOnHover={highlightOnHover}
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                ...tableStyle,
+              }}
+            >
+              {!hideHeader && (
+                <thead>
                   <tr
-                    key={index}
-                    onClick={() => onRowClick?.(row, index)}
                     style={{
-                      cursor: onRowClick ? "pointer" : "default",
-                      ...rowStyle,
+                      backgroundColor: headerBgColor,
+                      color: headerTextColor,
+                      ...headerStyle,
                     }}
                   >
                     {enableSelection && (
-                      <td>
-                        <Checkbox
-                          checked={selectedRows.includes(index)}
-                          onChange={() => toggleRowSelection(index)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                    )}
-                    {columns.map((column) => (
-                      <td
-                        key={column.key}
+                      <th
                         style={{
-                          textAlign: column.align || "left",
-                          paddingLeft: "20px",
+                          width: "40px",
+                          textAlign: "center",
+                          padding: "12px",
+                          verticalAlign: "middle",
+                          borderBottom: hideRowBorders
+                            ? "none"
+                            : "1px solid #E5E7EB",
                         }}
                       >
-                        {column.render
-                          ? column.render(row[column.key], row, index)
-                          : row[column.key]}
-                      </td>
+                        <Checkbox
+                          checked={
+                            selectedRows.length === filteredData.length &&
+                            filteredData.length > 0
+                          }
+                          onChange={toggleSelectAll}
+                        />
+                      </th>
+                    )}
+                    {columns.map((column) => (
+                      <th
+                        key={column.key}
+                        style={{
+                          width: column.width,
+                          fontWeight: 600,
+                          fontSize: "0.875rem",
+                          color: "#565E6C",
+                          textAlign: column.align || "left",
+                          padding: "12px 16px",
+                          verticalAlign: "middle",
+                          borderBottom: hideRowBorders
+                            ? "none"
+                            : "1px solid #E5E7EB",
+                          cursor:
+                            column.sortable && enableSort
+                              ? "pointer"
+                              : "default",
+                          whiteSpace: "nowrap",
+                        }}
+                        onClick={() =>
+                          column.sortable && handleSort(column.key)
+                        }
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.25rem",
+                          }}
+                        >
+                          {column.header}
+                          {enableSort &&
+                            column.sortable &&
+                            sortBy === column.key && (
+                              <span>{sortOrder === "asc" ? "↑" : "↓"}</span>
+                            )}
+                        </div>
+                      </th>
                     ))}
                   </tr>
-                ))
+                </thead>
               )}
-            </tbody>
-          </Table>
-        </Box>
-      </Paper>
+              <tbody>
+                {paginatedData.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length + (enableSelection ? 1 : 0)}
+                      style={{ textAlign: "center", padding: "40px" }}
+                    >
+                      {emptyState || <Text c="dimmed">No data found</Text>}
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedData.map((row, index) => (
+                    <tr
+                      key={index}
+                      onClick={() => onRowClick?.(row, index)}
+                      style={{
+                        cursor: onRowClick ? "pointer" : "default",
+                        ...rowStyle,
+                      }}
+                    >
+                      {enableSelection && (
+                        <td
+                          style={{
+                            textAlign: "center",
+                            padding: "12px",
+                            verticalAlign: "middle",
+                            borderBottom: hideRowBorders
+                              ? "none"
+                              : "1px solid #E5E7EB",
+                          }}
+                        >
+                          <Checkbox
+                            checked={selectedRows.includes(index)}
+                            onChange={() => toggleRowSelection(index)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </td>
+                      )}
+                      {columns.map((column) => (
+                        <td
+                          key={column.key}
+                          style={{
+                            textAlign: column.align || "left",
+                            padding: "12px 16px",
+                            verticalAlign: "middle",
+                            borderBottom: hideRowBorders
+                              ? "none"
+                              : "1px solid #E5E7EB",
+                            fontSize: "0.875rem",
+                            color: "#374151",
+                          }}
+                        >
+                          {column.render
+                            ? column.render(row[column.key], row, index)
+                            : row[column.key]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+          </Box>
+        </Paper>
 
-      {/* Pagination */}
-      {enablePagination && filteredData.length > 0 && (
-        <Group justify="apart">
-          <Group gap="xs">
-            <Text size="sm" color="dimmed">
-              Showing {(activePage - 1) * currentPageSize + 1} to{" "}
-              {Math.min(activePage * currentPageSize, filteredData.length)} of{" "}
-              {filteredData.length} entries
-            </Text>
-            <Select
-              value={currentPageSize.toString()}
-              onChange={(value) => {
-                setCurrentPageSize(Number(value));
+        {/* Pagination */}
+        {enablePagination && filteredData.length > 0 && (
+          <div className="flex justify-between items-center mt-2">
+            <DataTableInfo
+              totalEntries={filteredData.length}
+              currentPage={activePage}
+              pageSize={currentPageSize}
+              pageSizeOptions={pageSizeOptions}
+              onPageSizeChange={(size) => {
+                setCurrentPageSize(size);
                 setActivePage(1);
               }}
-              data={pageSizeOptions.map((size) => ({
-                value: size.toString(),
-                label: `${size} per page`,
-              }))}
-              style={{ width: 140 }}
             />
-          </Group>
-          <Pagination
-            total={totalPages}
-            value={activePage}
-            onChange={setActivePage}
-          />
-        </Group>
-      )}
+            <DataTablePagination
+              totalEntries={filteredData.length}
+              currentPage={activePage}
+              pageSize={currentPageSize}
+              onPageChange={setActivePage}
+            />
+          </div>
+        )}
+      </Box>
     </Stack>
   );
 }

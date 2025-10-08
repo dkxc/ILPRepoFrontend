@@ -336,7 +336,7 @@ export default function Projects() {
           enablePagination={true}
           enableDateFilter={true}
           dateFilterColumn="startDate"
-          pageSize={5}
+          pageSize={10}
           pageSizeOptions={[5, 10, 25, 50]}
           striped={false}
           highlightOnHover={true}
