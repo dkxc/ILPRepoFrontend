@@ -15,6 +15,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@e965/xlsx": "^0.20.0",
     "@mantine/core": "^8.3.3",
     "@mantine/dates": "^8.3.3",
     "@mantine/hooks": "^8.3.3",
