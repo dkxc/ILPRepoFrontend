@@ -16,22 +16,22 @@ function DocumentItem({
   return (
     <div
       className={cn(
-        "flex justify-between align-middle p-4 hover:bg-inactive-badge rounded-md",
+        "flex justify-between items-center-safe p-4 hover:bg-inactive-badge rounded-md",
         className,
       )}
       ref={ref}
       {...props}
     >
-      <div className="flex align-middle">
+      <div className="flex">
         <div></div>
-        <div className="flex flex-col justify-center">
-          <div>{document.title}</div>
-          <div className="font-light text-sm">
+        <div className="flex flex-col">
+          <div className="text-sm">{document.title}</div>
+          <div className="font-light text-xs">
             {document.uploadDate.toDateString()}
           </div>
         </div>
       </div>
-      <div className="h-full">
+      <div className="flex items-center-safe">
         <DownloadIcon />
       </div>
     </div>

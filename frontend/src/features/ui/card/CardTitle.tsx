@@ -16,7 +16,7 @@ function CardHeader({
   return (
     <Comp
       className={cn(
-        "text-2xl font-semibold leading-none tracking-tight",
+        "text-xl font-semibold leading-none tracking-tight",
         className,
       )}
       ref={ref}
