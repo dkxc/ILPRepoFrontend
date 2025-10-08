@@ -14,6 +14,7 @@ import HeaderBar from "./features/ui/header/HeaderBar";
 import HeaderItem from "./features/ui/header/HeaderItem";
 import SearchBar from "./features/ui/header/search/SearchBar";
 import { useState } from "react";
+import { cn } from "./lib/utils";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
@@ -32,7 +33,7 @@ const adminNavItems = [
 
 function App() {
   const sideBarWidth = "w-48";
-  const headerWidth = "h-16 max-h-16";
+  const headerHeight = "h-16 max-h-16";
   // TODO: Remove this after auth
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
@@ -48,9 +49,9 @@ function App() {
   };
   return (
     <>
-      <div className="flex flex-col h-screen font-secondary text-text-base">
+      <div className="flex flex-col h-screen font-secondary text-text-base overflow-hidden">
         <Header
-          className={`${headerWidth} bg-sidebar-and-header-background`}
+          className={cn("bg-sidebar-and-header-background", headerHeight)}
           logo={experionLogo}
           logoWidth={sideBarWidth}
         >
@@ -75,13 +76,13 @@ function App() {
             </HeaderItem>
           </HeaderBar>
         </Header>
-        <div className="flex h-full">
+        <div className="flex grow min-h-0">
           {/* TODO: Remove this after auth */}
           <SideBar
             navItems={isAdmin ? adminNavItems : navItems}
-            className={`${sideBarWidth} bg-sidebar-and-header-background`}
+            className={cn("bg-sidebar-and-header-background", sideBarWidth)}
           />
-          <main className="flex-1 bg-background ">
+          <main className="flex-1 bg-background overflow-y-auto">
             <Outlet />
           </main>
         </div>

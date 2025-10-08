@@ -15,9 +15,12 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@nivo/pie": "^0.99.0",
     "@mantine/core": "^8.3.3",
+    "@mantine/dates": "^8.3.3",
     "@mantine/hooks": "^8.3.3",
+    "@mantine/modals": "^8.3.3",
+    "@mantine/notifications": "^8.3.3",
+    "@nivo/pie": "^0.99.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-router/node": "^7.9.3",
     "@tailwindcss/vite": "^4.1.13",
@@ -29,7 +32,8 @@
     "react-dom": "^19.1.1",
     "react-router": "^7.9.3",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.13"
+    "tailwindcss": "^4.1.13",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@react-router/dev": "^7.9.3",
@@ -51,5 +55,5 @@
       "@tailwindcss/oxide"
     ]
   },
-  "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa"
+  "packageManager": "pnpm@10.18.1+sha512.77a884a165cbba2d8d1c19e3b4880eee6d2fcabd0d879121e282196b80042351d5eb3ca0935fa599da1dc51265cc68816ad2bddd2a2de5ea9fdf92adbec7cd34"
 }

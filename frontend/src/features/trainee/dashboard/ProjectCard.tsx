@@ -17,7 +17,7 @@ function ProjectCard({
   return (
     <Card.Card
       className={cn(
-        "bg-sidebar-and-header-background col-span-2 flex align-middle justify-between gap-4",
+        "bg-sidebar-and-header-background flex justify-between gap-4",
         className,
       )}
       ref={ref}
@@ -31,7 +31,7 @@ function ProjectCard({
           </Card.CardDescription>
         </Card.CardHeader>
 
-        <Card.CardContent>
+        <Card.CardContent className="flex flex-col gap-1 text-sm">
           <div>Status: {project.status}</div>
           <div>Technology Used: </div>
           <div>No. of Team Members: {project.team.members.length}</div>

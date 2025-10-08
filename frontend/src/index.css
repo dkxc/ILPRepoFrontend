@@ -3,24 +3,26 @@
 
 @theme {
   --color-background: rgb(248 250 252);
-  --color-primary: var(--color-blue-600);
+  --color-brand: var(--color-blue-600);
 
-  --color-primary-50: var(--color-blue-50);
-  --color-primary-100: var(--color-blue-100);
-  --color-primary-200: var(--color-blue-200);
-  --color-primary-300: var(--color-blue-300);
-  --color-primary-400: var(--color-blue-400);
-  --color-primary-500: var(--color-blue-500);
-  --color-primary-600: var(--color-blue-600);
-  --color-primary-700: var(--color-blue-700);
-  --color-primary-800: var(--color-blue-800);
-  --color-primary-900: var(--color-blue-900);
-  --color-primary-950: var(--color-blue-950);
-  --color-primary-foreground: var(--color-blue-50);
+  --color-brand-50: var(--color-blue-50);
+  --color-brand-100: var(--color-blue-100);
+  --color-brand-200: var(--color-blue-200);
+  --color-brand-300: var(--color-blue-300);
+  --color-brand-400: var(--color-blue-400);
+  --color-brand-500: var(--color-blue-500);
+  --color-brand-600: var(--color-blue-600);
+  --color-brand-700: var(--color-blue-700);
+  --color-brand-800: var(--color-blue-800);
+  --color-brand-900: var(--color-blue-900);
+  --color-brand-950: var(--color-blue-950);
+  --color-brand-foreground: var(--color-blue-50);
 
   --color-sidebar-and-header-background: rgb(254 254 254);
+  --color-inactive-badge: rgb(240 244 254);
   --color-text-base: rgb(33 36 39);
+  --color-bg-results-tabs: rgb(249 249 249);
 
-  --font-primary: "Montserrat", Arial, sans-serif;
+  --font-brand: "Montserrat", Arial, sans-serif;
   --font-secondary: "Poppins", var(--font-sans);
 }

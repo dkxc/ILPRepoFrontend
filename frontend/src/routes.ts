@@ -12,5 +12,6 @@ export default [
     route("projects", "./pages/admin/Projects.tsx"),
     route("documents", "./pages/admin/Documents.tsx"),
     route("adminres", "./pages/admin/Results.tsx"),
+    route("createProject", "./pages/admin/CreateProject.tsx"),
   ]),
 ] satisfies RouteConfig;
