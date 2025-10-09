@@ -1,7 +1,7 @@
 import BatchMetadata from "../../features/ui/ProjectDetails/BatchMetadata";
 import ProjectDocuments from "../../features/ui/ProjectDetails/DocumentUpload";
 import TeamList from "../../features/ui/ProjectDetails/TeamList";
-import CompletionRate from "../../features/ui/ProjectDetails/Completionrate";
+import SubmissionRate from "../../features/ui/ProjectDetails/Completionrate";
 
 function MyProject() {
   return (
@@ -9,6 +9,7 @@ function MyProject() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-6">
           <BatchMetadata
+            projectName="ILP Repo Portal"
             name="ILP 2024-25 BATCH 1"
             trainees={7}
             techStack={["React", ".NET"]}
@@ -17,14 +18,14 @@ function MyProject() {
           />
         </div>
         <div className="mb-6">
-          <ProjectDocuments />
+          <ProjectDocuments canUpload={true} canNotify={true} />
         </div>
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-          <div className="w-full md:w-7/10">
+          <div className="w-full md:w-7/10 flex items-stretch">
             <TeamList />
           </div>
-          <div className="w-full md:w-3/10 mt-6 md:mt-0">
-            <CompletionRate />
+          <div className="w-full md:w-3/10 flex items-stretch">
+            <SubmissionRate />
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "../../ui/Button";
 import { Trash2, Plus, X, CircleCheckBig } from "lucide-react";
 
 interface Document {
@@ -31,8 +32,11 @@ function ProjectDocuments({
         ],
   );
   const [isAdding, setIsAdding] = useState(false);
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
   const [newDocName, setNewDocName] = useState("");
   const [newDocFilename, setNewDocFilename] = useState("");
+  const [notifySubject, setNotifySubject] = useState("");
+  const [notifyMessage, setNotifyMessage] = useState("");
 
   const handleDelete = (id: string) => {
     setDocuments(documents.filter((doc) => doc.id !== id));
@@ -59,13 +63,24 @@ function ProjectDocuments({
           <h2 className="text-lg font-bold text-gray-900">Project Document</h2>
           {canUpload && (
             <div className="flex gap-3">
-              <button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
-                style={{ fontSize: "0.85rem" }}
+              <Button
+                size="default"
+                variant="default"
+                className="h-10 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-150"
                 onClick={() => setIsAdding(true)}
               >
                 Upload Documents
-              </button>
+              </Button>
+              {canNotify && (
+                <Button
+                  size="default"
+                  variant="default"
+                  className="h-10 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-150"
+                  onClick={() => setIsNotifyOpen(true)}
+                >
+                  Send Notification
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -87,16 +102,17 @@ function ProjectDocuments({
               {(canDelete || canNotify) && (
                 <div className="flex items-center gap-2">
                   {canNotify && idx < 3 && (
-                    <CircleCheckBig className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <CircleCheckBig className="h-5 w-5 text-green-500" />
                   )}
                   {canDelete && (
-                    <button
-                      className="ml-1 transition-colors flex-shrink-0"
+                    <Button
+                      size="icon"
+                      className="h-4 w-4 p-1 transition-colors flex-shrink-0 bg-transparent hover:bg-transparent [&_svg]:size-5 hover:[&_svg]:text-red-500"
                       onClick={() => handleDelete(doc.id)}
                       title="Delete document"
                     >
-                      <Trash2 className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                    </button>
+                      <Trash2 className="text-gray-400 hover:text-red-500 transition-colors" />
+                    </Button>
                   )}
                 </div>
               )}
@@ -111,7 +127,7 @@ function ProjectDocuments({
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Upload Document</h3>
-              <button
+              <Button
                 onClick={() => {
                   setIsAdding(false);
                   setNewDocName("");
@@ -120,7 +136,7 @@ function ProjectDocuments({
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
 
             <div className="mb-4">
@@ -148,7 +164,8 @@ function ProjectDocuments({
             </div>
 
             <div className="flex justify-end gap-2">
-              <button
+              <Button
+                variant="default"
                 className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
                 onClick={() => {
                   setIsAdding(false);
@@ -157,13 +174,81 @@ function ProjectDocuments({
                 }}
               >
                 Cancel
-              </button>
-              <button
-                className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
+              </Button>
+              <Button
+                variant="default"
+                className="px-4 py-2 rounded bg-brand text-white"
                 onClick={handleAdd}
               >
                 Upload
-              </button>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isNotifyOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Send Message</h3>
+              <Button
+                onClick={() => {
+                  setIsNotifyOpen(false);
+                  setNotifySubject("");
+                  setNotifyMessage("");
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Subject</label>
+              <input
+                type="text"
+                className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={notifySubject}
+                onChange={(e) => setNotifySubject(e.target.value)}
+                placeholder="Enter subject"
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">Message</label>
+              <textarea
+                className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={notifyMessage}
+                onChange={(e) => setNotifyMessage(e.target.value)}
+                placeholder="Enter message"
+                rows={4}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <div className="flex justify-center gap-4 w-full">
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  onClick={() => {
+                    setIsNotifyOpen(false);
+                    setNotifySubject("");
+                    setNotifyMessage("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-150"
+                  onClick={() => {
+                    // handle send notification logic here
+                    setIsNotifyOpen(false);
+                    setNotifySubject("");
+                    setNotifyMessage("");
+                  }}
+                >
+                  Send
+                </Button>
+              </div>
             </div>
           </div>
         </div>

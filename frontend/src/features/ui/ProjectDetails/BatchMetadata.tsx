@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "../Button";
 import {
   SquarePen,
   Plus,
@@ -12,6 +13,7 @@ import {
 
 interface BatchMetadataProps {
   name: string;
+  projectName: string;
   trainees: number;
   techStack: string[];
   repositoryUrl: string;
@@ -21,6 +23,7 @@ interface BatchMetadataProps {
 
 function BatchMetadata({
   name,
+  projectName,
   trainees,
   techStack,
   repositoryUrl,
@@ -38,13 +41,24 @@ function BatchMetadata({
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 mt-5 gap-y-4 gap-x-2">
+      <div className="px-2 mt-5 mb-6 flex items-center gap-3">
+        <h1
+          className="text-3xl font-extrabold tracking-tight"
+          style={{ color: "#565E6C" }}
+        >
+          {projectName || "ILP Project"}
+        </h1>
+        <span className="px-4 py-1 rounded-full bg-brand text-white text-sm font-semibold shadow-sm select-none border border-blue-200">
+          Ongoing
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 gap-y-4 gap-x-2 rounded-t-lg">
         <div className="flex flex-col items-start px-2 py-2">
           <span className="font-bold mb-2 flex items-center gap-2">
             <FolderPen className="h-5 w-5" style={{ color: "#7B7575" }} />
             Batch
           </span>
-          <span className="text-gray-800">{name}</span>
+          <span className="text-white-800">{name}</span>
         </div>
         <div className="flex flex-col items-start px-2 py-2">
           <span className="font-bold mb-2 flex items-center gap-2">
@@ -65,7 +79,8 @@ function BatchMetadata({
               currentTechStack.map((stack, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700"
+                  className="px-3 py-1 rounded-full text-sm font-medium bg-brand text-white border border-blue-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  style={{ boxShadow: "0 1px 4px rgba(37,99,235,0.08)" }}
                 >
                   {stack}
                 </span>
@@ -89,14 +104,16 @@ function BatchMetadata({
               >
                 Repository
               </a>
-              <button
-                className="bg-gray-100 hover:bg-gray-200 rounded-full p-1"
+              <Button
+                variant="default"
+                size="icon"
                 title="Copy Repository Link"
                 type="button"
+                className="bg-gray-100 hover:bg-gray-200 rounded-full p-1 text-white"
                 onClick={() => navigator.clipboard.writeText(currentRepo)}
               >
                 <Copy className="h-4 w-4 text-gray-700" />
-              </button>
+              </Button>
             </span>
             <span className="flex items-center gap-2">
               <a
@@ -107,27 +124,32 @@ function BatchMetadata({
               >
                 Figma
               </a>
-              <button
-                className="bg-gray-100 hover:bg-gray-200 rounded-full p-1"
+              <Button
+                variant="default"
+                size="icon"
                 title="Copy Figma Link"
                 type="button"
+                className="bg-gray-100 hover:bg-gray-200 rounded-full p-1 text-white"
                 onClick={() => navigator.clipboard.writeText(currentFigma)}
               >
                 <Copy className="h-4 w-4 text-gray-700" />
-              </button>
+              </Button>
             </span>
           </span>
         </div>
         {/* Edit placeholder */}
         {editable && (
-          <div className="col-span-1 md:col-span-1 flex w-full md:w-auto justify-center md:justify-end items-center px-2 py-2 mt-4 md:mt-0">
-            <button
-              className="bg-blue-100 rounded-full p-2 flex items-center justify-center w-full md:w-auto"
+          <div className="col-span-1 md:col-span-1 flex w-full md:w-40 justify-center md:justify-end items-center px-2 py-2 mt-4 md:mt-0 md:ml-6">
+            <Button
+              variant="default"
+              size="default"
+              className="bg-brand rounded-lg px-4 py-2 flex items-center justify-center w-full md:w-auto text-white border border-brand/30 hover:bg-brand/90 transition-colors"
               title="Edit"
               onClick={() => setIsEditing(true)}
             >
-              <SquarePen className="h-6 w-6 text-blue-700" />
-            </button>
+              <SquarePen className="h-6 w-6 text-white mr-2" />
+              Edit
+            </Button>
           </div>
         )}
       </div>
@@ -146,8 +168,10 @@ function BatchMetadata({
                   onChange={(e) => setEditTechStackInput(e.target.value)}
                   placeholder="Add tech stack"
                 />
-                <button
-                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 flex items-center justify-center"
+                <Button
+                  variant="default"
+                  size="icon"
+                  className="bg-brand text-white rounded-full p-2 flex items-center justify-center"
                   type="button"
                   onClick={() => {
                     const val = editTechStackInput.trim();
@@ -158,17 +182,19 @@ function BatchMetadata({
                   }}
                 >
                   <Plus className="h-5 w-5" />
-                </button>
+                </Button>
               </div>
               <div className="flex flex-wrap gap-2">
                 {editTechStackArr.map((stack, idx) => (
                   <span
                     key={idx}
-                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center"
+                    className="bg-brand text-white px-1 py-0 rounded-md text-[0.7rem] font-normal flex items-center border border-brand/30"
                   >
                     {stack}
-                    <button
-                      className="ml-2 text-red-500 hover:text-red-700"
+                    <Button
+                      variant="default"
+                      size="icon"
+                      className="ml-2 hover:text-black text-white"
                       type="button"
                       onClick={() =>
                         setEditTechStackArr(
@@ -176,8 +202,8 @@ function BatchMetadata({
                         )
                       }
                     >
-                      <X className="h-4 w-4" />
-                    </button>
+                      <X className="h-3 w-3" />
+                    </Button>
                   </span>
                 ))}
               </div>
@@ -200,15 +226,19 @@ function BatchMetadata({
                 onChange={(e) => setEditFigma(e.target.value)}
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <button
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+            <div className="flex justify-center gap-4 mt-6">
+              <Button
+                variant="default"
+                size="sm"
+                className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 text-grey-700"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
-              </button>
-              <button
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                className="px-3 py-1 rounded bg-brand text-white"
                 onClick={() => {
                   setCurrentTechStack(editTechStackArr);
                   setCurrentRepo(editRepo);
@@ -217,7 +247,7 @@ function BatchMetadata({
                 }}
               >
                 Save
-              </button>
+              </Button>
             </div>
           </div>
         </div>
