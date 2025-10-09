@@ -18,7 +18,7 @@ function MyProject() {
           />
         </div>
         <div className="mb-6">
-          <ProjectDocuments />
+          <ProjectDocuments canUpload={true} canNotify={true} />
         </div>
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-7/10 flex items-stretch">
