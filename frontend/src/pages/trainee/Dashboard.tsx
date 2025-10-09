@@ -1,13 +1,28 @@
-import BatchCard from "../../features/trainee/dashboard/BatchCard";
-import DocumentsCard from "../../features/trainee/dashboard/DocumentsCard";
-import ProjectCard from "../../features/trainee/dashboard/ProjectCard";
-import RecentActivityCard from "../../features/trainee/dashboard/RecentActivityCard";
-import ScoreCard from "../../features/trainee/dashboard/ScoresCard";
-import WelcomeHeader from "../../features/trainee/dashboard/WelcomeHeader";
+import { lazy } from "react";
 import type { Batch } from "../../features/trainee/types/Batch.types";
 import type { TraineeDocument } from "../../features/trainee/types/TraineeDocument.types";
 import type { Project } from "../../features/trainee/types/Project.types";
 import type { Scores } from "../../features/trainee/types/scores/Score.types";
+import type { Activity } from "../../features/trainee/types/Activity.types";
+
+const BatchCard = lazy(
+  () => import("../../features/trainee/dashboard/BatchCard"),
+);
+const DocumentsCard = lazy(
+  () => import("../../features/trainee/dashboard/DocumentsCard"),
+);
+const ProjectCard = lazy(
+  () => import("../../features/trainee/dashboard/ProjectCard"),
+);
+const RecentActivityCard = lazy(
+  () => import("../../features/trainee/dashboard/RecentActivityCard"),
+);
+const ScoreCard = lazy(
+  () => import("../../features/trainee/dashboard/ScoresCard"),
+);
+const WelcomeHeader = lazy(
+  () => import("../../features/trainee/dashboard/WelcomeHeader"),
+);
 
 /* TODO: Remove this dummy data */
 function Dashboard() {
@@ -56,6 +71,35 @@ function Dashboard() {
       type: "pdf",
       url: "https://github.com/",
     },
+    {
+      id: 3,
+      title: "Sprint Tracker 424242422222222222222 214115r2r 1 3251r",
+      uploadDate: new Date(2024, 1, 1, 12, 11, 11),
+      type: "docx",
+      url: "https://github.com/",
+    },
+    {
+      id: 4,
+      title: "BRD Template (Old Version)",
+      uploadDate: new Date(2024, 1, 1, 12, 11, 11),
+      type: "xls",
+      url: "https://github.com/",
+    },
+  ];
+
+  const recent: Activity[] = [
+    {
+      id: 1,
+      section: "BRD Document",
+      type: "upload",
+      time: new Date(2023, 8, 10, 11, 11, 11),
+    },
+    {
+      id: 2,
+      section: "Project Tracked",
+      type: "view",
+      time: new Date(2025, 1, 1, 15, 15, 15),
+    },
   ];
 
   const scores: Scores = {
@@ -77,7 +121,7 @@ function Dashboard() {
 
         <ScoreCard className="col-span-3" scores={scores} />
         <DocumentsCard className="col-span-3" documents={documents} />
-        <RecentActivityCard className="col-span-4" project={project} />
+        <RecentActivityCard className="col-span-4" activities={recent} />
       </div>
     </>
   );

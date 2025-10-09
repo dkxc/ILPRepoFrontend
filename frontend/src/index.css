@@ -23,6 +23,12 @@
   --color-text-base: rgb(33 36 39);
   --color-bg-results-tabs: rgb(249 249 249);
 
+  /* Icon Colors */
+  --color-icon-pdf: rgb(217 45 32);
+  --color-icon-xls: rgb(7 148 85);
+  --color-icon-doc: rgb(21 94 239);
+  --color-icon-other: var(--color-gray-600);
+
   --font-brand: "Montserrat", Arial, sans-serif;
   --font-secondary: "Poppins", var(--font-sans);
 }

@@ -1,4 +1,10 @@
-export type TraineeDocumentType = "pdf" | "xlsx" | "xls" | "docx" | "doc";
+export type TraineeDocumentType =
+  | "pdf"
+  | "xlsx"
+  | "xls"
+  | "docx"
+  | "doc"
+  | "other";
 
 export type TraineeDocument = {
   id: number;
