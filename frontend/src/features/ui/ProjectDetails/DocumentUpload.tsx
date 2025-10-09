@@ -111,9 +111,7 @@ function ProjectDocuments({
                       onClick={() => handleDelete(doc.id)}
                       title="Delete document"
                     >
-                      <Trash2
-                        className="text-gray-400 hover:text-red-500 transition-colors" 
-                      />
+                      <Trash2 className="text-gray-400 hover:text-red-500 transition-colors" />
                     </Button>
                   )}
                 </div>
