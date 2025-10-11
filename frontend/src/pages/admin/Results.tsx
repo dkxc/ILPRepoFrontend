@@ -6,7 +6,7 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import type { BatchAssessment } from "../../features/trainee/types/Batch.types";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 export default function Results() {
   const navigate = useNavigate();
