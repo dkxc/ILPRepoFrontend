@@ -119,9 +119,9 @@ function Dashboard() {
         <ProjectCard className="col-span-6" project={project} />
         <BatchCard className="col-span-4" batch={batch} />
 
+        <RecentActivityCard className="col-span-3" activities={recent} />
         <ScoreCard className="col-span-3" scores={scores} />
-        <DocumentsCard className="col-span-3" documents={documents} />
-        <RecentActivityCard className="col-span-4" activities={recent} />
+        <DocumentsCard className="col-span-4" documents={documents} />
       </div>
     </>
   );
