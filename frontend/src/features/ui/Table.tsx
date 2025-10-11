@@ -232,11 +232,7 @@ export default function DataTable<T extends Record<string, any>>({
     : filteredData;
 
   return (
-    <Stack
-      className="ml-10 mr-10"
-      gap="md"
-      style={{ backgroundColor: "white" }}
-    >
+    <Stack className="" gap="md" style={{ backgroundColor: "white" }}>
       <Box style={{ paddingLeft: "2.5rem", paddingRight: "2.5rem" }}>
         {/* Header Section */}
         {showHeaderSection && (
