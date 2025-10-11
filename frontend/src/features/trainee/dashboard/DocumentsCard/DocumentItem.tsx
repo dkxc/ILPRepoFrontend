@@ -59,7 +59,7 @@ function DocumentItem({
       <div className="flex items-center-safe gap-3">
         <div>{getIcon(document.type, iconClassName)}</div>
         <div className="flex flex-col">
-          <div className="text-sm">{document.title}</div>
+          <div className="text-sm break-all">{document.title}</div>
           <div className="font-light text-xs">
             {document.uploadDate.toDateString()}
           </div>
