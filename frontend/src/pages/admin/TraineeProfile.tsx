@@ -104,7 +104,7 @@ function TraineeProfile() {
   const openModal = (
     type: "personal" | "contact" | "emergency" | "address",
     title: string,
-    data: any
+    data: any,
   ) => {
     console.log("Opening modal:", { type, title, data });
     setModalState({
@@ -182,7 +182,7 @@ function TraineeProfile() {
               openModal(
                 "personal",
                 "Edit Personal Information",
-                personalInfoData
+                personalInfoData,
               )
             }
             titleIcon={
@@ -264,7 +264,7 @@ function TraineeProfile() {
               openModal(
                 "emergency",
                 "Edit Emergency Contact",
-                emergencyContactData
+                emergencyContactData,
               )
             }
             titleIcon={

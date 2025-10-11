@@ -26,7 +26,7 @@ function Batches() {
   // ✅ Determine status based on start/end date
   const determineStatus = (
     startDate: string,
-    endDate: string
+    endDate: string,
   ): Batch["status"] => {
     const today = new Date();
     const start = new Date(startDate);

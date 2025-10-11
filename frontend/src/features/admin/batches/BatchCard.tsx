@@ -79,7 +79,7 @@ const BatchCard = forwardRef<HTMLDivElement, BatchCardProps>(
         </div>
       </Card.Card>
     );
-  }
+  },
 );
 
 BatchCard.displayName = "BatchCard";
