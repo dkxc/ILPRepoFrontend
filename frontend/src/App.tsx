@@ -33,7 +33,8 @@ const adminNavItems = [
 ];
 
 function App() {
-  const sideBarWidth = "md:w-40 lg:w-44 xl:w-52 max-w-52 transition-[width] motion-reduce:transition-none";
+  const sideBarWidth =
+    "md:w-40 lg:w-44 xl:w-52 max-w-52 transition-[width] motion-reduce:transition-none";
   const headerHeight = "h-14 max-h-14";
   // TODO: Remove this after auth
   const [isAdmin, setIsAdmin] = useState(false);
