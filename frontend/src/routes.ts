@@ -6,8 +6,6 @@ export default [
     route("myproject", "./pages/trainee/MyProject.tsx"),
     route("ilpprojects", "./pages/trainee/ILPProjects.tsx"),
     route("results", "./pages/trainee/Results.tsx"),
-    route("adminres/:id", "./pages/admin/UploadResults.tsx"),
-    route("projectsDetailsTrainee/:id", "./pages/trainee/ProjectDetails.tsx"),
 
     route("admindash", "./pages/admin/Dashboard.tsx"),
     route("batches", "./pages/admin/Batches.tsx"),
