@@ -6,14 +6,12 @@ export default [
     route("myproject", "./pages/trainee/MyProject.tsx"),
     route("ilpprojects", "./pages/trainee/ILPProjects.tsx"),
     route("results", "./pages/trainee/Results.tsx"),
-    route("projectsDetailsTrainee/:id", "./pages/trainee/ProjectDetails.tsx"),
 
     route("admindash", "./pages/admin/Dashboard.tsx"),
     route("batches", "./pages/admin/Batches.tsx"),
     route("projects", "./pages/admin/Projects.tsx"),
     route("documents", "./pages/admin/Documents.tsx"),
     route("adminres", "./pages/admin/Results.tsx"),
-    route("createProject", "./pages/admin/CreateProject.tsx"),
-    route("projectsDetailsAdmin/:id", "./pages/admin/ProjectDetails.tsx"),
+    route("documentupload", "./pages/admin/DocumentUploadSection.tsx"),
   ]),
 ] satisfies RouteConfig;
