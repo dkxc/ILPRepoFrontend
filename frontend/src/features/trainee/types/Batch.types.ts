@@ -1,8 +1,29 @@
-export type Batch = {
+export type BaseBatch = {
   id: number;
   title: string;
   type: string;
+};
+
+export type Batch = BaseBatch & {
   startDate: Date;
   endDate: Date;
   day: number;
+};
+
+export type BatchAssessment = BaseBatch & {
+  totalTrainees: number;
+  status: "Pending" | "Completed";
+};
+
+export type Assessment = {
+  id: number;
+  batchId: string;
+  documentType:
+    | "Tech Fundamentals"
+    | "Specialisation"
+    | "Overall Assessment"
+    | "Others";
+  documentName?: string;
+  fileName?: string;
+  uploadedDate?: Date;
 };
