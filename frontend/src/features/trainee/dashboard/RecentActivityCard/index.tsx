@@ -24,12 +24,12 @@ function RecentActivityCard({
       ref={ref}
       {...props}
     >
-      <div className="w-full">
+      <div className="flex flex-col w-full">
         <Card.CardHeader>
           <Card.CardTitle>Recent Activity</Card.CardTitle>
         </Card.CardHeader>
 
-        <Card.CardContent className="flex flex-col items-center-safe gap-4 w-full">
+        <Card.CardContent className="flex flex-col items-center-safe self-center-safe justify-center-safe gap-4 w-3/4">
           {activities.map((activity) => (
             <div key={activity.id} className="w-full">
               <>

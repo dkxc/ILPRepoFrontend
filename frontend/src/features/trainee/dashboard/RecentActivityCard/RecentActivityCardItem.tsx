@@ -14,7 +14,10 @@ function RecentActivityCardItem({
 }: RecentActivtyCardItemProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <div
-      className={cn("flex justify-around items-center-sage text-sm", className)}
+      className={cn(
+        "flex justify-between items-center-safe text-sm w-full",
+        className,
+      )}
       ref={ref}
       {...props}
     >
