@@ -21,12 +21,7 @@ function RecentActivityCardItem({
       <div>
         <span className="font-medium">{activity.type}</span> {activity.section}
       </div>
-      <div>
-        {activity.time.toLocaleTimeString(undefined, {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </div>
+      <div>{activity.time.toLocaleDateString()}</div>
     </div>
   );
 }

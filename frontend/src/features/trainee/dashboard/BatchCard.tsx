@@ -31,14 +31,14 @@ function BatchCard({
             <CalendarPlus className="w-4 h-4" />
           </span>
           <span>Start Date:</span>
-          <span>{batch.startDate.toDateString()}</span>
+          <span>{batch.startDate.toLocaleDateString()}</span>
         </div>
         <div className="flex gap-2 ">
           <span>
             <CalendarMinus className="w-4 h-4" />
           </span>
           <span>End Date:</span>
-          <span>{batch.endDate.toDateString()}</span>
+          <span>{batch.endDate.toLocaleDateString()}</span>
         </div>
       </Card.CardContent>
 
