@@ -7,7 +7,9 @@ import {
   FolderGit2,
   GitMerge,
   House,
+  LogOut,
   Moon,
+  UserRoundCog,
 } from "lucide-react";
 import Header from "./features/ui/header/Header";
 import experionLogo from "./assets/experionlogo.svg";
@@ -16,6 +18,7 @@ import HeaderItem from "./features/ui/header/HeaderItem";
 import SearchBar from "./features/ui/header/search/SearchBar";
 import { useState } from "react";
 import { cn } from "./lib/utils";
+import { ProfileIconWithDropDown } from "./features/ui/header/profile/ProfileIconWithDropDown";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
@@ -30,6 +33,11 @@ const adminNavItems = [
   { to: "/projects", label: "Projects", icon: FolderGit2 },
   { to: "/documents", label: "Documents", icon: ChartNoAxesCombined },
   { to: "/adminres", label: "Reports", icon: ChartLine },
+];
+
+const dropDownItems = [
+  { to: "/profile", label: "My Profile", icon: UserRoundCog },
+  { to: "/signout", label: "Sign Out", icon: LogOut },
 ];
 
 function App() {
@@ -76,6 +84,9 @@ function App() {
             <HeaderItem aria-label="Dark Mode">
               <Moon className="size-3.5" />
             </HeaderItem>
+            <ProfileIconWithDropDown>
+              <SideBar navItems={dropDownItems} />
+            </ProfileIconWithDropDown>
           </HeaderBar>
         </Header>
         <div className="flex grow min-h-0">
