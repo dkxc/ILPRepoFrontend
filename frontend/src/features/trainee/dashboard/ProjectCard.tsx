@@ -6,7 +6,7 @@ import { cn } from "../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
 import { getPieDataFromPercent } from "../../../lib/graphs/utils";
 import { Pencil, Radio, UploadCloud } from "lucide-react";
-import Badge from "../../ui/badges/Badge";
+import Badge from "../../ui/badge/Badge";
 
 export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
   project: Project;
