@@ -30,7 +30,7 @@ function DocumentsCard({
           <Card.CardTitle>Documents</Card.CardTitle>
         </Card.CardHeader>
 
-        <Card.CardContent className="flex flex-col h-48 max-h-48 overflow-y-auto">
+        <Card.CardContent className="flex flex-col h-52 max-h-52 overflow-y-auto">
           {documents.map((doc) => (
             <NavLink
               key={doc.url}
@@ -44,6 +44,8 @@ function DocumentsCard({
             </NavLink>
           ))}
         </Card.CardContent>
+
+        <Card.CardFooter />
       </div>
     </Card.Card>
   );
