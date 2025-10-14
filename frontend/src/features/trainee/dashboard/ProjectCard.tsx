@@ -73,12 +73,12 @@ function ProjectCard({
           </Card.CardContent>
 
           <Card.CardFooter className="flex gap-2">
-            <Button size="sm" className="rounded-2xl px-4">
+            <Button size="sm" className="px-4 text-xs">
               <UploadCloud /> Upload Documents
             </Button>
             <Button
               size="sm"
-              className="rounded-2xl px-4 text-text-base bg-gray-200 hover:bg-gray-300"
+              className="px-4 text-text-base bg-gray-200 hover:bg-gray-300 text-xs"
             >
               <Pencil /> Edit Project Details
             </Button>
