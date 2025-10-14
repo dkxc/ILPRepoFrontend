@@ -106,9 +106,8 @@ function Dashboard() {
     average: 79.75,
     rank: 19,
     courses: [
-      { caption: "Ranking in Current Batch", value: 19 },
       { caption: "Tech Fundamentals", value: 78.1 },
-      { caption: "React Fundamentals", value: 81.4 },
+      { caption: "Specialization", value: 81.4 },
     ],
   };
 
