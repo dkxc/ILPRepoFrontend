@@ -26,7 +26,7 @@ function ScoreCard({
     >
       <div className="w-full">
         <Card.CardHeader>
-          <Card.CardTitle>Scores</Card.CardTitle>
+          <Card.CardTitle>Average Score</Card.CardTitle>
         </Card.CardHeader>
 
         <Card.CardContent className="flex h-4/5">
