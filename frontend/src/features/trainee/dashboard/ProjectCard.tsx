@@ -80,7 +80,7 @@ function ProjectCard({
               size="sm"
               className="px-4 text-text-base bg-gray-200 hover:bg-gray-300 text-xs"
             >
-              <Pencil /> Edit Project Details
+              <Pencil /> Edit Details
             </Button>
           </Card.CardFooter>
         </div>
