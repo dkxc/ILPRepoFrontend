@@ -138,5 +138,5 @@
     "builtin": true
   },
   "globals": {},
-  "ignorePatterns": ["**/dist/**", "**/node_modules/**"]
+  "ignorePatterns": ["**/build/**, **/dist/**", "**/node_modules/**"]
 }
