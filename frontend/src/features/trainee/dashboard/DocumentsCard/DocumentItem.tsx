@@ -56,10 +56,10 @@ function DocumentItem({
       ref={ref}
       {...props}
     >
-      <div className="flex items-center-safe gap-3">
+      <div className="flex items-center-safe gap-3 min-w-0">
         <div>{getIcon(document.type, iconClassName)}</div>
-        <div className="flex flex-col pr-6">
-          <div className="text-sm break-all">{document.title}</div>
+        <div className="flex flex-col pr-6 overflow-hidden">
+          <div className="text-sm break-words">{document.title}</div>
           <div className="font-light text-xs">
             {document.uploadDate.toDateString()}
           </div>
