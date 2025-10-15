@@ -18,7 +18,7 @@ interface BatchMetadataProps {
   techStack: string[];
   repositoryUrl: string;
   figmaUrl: string;
-  editable?: boolean;
+  canEdit?: boolean;
 }
 
 function BatchMetadata({
@@ -28,7 +28,7 @@ function BatchMetadata({
   techStack,
   repositoryUrl,
   figmaUrl,
-  editable = true,
+  canEdit = false,
 }: BatchMetadataProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTechStackArr, setEditTechStackArr] = useState<string[]>(techStack);
@@ -138,7 +138,7 @@ function BatchMetadata({
           </span>
         </div>
         {/* Edit placeholder */}
-        {editable && (
+        {canEdit && (
           <div className="col-span-1 md:col-span-1 flex w-full md:w-40 justify-center md:justify-end items-center px-2 py-2 mt-4 md:mt-0 md:ml-6">
             <Button
               variant="default"
@@ -154,7 +154,7 @@ function BatchMetadata({
         )}
       </div>
       {/* Modal for editing */}
-      {editable && isEditing && (
+      {canEdit && isEditing && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Edit Project Details</h2>
