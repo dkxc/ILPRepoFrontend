@@ -7,7 +7,7 @@ function MyProject() {
   return (
     <div className="min-h-screen w-full bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <BatchMetadata
             projectName="ILP Repo Portal"
             name="ILP 2024-25 BATCH 1"
@@ -16,9 +16,9 @@ function MyProject() {
             repositoryUrl="https://github.com/dkxc/ILPRepo"
             figmaUrl="https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0"
           />
-        </div>
+        </div> */}
         <div className="mb-6">
-          <ProjectDocuments canUpload={true} canNotify={true} />
+          <ProjectDocuments canUpload={true} canNotify={false} />
         </div>
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-7/10 flex items-stretch">
