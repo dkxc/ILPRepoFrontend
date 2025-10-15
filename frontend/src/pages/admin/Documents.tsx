@@ -27,7 +27,10 @@ export default function Results() {
   );
   const [documentRows, setDocumentRows] = useState<DocumentRow[]>([]);
   const [editingRowId, setEditingRowId] = useState<number | null>(null);
-  const [editDraft, setEditDraft] = useState<{ documentName: string; deadline: string } | null>(null);
+  const [editDraft, setEditDraft] = useState<{
+    documentName: string;
+    deadline: string;
+  } | null>(null);
 
   // Mock data
   const batchesData: BatchDocument[] = [
@@ -88,7 +91,12 @@ export default function Results() {
     setDocumentRows([
       { id: 1, documentName: "BRD", deadline: "", templateFile: null },
       { id: 2, documentName: "UAT", deadline: "", templateFile: null },
-      { id: 3, documentName: "Sprint Tracker", deadline: "", templateFile: null },
+      {
+        id: 3,
+        documentName: "Sprint Tracker",
+        deadline: "",
+        templateFile: null,
+      },
     ]);
   };
 
@@ -176,33 +184,35 @@ export default function Results() {
   }
 
   // STEP 2: Document Upload
-  
+
   const handleAddDocument = () => {
     const newDoc: DocumentRow = {
       id: Date.now(),
       documentName: `Document ${documentRows.length + 1}`,
-      deadline: new Date().toISOString().split('T')[0],
+      deadline: new Date().toISOString().split("T")[0],
       templateFile: null,
     };
     setDocumentRows([...documentRows, newDoc]);
   };
 
   const handleTemplateUpload = (id: number, file: File) => {
-    setDocumentRows(documentRows.map(doc => 
-      doc.id === id ? { ...doc, templateFile: file } : doc
-    ));
+    setDocumentRows(
+      documentRows.map((doc) =>
+        doc.id === id ? { ...doc, templateFile: file } : doc,
+      ),
+    );
     notifications.show({
       title: "Template Uploaded",
-      message: `Template uploaded for ${documentRows.find(d => d.id === id)?.documentName}`,
+      message: `Template uploaded for ${documentRows.find((d) => d.id === id)?.documentName}`,
       color: "green",
     });
   };
 
   const handleDeleteTemplate = (id: number) => {
-    const doc = documentRows.find(d => d.id === id);
-    setDocumentRows(documentRows.map(d => 
-      d.id === id ? { ...d, templateFile: null } : d
-    ));
+    const doc = documentRows.find((d) => d.id === id);
+    setDocumentRows(
+      documentRows.map((d) => (d.id === id ? { ...d, templateFile: null } : d)),
+    );
     notifications.show({
       title: "Template Removed",
       message: `Template removed for ${doc?.documentName}`,
@@ -211,15 +221,19 @@ export default function Results() {
   };
 
   const handleDocumentNameChange = (newName: string) => {
-    setEditDraft(draft => draft ? { ...draft, documentName: newName } : draft);
+    setEditDraft((draft) =>
+      draft ? { ...draft, documentName: newName } : draft,
+    );
   };
 
   const handleDeadlineChange = (newDeadline: string) => {
-    setEditDraft(draft => draft ? { ...draft, deadline: newDeadline } : draft);
+    setEditDraft((draft) =>
+      draft ? { ...draft, deadline: newDeadline } : draft,
+    );
   };
 
   const handleDeleteRow = (id: number) => {
-    setDocumentRows(documentRows.filter(doc => doc.id !== id));
+    setDocumentRows(documentRows.filter((doc) => doc.id !== id));
     notifications.show({
       title: "Deleted",
       message: "Document record deleted",
@@ -233,37 +247,35 @@ export default function Results() {
       header: "Document Name",
       sortable: true,
       width: "25%",
-      render: (_, row) => (
-        editingRowId === row.id
-          ? (
-              <input
-                type="text"
-                value={editDraft?.documentName ?? row.documentName}
-                onChange={e => handleDocumentNameChange(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                placeholder="Enter document name"
-              />
-            )
-          : <span>{row.documentName}</span>
-      ),
+      render: (_, row) =>
+        editingRowId === row.id ? (
+          <input
+            type="text"
+            value={editDraft?.documentName ?? row.documentName}
+            onChange={(e) => handleDocumentNameChange(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+            placeholder="Enter document name"
+          />
+        ) : (
+          <span>{row.documentName}</span>
+        ),
     },
     {
       key: "deadline",
       header: "Deadline",
       sortable: true,
       width: "25%",
-      render: (_, row) => (
-        editingRowId === row.id
-          ? (
-              <input
-                type="date"
-                value={editDraft?.deadline ?? row.deadline}
-                onChange={e => handleDeadlineChange(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            )
-          : <span>{row.deadline || "No deadline"}</span>
-      ),
+      render: (_, row) =>
+        editingRowId === row.id ? (
+          <input
+            type="date"
+            value={editDraft?.deadline ?? row.deadline}
+            onChange={(e) => handleDeadlineChange(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        ) : (
+          <span>{row.deadline || "No deadline"}</span>
+        ),
     },
     {
       key: "templateFile",
@@ -310,7 +322,9 @@ export default function Results() {
                   className="cursor-pointer bg-blue-600 hover:bg-blue-700"
                   onClick={(e: React.MouseEvent) => {
                     e.preventDefault();
-                    document.getElementById(`template-upload-${row.id}`)?.click();
+                    document
+                      .getElementById(`template-upload-${row.id}`)
+                      ?.click();
                   }}
                 >
                   <Upload className="w-4 h-4 mr-2" />
@@ -327,7 +341,7 @@ export default function Results() {
       header: "Action",
       align: "center",
       width: "15%",
-      render: (_value, row) => (
+      render: (_value, row) =>
         editingRowId === row.id ? (
           <div className="flex gap-2">
             <Button
@@ -335,9 +349,11 @@ export default function Results() {
               size="sm"
               className="bg-green-600 hover:bg-green-700"
               onClick={() => {
-                setDocumentRows(documentRows.map(doc =>
-                  doc.id === row.id ? { ...doc, ...editDraft! } : doc
-                ));
+                setDocumentRows(
+                  documentRows.map((doc) =>
+                    doc.id === row.id ? { ...doc, ...editDraft! } : doc,
+                  ),
+                );
                 setEditingRowId(null);
                 setEditDraft(null);
                 notifications.show({
@@ -346,7 +362,9 @@ export default function Results() {
                   color: "green",
                 });
               }}
-            >Save</Button>
+            >
+              Save
+            </Button>
             <Button
               variant="default"
               size="sm"
@@ -355,7 +373,9 @@ export default function Results() {
                 setEditingRowId(null);
                 setEditDraft(null);
               }}
-            >Cancel</Button>
+            >
+              Cancel
+            </Button>
             <Button
               variant="default"
               size="sm"
@@ -375,7 +395,10 @@ export default function Results() {
               title="Edit"
               onClick={() => {
                 setEditingRowId(row.id);
-                setEditDraft({ documentName: row.documentName, deadline: row.deadline });
+                setEditDraft({
+                  documentName: row.documentName,
+                  deadline: row.deadline,
+                });
               }}
             >
               <SquarePen className="h-6 w-6 text-white mr-2" />
@@ -391,8 +414,7 @@ export default function Results() {
               <Trash2 className="h-5 w-5 text-white" />
             </Button>
           </div>
-        )
-      ),
+        ),
     },
   ];
 
@@ -409,7 +431,7 @@ export default function Results() {
             <span className="text-sm font-medium">Back to batches</span>
           </button>
         </div>
-        
+
         <Button
           onClick={handleAddDocument}
           size="sm"
