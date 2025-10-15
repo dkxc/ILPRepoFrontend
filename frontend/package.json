@@ -11,7 +11,7 @@
     "lint": "oxlint .",
     "lint-fix": "oxlint . --fix",
     "flf": "prettier . --write && oxlint . --fix",
-    "preview": "react-router-serve ./build/server/index.js",
+    "start": "react-router-serve ./build/server/index.js",
     "prepare": "husky"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "@nivo/pie": "^0.99.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-router/node": "^7.9.4",
+    "@react-router/serve": "^7.9.4",
     "@tailwindcss/vite": "^4.1.14",
     "antd": "^5.27.5",
     "class-variance-authority": "^0.7.1",
