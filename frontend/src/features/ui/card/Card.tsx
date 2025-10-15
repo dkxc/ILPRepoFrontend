@@ -14,7 +14,7 @@ function Card({
   const Comp = asChild ? Slot : "div";
   return (
     <Comp
-      className={cn("rounded-lg shadow-sm", className)}
+      className={cn("rounded-lg shadow-sm bg-card", className)}
       ref={ref}
       {...props}
     ></Comp>

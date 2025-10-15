@@ -18,10 +18,7 @@ function DocumentsCard({
 }: DocumentsCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn(
-        "bg-sidebar-and-header-background flex justify-between gap-4",
-        className,
-      )}
+      className={cn("flex justify-between gap-4", className)}
       ref={ref}
       {...props}
     >
@@ -30,7 +27,7 @@ function DocumentsCard({
           <Card.CardTitle>Documents</Card.CardTitle>
         </Card.CardHeader>
 
-        <Card.CardContent className="flex flex-col h-64 max-h-64 overflow-y-auto">
+        <Card.CardContent className="flex flex-col h-52 max-h-52 overflow-y-auto">
           {documents.map((doc) => (
             <NavLink
               key={doc.url}
@@ -44,6 +41,8 @@ function DocumentsCard({
             </NavLink>
           ))}
         </Card.CardContent>
+
+        <Card.CardFooter />
       </div>
     </Card.Card>
   );

@@ -61,7 +61,7 @@ const BatchCard = forwardRef<HTMLDivElement, BatchCardProps>(
         className={`flex items-center gap-4 p-4 rounded-md border ${className}`}
         style={{
           borderColor: "rgb(229 231 235)", // gray-200
-          backgroundColor: "var(--color-sidebar-and-header-background)",
+          backgroundColor: "var(--color-menucolor)",
         }}
         {...props}
       >

@@ -1,7 +1,6 @@
 import { type Batch } from "../types/Batch.types";
 import * as Card from "../../ui/card";
 
-import { cn } from "../../../lib/utils";
 import { CalendarMinus, CalendarPlus } from "lucide-react";
 
 export interface BatchCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -15,11 +14,7 @@ function BatchCard({
   ...props
 }: BatchCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
-    <Card.Card
-      className={cn("bg-sidebar-and-header-background", className)}
-      ref={ref}
-      {...props}
-    >
+    <Card.Card className={className} ref={ref} {...props}>
       <Card.CardHeader>
         <Card.CardTitle>{batch.title}</Card.CardTitle>
         <Card.CardDescription>{batch.type}</Card.CardDescription>
@@ -31,14 +26,14 @@ function BatchCard({
             <CalendarPlus className="w-4 h-4" />
           </span>
           <span>Start Date:</span>
-          <span>{batch.startDate.toDateString()}</span>
+          <span>{batch.startDate.toLocaleDateString()}</span>
         </div>
         <div className="flex gap-2 ">
           <span>
             <CalendarMinus className="w-4 h-4" />
           </span>
           <span>End Date:</span>
-          <span>{batch.endDate.toDateString()}</span>
+          <span>{batch.endDate.toLocaleDateString()}</span>
         </div>
       </Card.CardContent>
 
