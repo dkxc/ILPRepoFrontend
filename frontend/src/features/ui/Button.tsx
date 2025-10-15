@@ -11,6 +11,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-brand text-brand-foreground hover:bg-brand-hover",
+        secondary:
+          "bg-inactive-badge text-text-base hover:bg-inactive-badge-hover",
         link: "text-brand underline-offset-4 hover:underline",
       },
       size: {
