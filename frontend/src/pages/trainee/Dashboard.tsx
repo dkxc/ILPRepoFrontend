@@ -3,7 +3,7 @@ import type { Batch } from "../../features/trainee/types/Batch.types";
 import type { TraineeDocument } from "../../features/trainee/types/TraineeDocument.types";
 import type { Project } from "../../features/trainee/types/Project.types";
 import type { Scores } from "../../features/trainee/types/scores/Score.types";
-import type { Activity } from "../../features/trainee/types/Activity.types";
+import type { Session } from "../../features/trainee/types/Session.types";
 
 const BatchCard = lazy(
   () => import("../../features/trainee/dashboard/BatchCard"),
@@ -14,8 +14,8 @@ const DocumentsCard = lazy(
 const ProjectCard = lazy(
   () => import("../../features/trainee/dashboard/ProjectCard"),
 );
-const RecentActivityCard = lazy(
-  () => import("../../features/trainee/dashboard/RecentActivityCard"),
+const UpcomingSessionsCard = lazy(
+  () => import("../../features/trainee/dashboard/UpcomingSessionsCard"),
 );
 const ScoreCard = lazy(
   () => import("../../features/trainee/dashboard/ScoresCard"),
@@ -87,18 +87,42 @@ function Dashboard() {
     },
   ];
 
-  const recent: Activity[] = [
+  const recent: Session[] = [
     {
       id: 1,
-      section: "BRD Document",
-      type: "upload",
-      time: new Date(2023, 8, 10, 11, 11, 11),
+      title: ".NET Fundamentals",
+      category: ".NET",
+      date: new Date(2023, 8, 10, 11, 11, 11),
     },
     {
       id: 2,
-      section: "Project Tracked",
-      type: "view",
-      time: new Date(2025, 1, 1, 15, 15, 15),
+      title: "React Hooks",
+      category: "React",
+      date: new Date(2025, 5, 3, 9, 7, 2),
+    },
+    {
+      id: 3,
+      title: "React epogQo{egvPEWgvPO:wkgvOPWmgpv",
+      category: "wINDOWS",
+      date: new Date(2025, 5, 3, 9, 7, 2),
+    },
+    {
+      id: 4,
+      title: "Java Fun",
+      category: "iwnfovwqjevpoqvqejmfoqekfpoqejv",
+      date: new Date(2025, 5, 3, 9, 7, 2),
+    },
+    {
+      id: 5,
+      title: "React Hooks",
+      category: "React",
+      date: new Date(2025, 5, 3, 9, 7, 2),
+    },
+    {
+      id: 6,
+      title: "React Hooks",
+      category: "React",
+      date: new Date(2025, 5, 3, 9, 7, 2),
     },
   ];
 
@@ -120,7 +144,7 @@ function Dashboard() {
 
         <DocumentsCard className="col-span-3" documents={documents} />
         <ScoreCard className="col-span-3" scores={scores} />
-        <RecentActivityCard className="col-span-4" activities={recent} />
+        <UpcomingSessionsCard className="col-span-4" activities={recent} />
       </div>
     </>
   );
