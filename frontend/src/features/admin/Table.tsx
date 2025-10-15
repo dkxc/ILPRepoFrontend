@@ -475,7 +475,7 @@ export function ProjectsTableExample() {
       key: "actions",
       header: "Actions",
       width: 100,
-      render: (_, row) => (
+      render: (_) => (
         <Group gap={4}>
           <Tooltip label="Edit">
             <ActionIcon variant="subtle" color="blue">

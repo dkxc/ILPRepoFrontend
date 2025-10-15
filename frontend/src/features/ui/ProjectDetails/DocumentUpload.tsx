@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "../../ui/Button";
-import { Trash2, Plus, X, CircleCheckBig } from "lucide-react";
+import { Trash2, X, CircleCheckBig } from "lucide-react";
 
 interface Document {
   id: string;
