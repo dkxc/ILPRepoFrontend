@@ -4,7 +4,7 @@ import ProjectDocuments from "../../features/ui/ProjectDetails/DocumentUpload";
 import TeamList from "../../features/ui/ProjectDetails/TeamList";
 import SubmissionRate from "../../features/ui/ProjectDetails/Completionrate";
 
-function ProjectDetails() {
+function projectsDetailsTrainee() {
   const { id } = useParams<{ id: string }>();
 
   // You can fetch project data based on the ID here
@@ -29,11 +29,11 @@ function ProjectDetails() {
             techStack={projectData.techStack}
             repositoryUrl={projectData.repositoryUrl}
             figmaUrl={projectData.figmaUrl}
-            canEdit={true}
+            canEdit={false}
           />
         </div>
         <div className="mb-6">
-          <ProjectDocuments canUpload={true} canNotify={true} />
+          <ProjectDocuments canUpload={true} canNotify={false} />
         </div>
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-7/10 flex items-stretch">
@@ -48,4 +48,4 @@ function ProjectDetails() {
   );
 }
 
-export default ProjectDetails;
+export default projectsDetailsTrainee;

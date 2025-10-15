@@ -24,7 +24,6 @@ import { useTheme } from "./hooks/useTheme";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
-  { to: "/myproject", label: "My Project", icon: GitMerge },
   { to: "/ilpprojects", label: "ILP Projects", icon: FolderGit2 },
   { to: "/results", label: "Results", icon: ChartNoAxesCombined },
 ];
