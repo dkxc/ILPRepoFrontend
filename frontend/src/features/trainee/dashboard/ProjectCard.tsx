@@ -32,10 +32,7 @@ function ProjectCard({
 }: ProjectCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn(
-        "bg-sidebar-and-header-background flex justify-between gap-1",
-        className,
-      )}
+      className={cn("flex justify-between gap-1", className)}
       ref={ref}
       {...props}
     >
@@ -76,11 +73,8 @@ function ProjectCard({
             <Button size="sm" className="px-4 text-xs">
               <UploadCloud /> Upload Documents
             </Button>
-            <Button
-              size="sm"
-              className="px-4 text-text-base bg-gray-200 hover:bg-gray-300 text-xs"
-            >
-              <Pencil /> Edit Project Details
+            <Button size="sm" variant="secondary" className="px-4 text-xs">
+              <Pencil /> Edit Details
             </Button>
           </Card.CardFooter>
         </div>
@@ -108,7 +102,8 @@ function ProjectCard({
                     dy={-10}
                     textAnchor="middle"
                     dominantBaseline="central"
-                    className="text-2xl font-semibold text-text-base"
+                    className="text-2xl font-semibold"
+                    style={{ fill: "var(--color-text-base)" }}
                   >
                     {`${project.progress}%`}
                   </text>
@@ -118,7 +113,8 @@ function ProjectCard({
                     dy={14}
                     textAnchor="middle"
                     dominantBaseline="central"
-                    className="text-xs text-text-base"
+                    className="text-xs"
+                    style={{ fill: "var(--color-text-base)" }}
                   >
                     Uploaded
                   </text>
@@ -126,7 +122,7 @@ function ProjectCard({
               ),
             ]}
             tooltip={({ datum }) => (
-              <div className="p-2 bg-white rounded-md shadow-md text-sm font-secondary whitespace-nowrap">
+              <div className="p-2 bg-background rounded-md shadow-md text-sm font-secondary whitespace-nowrap">
                 <span
                   className={cn(
                     "font-medium",

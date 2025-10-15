@@ -1,5 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { MantineProvider } from "@mantine/core";
+import { ThemeProvider } from "./providers/ThemeProvider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +13,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <ThemeProvider>
+          <MantineProvider>{children}</MantineProvider>
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

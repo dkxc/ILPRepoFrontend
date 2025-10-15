@@ -9,6 +9,7 @@ import {
   House,
   LogOut,
   Moon,
+  Sun,
   UserRoundCog,
 } from "lucide-react";
 import Header from "./features/ui/header/Header";
@@ -19,6 +20,7 @@ import SearchBar from "./features/ui/header/search/SearchBar";
 import { useState } from "react";
 import { cn } from "./lib/utils";
 import { ProfileIconWithDropDown } from "./features/ui/header/profile/ProfileIconWithDropDown";
+import { useTheme } from "./hooks/useTheme";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
@@ -47,6 +49,8 @@ function App() {
   // TODO: Remove this after auth
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
+
   const handleToggle = () => {
     const nextIsAdmin = !isAdmin;
     setIsAdmin(nextIsAdmin);
@@ -57,11 +61,12 @@ function App() {
       navigate("/");
     }
   };
+
   return (
     <>
       <div className="flex flex-col h-screen font-secondary text-text-base overflow-hidden">
         <Header
-          className={cn("bg-sidebar-and-header-background", headerHeight)}
+          className={cn("bg-menucolor", headerHeight)}
           logo={experionLogo}
           logoWidth={sideBarWidth}
         >
@@ -81,20 +86,26 @@ function App() {
             <HeaderItem aria-label="Notifications">
               <Bell className="size-3.5" />
             </HeaderItem>
-            <HeaderItem aria-label="Dark Mode">
-              <Moon className="size-3.5" />
+            <HeaderItem aria-label="Dark Mode" onClick={toggleTheme}>
+              {isDarkMode ? (
+                <Sun className="size-3.5" />
+              ) : (
+                <Moon className="size-3.5" />
+              )}
             </HeaderItem>
             <ProfileIconWithDropDown>
               <SideBar navItems={dropDownItems} />
             </ProfileIconWithDropDown>
           </HeaderBar>
         </Header>
+
         <div className="flex grow min-h-0">
           {/* TODO: Remove this after auth */}
           <SideBar
             navItems={isAdmin ? adminNavItems : navItems}
-            className={cn("bg-sidebar-and-header-background", sideBarWidth)}
+            className={cn("bg-menucolor", sideBarWidth)}
           />
+
           <main className="flex-1 bg-background overflow-y-auto">
             <Outlet />
           </main>

@@ -7,11 +7,11 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-brand text-brand-foreground hover:bg-brand/90",
+        default: "bg-brand text-brand-foreground hover:bg-brand-hover",
         success: "bg-bg-success/40 text-text-base hover:bg-bg-success/90",
         error: "bg-bg-error text-text-base hover:bg-bg-error/90",
         warn: "bg-bg-warning text-text-base hover:bg-bg-warning/90",
-        none: "bg-gray-200 text-text-base hover:bg-gray-300",
+        none: "bg-inactive-badge text-text-base hover:bg-inactive-badge-hover",
       },
     },
     defaultVariants: {
