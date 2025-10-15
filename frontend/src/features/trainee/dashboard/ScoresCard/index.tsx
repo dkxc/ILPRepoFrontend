@@ -17,10 +17,7 @@ function ScoreCard({
 }: ScoreCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn(
-        "bg-sidebar-and-header-background flex justify-between gap-4",
-        className,
-      )}
+      className={cn("flex justify-between gap-4", className)}
       ref={ref}
       {...props}
     >
@@ -52,7 +49,7 @@ function ScoreCard({
               }}
               tooltip={({ datum }) => (
                 <>
-                  <div className="p-2 bg-white rounded-md shadow-md text-sm font-secondary whitespace-nowrap">
+                  <div className="p-2 bg-background rounded-md shadow-md text-sm font-secondary whitespace-nowrap">
                     <div>
                       <span
                         className={cn(

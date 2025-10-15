@@ -18,10 +18,7 @@ function DocumentsCard({
 }: DocumentsCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn(
-        "bg-sidebar-and-header-background flex justify-between gap-4",
-        className,
-      )}
+      className={cn("flex justify-between gap-4", className)}
       ref={ref}
       {...props}
     >

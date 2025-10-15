@@ -32,10 +32,7 @@ function ProjectCard({
 }: ProjectCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn(
-        "bg-sidebar-and-header-background flex justify-between gap-1",
-        className,
-      )}
+      className={cn("flex justify-between gap-1", className)}
       ref={ref}
       {...props}
     >
