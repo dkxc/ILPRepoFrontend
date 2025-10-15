@@ -61,7 +61,7 @@ function App() {
     <>
       <div className="flex flex-col h-screen font-secondary text-text-base overflow-hidden">
         <Header
-          className={cn("bg-sidebar-and-header-background", headerHeight)}
+          className={cn("bg-menucolor", headerHeight)}
           logo={experionLogo}
           logoWidth={sideBarWidth}
         >
@@ -89,12 +89,14 @@ function App() {
             </ProfileIconWithDropDown>
           </HeaderBar>
         </Header>
+
         <div className="flex grow min-h-0">
           {/* TODO: Remove this after auth */}
           <SideBar
             navItems={isAdmin ? adminNavItems : navItems}
-            className={cn("bg-sidebar-and-header-background", sideBarWidth)}
+            className={cn("bg-menucolor", sideBarWidth)}
           />
+
           <main className="flex-1 bg-background overflow-y-auto">
             <Outlet />
           </main>
