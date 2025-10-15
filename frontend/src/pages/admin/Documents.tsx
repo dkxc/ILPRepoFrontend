@@ -1,19 +1,27 @@
-
-
- 
 import { useState, useRef, type ChangeEvent, type DragEvent } from "react";
-import { Trash2, ChevronDown, ChevronUp, Download, ArrowLeft } from "lucide-react";
+import {
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  ArrowLeft,
+} from "lucide-react";
 import { Badge, ActionIcon } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import type { BatchAssessment, Assessment } from "../../features/trainee/types/Batch.types";
+import type {
+  BatchAssessment,
+  Assessment,
+} from "../../features/trainee/types/Batch.types";
 import * as XLSX from "xlsx";
- 
+
 export default function Results() {
   // State management
   const [step, setStep] = useState<1 | 2>(1);
-  const [selectedBatch, setSelectedBatch] = useState<BatchAssessment | null>(null);
+  const [selectedBatch, setSelectedBatch] = useState<BatchAssessment | null>(
+    null,
+  );
   const [selectedDocType, setSelectedDocType] = useState<string>("");
   const [customDocName, setCustomDocName] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -21,19 +29,19 @@ export default function Results() {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(true);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
- 
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [excelData, setExcelData] = useState<any[]>([]);
   const [excelHeaders, setExcelHeaders] = useState<string[]>([]);
- 
+
   const documentTypes = [
     "Tech Fundamentals",
     "Specialisation",
     "Overall Assessment",
     "Others",
   ];
- 
+
   // Mock data
   const batchesData: BatchAssessment[] = [
     {
@@ -93,11 +101,11 @@ export default function Results() {
       status: "Completed",
     },
   ];
- 
+
   const getStatusColor = (status: string) => {
     return status === "Completed" ? "green" : "yellow";
   };
- 
+
   const handleDelete = (batch: BatchAssessment) => {
     modals.openConfirmModal({
       title: "Delete Batch",
@@ -118,12 +126,12 @@ export default function Results() {
       },
     });
   };
- 
+
   const handleRowClick = (row: BatchAssessment) => {
     setSelectedBatch(row);
     setStep(2);
   };
- 
+
   const handleBackToBatches = () => {
     setStep(1);
     setSelectedBatch(null);
@@ -132,7 +140,7 @@ export default function Results() {
     setUploadedFile(null);
     setAssessments([]);
   };
- 
+
   // Upload handlers
   const handleDocTypeSelect = (type: string): void => {
     setSelectedDocType(type);
@@ -141,107 +149,110 @@ export default function Results() {
       setCustomDocName("");
     }
   };
- 
+
   const handleFileSelect = async (file: File | null): Promise<void> => {
-  if (!file) return;
- 
-  if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
-    setUploadedFile(file);
-   
-    // Parse Excel file
-    const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-   
-    // Convert to JSON
-    const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-   
-    if (jsonData.length > 0) {
-      setExcelHeaders(Object.keys(jsonData[0]));
-      setExcelData(jsonData);
-      console.log("Excel parsed successfully:", { // ADD THIS
-        headers: Object.keys(jsonData[0]),
-        rowCount: jsonData.length,
-        data: jsonData
+    if (!file) return;
+
+    if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
+      setUploadedFile(file);
+
+      // Parse Excel file
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+
+      // Convert to JSON
+      const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
+        defval: "",
       });
+
+      if (jsonData.length > 0) {
+        setExcelHeaders(Object.keys(jsonData[0]));
+        setExcelData(jsonData);
+        console.log("Excel parsed successfully:", {
+          // ADD THIS
+          headers: Object.keys(jsonData[0]),
+          rowCount: jsonData.length,
+          data: jsonData,
+        });
+      }
+    } else {
+      alert("Please upload an Excel file (.xlsx or .xls)");
     }
-  } else {
-    alert("Please upload an Excel file (.xlsx or .xls)");
-  }
-};
- 
+  };
+
   const handleDragOver = (e: DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     setIsDragging(true);
   };
- 
+
   const handleDragLeave = (): void => {
     setIsDragging(false);
   };
- 
+
   const handleDrop = (e: DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     handleFileSelect(file);
   };
- 
+
   const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0] || null;
     handleFileSelect(file);
   };
- 
+
   const handleUploadClick = (): void => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
-const handleSave = (): void => {
-  if (!selectedDocType || !uploadedFile || excelData.length === 0) {
-    alert("Please select document type and upload a file");
-    return;
-  }
- 
-  if (selectedDocType === "Others" && !customDocName.trim()) {
-    alert("Please enter a document name");
-    return;
-  }
- 
-  // TODO: Replace with actual API call to save to database
-  const newAssessment: Assessment = {
-    id: Date.now(),
-    batchId: selectedBatch!.id.toString(),
-    documentType: selectedDocType as Assessment["documentType"],
-    documentName: selectedDocType === "Others" ? customDocName : undefined,
-    fileName: uploadedFile.name,
-    uploadedDate: new Date(),
+  const handleSave = (): void => {
+    if (!selectedDocType || !uploadedFile || excelData.length === 0) {
+      alert("Please select document type and upload a file");
+      return;
+    }
+
+    if (selectedDocType === "Others" && !customDocName.trim()) {
+      alert("Please enter a document name");
+      return;
+    }
+
+    // TODO: Replace with actual API call to save to database
+    const newAssessment: Assessment = {
+      id: Date.now(),
+      batchId: selectedBatch!.id.toString(),
+      documentType: selectedDocType as Assessment["documentType"],
+      documentName: selectedDocType === "Others" ? customDocName : undefined,
+      fileName: uploadedFile.name,
+      uploadedDate: new Date(),
+    };
+
+    setAssessments([...assessments, newAssessment]);
+
+    // Reset form but keep the batch selected (stay on step 2)
+    setSelectedDocType("");
+    setCustomDocName("");
+    setUploadedFile(null);
+    setExcelData([]);
+    setExcelHeaders([]);
+
+    notifications.show({
+      title: "Success",
+      message: "Assessment uploaded successfully to database!",
+      color: "green",
+    });
   };
- 
-  setAssessments([...assessments, newAssessment]);
- 
-  // Reset form but keep the batch selected (stay on step 2)
-  setSelectedDocType("");
-  setCustomDocName("");
-  setUploadedFile(null);
-  setExcelData([]);
-  setExcelHeaders([]);
- 
-  notifications.show({
-    title: "Success",
-    message: "Assessment uploaded successfully to database!",
-    color: "green",
-  });
-};
- 
+
   const handleCancel = (): void => {
     handleBackToBatches();
   };
- 
+
   const handleDownloadTemplate = (): void => {
     alert("Downloading template...");
   };
- 
+
   const columns: ColumnDef<BatchAssessment>[] = [
     {
       key: "title",
@@ -316,33 +327,32 @@ const handleSave = (): void => {
       ),
     },
   ];
- 
+
   const handleDeleteAssessment = (assessment: Assessment) => {
-  modals.openConfirmModal({
-    title: "Delete Assessment",
-    centered: true,
-    children: (
-      <p>
-        Are you sure you want to delete <b>{assessment.fileName}</b>?
-      </p>
-    ),
-    labels: { confirm: "Delete", cancel: "Cancel" },
-    confirmProps: { color: "red" },
-    onConfirm: () => {
-      setAssessments((prev) =>
-        prev.filter((a) => a.fileName !== assessment.fileName)
-      );
- 
-      notifications.show({
-        title: "Deleted",
-        message: `${assessment.fileName} was removed.`,
-        color: "red",
-      });
-    },
-  });
-};
- 
- 
+    modals.openConfirmModal({
+      title: "Delete Assessment",
+      centered: true,
+      children: (
+        <p>
+          Are you sure you want to delete <b>{assessment.fileName}</b>?
+        </p>
+      ),
+      labels: { confirm: "Delete", cancel: "Cancel" },
+      confirmProps: { color: "red" },
+      onConfirm: () => {
+        setAssessments((prev) =>
+          prev.filter((a) => a.fileName !== assessment.fileName),
+        );
+
+        notifications.show({
+          title: "Deleted",
+          message: `${assessment.fileName} was removed.`,
+          color: "red",
+        });
+      },
+    });
+  };
+
   // STEP 1: Batch Listing
   if (step === 1) {
     return (
@@ -401,7 +411,7 @@ const handleSave = (): void => {
       </div>
     );
   }
- 
+
   // STEP 2: Upload Assessment
   return (
     <div>
@@ -416,11 +426,11 @@ const handleSave = (): void => {
             <span className="text-sm font-medium">Back to batches</span>
           </button>
         </div>
- 
+
         <h1 className="text-[#565E6C] text-2xl font-bold pb-4 font-primary">
           {selectedBatch?.title}
         </h1>
- 
+
         <div className="flex mr-10 bg-white">
           <div className="flex-1 p-8">
             <div className="max-w-3xl mx-auto">
@@ -430,7 +440,11 @@ const handleSave = (): void => {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-md text-left flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
                 >
-                  <span className={selectedDocType ? "text-gray-900" : "text-gray-500"}>
+                  <span
+                    className={
+                      selectedDocType ? "text-gray-900" : "text-gray-500"
+                    }
+                  >
                     {selectedDocType || "Select a document..."}
                   </span>
                   {isDropdownOpen ? (
@@ -439,7 +453,7 @@ const handleSave = (): void => {
                     <ChevronDown size={20} className="text-gray-500" />
                   )}
                 </button>
- 
+
                 {isDropdownOpen && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                     {documentTypes.map((type) => (
@@ -454,7 +468,7 @@ const handleSave = (): void => {
                   </div>
                 )}
               </div>
- 
+
               {/* Custom Document Name Input */}
               {selectedDocType === "Others" && (
                 <div className="mb-6">
@@ -467,7 +481,7 @@ const handleSave = (): void => {
                   />
                 </div>
               )}
- 
+
               {/* Upload Area */}
               <div
                 onDragOver={handleDragOver}
@@ -526,7 +540,9 @@ const handleSave = (): void => {
                       <p className="text-blue-600 font-medium mb-2">
                         File uploaded successfully!
                       </p>
-                      <p className="text-sm text-gray-600">{uploadedFile.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {uploadedFile.name}
+                      </p>
                     </>
                   ) : (
                     <p className="text-lg font-medium mb-2 text-blue-600">
@@ -535,12 +551,12 @@ const handleSave = (): void => {
                   )}
                 </div>
               </div>
- 
+
               <p className="text-sm text-gray-500 mb-4 mt-4">
                 Format accepted is .xlsx
               </p>
               <div className="w-full bg-gray-300 h-px"></div>
- 
+
               <div className="mt-4 flex flex-row items-center gap-4">
                 <p className="text-sm text-gray-500 mb-0">
                   If you do not have a file you can use this sample:
@@ -553,7 +569,7 @@ const handleSave = (): void => {
                   Download Template
                 </button>
               </div>
- 
+
               {/* Action Buttons */}
               <div className="mt-6 flex justify-end gap-3">
                 <button
@@ -564,7 +580,9 @@ const handleSave = (): void => {
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={!uploadedFile || !selectedDocType || excelData.length === 0}
+                  disabled={
+                    !uploadedFile || !selectedDocType || excelData.length === 0
+                  }
                   className={`px-6 py-2 rounded-md font-medium transition-colors ${
                     uploadedFile && selectedDocType && excelData.length
                       ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -577,139 +595,139 @@ const handleSave = (): void => {
             </div>
           </div>
         </div>
- 
+
         {/* Assessment Preview Section */}
- 
-   
-       {/* Excel Preview Table */}
- 
- 
-{uploadedFile && excelData.length > 0 && !assessments.some(a => a.fileName === uploadedFile.name) && (
-  <div className="mt-8 mr-10">
-    <div className="bg-white border border-gray-200 rounded-lg">
-      <button
-        onClick={() => setIsPreviewOpen(!isPreviewOpen)}
-        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-      >
-        <h2 className="text-lg font-semibold text-gray-700">
-          Assessment - Preview
-        </h2>
-        {isPreviewOpen ? (
-          <ChevronUp size={20} className="text-gray-500" />
-        ) : (
-          <ChevronDown size={20} className="text-gray-500" />
-        )}
-      </button>
- 
-      {isPreviewOpen && (
-        <div className="p-4 border-t border-gray-200 overflow-x-auto">
-          <p className="text-sm text-gray-600 mb-4">
-            File: {uploadedFile.name} ({excelData.length} rows)
-          </p>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  {excelHeaders.map((header, index) => (
-                    <th
-                      key={index}
-                      className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {excelData.map((row, rowIndex) => (
-                  <tr key={rowIndex} className="hover:bg-gray-50">
-                    {excelHeaders.map((header, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className="border border-gray-300 px-4 py-2 text-sm text-gray-600"
-                      >
-                        {row[header]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-)}
- 
+
+        {/* Excel Preview Table */}
+
+        {uploadedFile &&
+          excelData.length > 0 &&
+          !assessments.some((a) => a.fileName === uploadedFile.name) && (
+            <div className="mt-8 mr-10">
+              <div className="bg-white border border-gray-200 rounded-lg">
+                <button
+                  onClick={() => setIsPreviewOpen(!isPreviewOpen)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <h2 className="text-lg font-semibold text-gray-700">
+                    Assessment - Preview
+                  </h2>
+                  {isPreviewOpen ? (
+                    <ChevronUp size={20} className="text-gray-500" />
+                  ) : (
+                    <ChevronDown size={20} className="text-gray-500" />
+                  )}
+                </button>
+
+                {isPreviewOpen && (
+                  <div className="p-4 border-t border-gray-200 overflow-x-auto">
+                    <p className="text-sm text-gray-600 mb-4">
+                      File: {uploadedFile.name} ({excelData.length} rows)
+                    </p>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full border-collapse border border-gray-300">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            {excelHeaders.map((header, index) => (
+                              <th
+                                key={index}
+                                className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700"
+                              >
+                                {header}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {excelData.map((row, rowIndex) => (
+                            <tr key={rowIndex} className="hover:bg-gray-50">
+                              {excelHeaders.map((header, colIndex) => (
+                                <td
+                                  key={colIndex}
+                                  className="border border-gray-300 px-4 py-2 text-sm text-gray-600"
+                                >
+                                  {row[header]}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
         {/* Uploaded Assessments List */}
-{assessments.length > 0 && (
-  <div className="mt-8 mr-10">
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <h2 className="text-lg font-semibold text-gray-700 mb-4">
-        Uploaded Assessments
-      </h2>
-      <div className="space-y-2">
-        {assessments.map((assessment) => (
-          <div
-            key={assessment.id}
-            className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md"
-          >
-            <div>
-              <p className="font-medium text-gray-900">
-                {assessment.documentType === "Others"
-                  ? assessment.documentName
-                  : assessment.documentType}
-              </p>
-              <p className="text-sm text-gray-600">
-                {assessment.fileName}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
-                Saved !
-              </span>
-              <span className="text-sm text-gray-500">
-                {assessment.uploadedDate?.toLocaleDateString()}
-              </span>
-             
-             {/* not working */}
-                 
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteAssessment(assessment);
-                    }}
-                    style={{
-                      transition: "0.2s",
-                    }}
-                    onMouseEnter={(e) =>
-                      ((e.currentTarget as HTMLElement).style.backgroundColor = "#F0F4FE")
-                    }
-                    onMouseLeave={(e) =>
-                      ((e.currentTarget as HTMLElement).style.backgroundColor = "transparent")
-                    }
+        {assessments.length > 0 && (
+          <div className="mt-8 mr-10">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                Uploaded Assessments
+              </h2>
+              <div className="space-y-2">
+                {assessments.map((assessment) => (
+                  <div
+                    key={assessment.id}
+                    className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md"
                   >
-                    <Trash2 size={18} />
-                  </ActionIcon>
- 
-           
-           
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {assessment.documentType === "Others"
+                          ? assessment.documentName
+                          : assessment.documentType}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {assessment.fileName}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
+                        Saved !
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {assessment.uploadedDate?.toLocaleDateString()}
+                      </span>
+
+                      {/* not working */}
+
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteAssessment(assessment);
+                        }}
+                        style={{
+                          transition: "0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          ((
+                            e.currentTarget as HTMLElement
+                          ).style.backgroundColor = "#F0F4FE")
+                        }
+                        onMouseLeave={(e) =>
+                          ((
+                            e.currentTarget as HTMLElement
+                          ).style.backgroundColor = "transparent")
+                        }
+                      >
+                        <Trash2 size={18} />
+                      </ActionIcon>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
-  </div>
-)}
-       
+        )}
       </div>
     </div>
   );
 }
- 
+
 //make the entire card collapsible
 /* To make donwload button work, create a sample file in public folder
 if template is fixed
@@ -739,4 +757,3 @@ const handleDownloadTemplate = async () => {
  
  
 */
- 

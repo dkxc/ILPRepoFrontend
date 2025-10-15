@@ -6,7 +6,7 @@ import SubmissionRate from "../../features/ui/ProjectDetails/Completionrate";
 
 function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
-  
+
   // You can fetch project data based on the ID here
   // For now, using the existing hardcoded data
   const projectData = {
@@ -15,7 +15,8 @@ function ProjectDetails() {
     trainees: 7,
     techStack: ["React", ".NET"],
     repositoryUrl: "https://github.com/dkxc/ILPRepo",
-    figmaUrl: "https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0"
+    figmaUrl:
+      "https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0",
   };
   return (
     <div className="min-h-screen w-full bg-gray-50">

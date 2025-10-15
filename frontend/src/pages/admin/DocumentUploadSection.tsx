@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import DocumentSelector from '../../features/ui/DocUpload/DocumentSelector';
-import FileUpload from '../../features/ui/DocUpload/FileUpload';
+import { useState } from "react";
+import DocumentSelector from "../../features/ui/DocUpload/DocumentSelector";
+import FileUpload from "../../features/ui/DocUpload/FileUpload";
 
 export interface Document {
   id: number;
@@ -20,7 +20,7 @@ const DocUpload = () => {
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
     // Here you can add logic to handle the file upload
-    console.log('File selected:', file);
+    console.log("File selected:", file);
   };
 
   const handleCancel = () => {

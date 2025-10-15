@@ -5,7 +5,10 @@ export default [
     index("./pages/trainee/Dashboard.tsx"),
     route("myproject", "./pages/trainee/MyProject.tsx"),
     route("ilpprojects", "./pages/trainee/ILPProjects.tsx"),
-    route("projectsDetailsTrainee/:id", "./pages/trainee/projectsDetailsTrainee.tsx"),
+    route(
+      "projectsDetailsTrainee/:id",
+      "./pages/trainee/projectsDetailsTrainee.tsx",
+    ),
     route("results", "./pages/trainee/Results.tsx"),
 
     route("admindash", "./pages/admin/Dashboard.tsx"),

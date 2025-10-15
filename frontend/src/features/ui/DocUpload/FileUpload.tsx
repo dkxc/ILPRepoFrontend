@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Upload, FileText } from 'lucide-react';
+import { useState } from "react";
+import { Upload, FileText } from "lucide-react";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -7,7 +7,11 @@ interface FileUploadProps {
   acceptedFormats?: string[];
 }
 
-const FileUpload = ({ onFileSelect, onCancel, acceptedFormats = ['.xlsx', '.pdf'] }: FileUploadProps) => {
+const FileUpload = ({
+  onFileSelect,
+  onCancel,
+  acceptedFormats = [".xlsx", ".pdf"],
+}: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -37,11 +41,13 @@ const FileUpload = ({ onFileSelect, onCancel, acceptedFormats = ['.xlsx', '.pdf'
   };
 
   const handleFileSelection = (file: File) => {
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
     if (acceptedFormats.includes(fileExtension)) {
       setSelectedFile(file);
     } else {
-      alert(`Please select a valid file format (${acceptedFormats.join(', ')})`);
+      alert(
+        `Please select a valid file format (${acceptedFormats.join(", ")})`,
+      );
     }
   };
 
@@ -56,9 +62,7 @@ const FileUpload = ({ onFileSelect, onCancel, acceptedFormats = ['.xlsx', '.pdf'
     <div className="flex-1 bg-white rounded-lg border border-gray-200 p-6">
       <div
         className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-          isDragging 
-            ? 'border-blue-500 bg-blue-50' 
-            : 'border-gray-300 bg-white'
+          isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -68,7 +72,7 @@ const FileUpload = ({ onFileSelect, onCancel, acceptedFormats = ['.xlsx', '.pdf'
           <div className="p-3 bg-blue-50 rounded-full">
             <Upload className="w-6 h-6 text-blue-500" />
           </div>
-          
+
           <div>
             <label htmlFor="file-upload" className="cursor-pointer">
               <span className="text-blue-600 hover:text-blue-700 font-medium">
@@ -78,7 +82,7 @@ const FileUpload = ({ onFileSelect, onCancel, acceptedFormats = ['.xlsx', '.pdf'
                 id="file-upload"
                 type="file"
                 className="hidden"
-                accept={acceptedFormats.join(',')}
+                accept={acceptedFormats.join(",")}
                 onChange={handleFileInput}
               />
             </label>
@@ -94,7 +98,7 @@ const FileUpload = ({ onFileSelect, onCancel, acceptedFormats = ['.xlsx', '.pdf'
       </div>
 
       <p className="text-xs text-gray-500 mt-4">
-        Format accepted is {acceptedFormats.join(', ')}
+        Format accepted is {acceptedFormats.join(", ")}
       </p>
 
       <div className="mt-4 pt-4 border-t border-gray-200">
@@ -119,8 +123,8 @@ const FileUpload = ({ onFileSelect, onCancel, acceptedFormats = ['.xlsx', '.pdf'
           disabled={!selectedFile}
           className={`px-4 py-2 rounded transition-colors ${
             selectedFile
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
           }`}
         >
           Upload

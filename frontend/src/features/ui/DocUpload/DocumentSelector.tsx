@@ -1,4 +1,4 @@
-import { FileText } from 'lucide-react';
+import { FileText } from "lucide-react";
 
 export interface Document {
   id: number;
@@ -14,9 +14,9 @@ interface DocumentSelectorProps {
 const DocumentSelector = ({ selectedDoc, onSelect }: DocumentSelectorProps) => {
   // Sample documents - in a real app, this would come from props or an API
   const documents: Document[] = [
-    { id: 1, name: 'Resume', format: ['.pdf', '.docx'] },
-    { id: 2, name: 'Certificate', format: ['.pdf'] },
-    { id: 3, name: 'Progress Report', format: ['.xlsx'] }
+    { id: 1, name: "Resume", format: [".pdf", ".docx"] },
+    { id: 2, name: "Certificate", format: [".pdf"] },
+    { id: 3, name: "Progress Report", format: [".xlsx"] },
   ];
 
   return (
@@ -26,13 +26,13 @@ const DocumentSelector = ({ selectedDoc, onSelect }: DocumentSelectorProps) => {
       </div>
 
       <div className="space-y-2">
-        {documents.map(doc => (
+        {documents.map((doc) => (
           <div
             key={doc.id}
             className={`flex items-center p-3 rounded-md cursor-pointer transition-colors ${
               selectedDoc?.id === doc.id
-                ? 'bg-blue-50 border border-blue-200'
-                : 'hover:bg-gray-50 border border-transparent'
+                ? "bg-blue-50 border border-blue-200"
+                : "hover:bg-gray-50 border border-transparent"
             }`}
             onClick={() => onSelect(doc)}
           >
@@ -41,7 +41,7 @@ const DocumentSelector = ({ selectedDoc, onSelect }: DocumentSelectorProps) => {
               <div>
                 <span className="text-gray-700 font-medium">{doc.name}</span>
                 <p className="text-xs text-gray-500">
-                  Formats: {doc.format.join(', ')}
+                  Formats: {doc.format.join(", ")}
                 </p>
               </div>
             </div>

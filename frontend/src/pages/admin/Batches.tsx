@@ -22,27 +22,31 @@ function Batches() {
     try {
       setLoading(true);
       setError(null);
-      console.log('Loading batches...');
+      console.log("Loading batches...");
       const batchesData = await batchService.getAllBatches();
-      console.log('Batches loaded successfully:', batchesData);
+      console.log("Batches loaded successfully:", batchesData);
       setBatches(batchesData);
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to load batches. Please try again.';
-      
+      const errorMessage =
+        err.message || "Failed to load batches. Please try again.";
+
       // Check if it's a CORS error
-      if (err.message?.includes('NetworkError') || err.message?.includes('fetch')) {
-        setError('CORS Error: Please configure your backend to allow requests from this frontend. Add CORS policy to your .NET API.');
+      if (
+        err.message?.includes("NetworkError") ||
+        err.message?.includes("fetch")
+      ) {
+        setError(
+          "CORS Error: Please configure your backend to allow requests from this frontend. Add CORS policy to your .NET API.",
+        );
       } else {
         setError(`Failed to load batches: ${errorMessage}`);
       }
-      
-      console.error('Error loading batches:', err);
+
+      console.error("Error loading batches:", err);
     } finally {
       setLoading(false);
     }
   };
-
-
 
   // ✅ Handle adding new batch
   const handleAddBatch = async (data: {
@@ -57,8 +61,8 @@ function Batches() {
       setBatches((prev) => [...prev, newBatch]);
       setIsModalOpen(false);
     } catch (err) {
-      setError('Failed to create batch. Please try again.');
-      console.error('Error creating batch:', err);
+      setError("Failed to create batch. Please try again.");
+      console.error("Error creating batch:", err);
     }
   };
 
