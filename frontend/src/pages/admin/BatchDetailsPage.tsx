@@ -17,7 +17,7 @@ interface Trainee {
 }
 
 export default function BatchDetailsPage() {
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedStatus] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const traineesData: Trainee[] = [

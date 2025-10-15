@@ -4,7 +4,6 @@ import {
   Target,
   TrendingUp,
   CheckCircle,
-  AlertTriangle,
   Star,
 } from "lucide-react";
 import * as Card from "../../ui/card";
