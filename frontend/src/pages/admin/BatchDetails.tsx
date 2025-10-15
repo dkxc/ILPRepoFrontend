@@ -1,4 +1,3 @@
-import React from "react";
 import { Upload, Plus, Edit } from "lucide-react";
 import Button from "../../features/ui/Button";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
