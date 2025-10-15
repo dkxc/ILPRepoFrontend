@@ -10,7 +10,7 @@ export interface Document {
 
 const DocUpload = () => {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [, setSelectedFile] = useState<File | null>(null);
 
   const handleDocumentSelect = (doc: Document) => {
     setSelectedDoc(doc);

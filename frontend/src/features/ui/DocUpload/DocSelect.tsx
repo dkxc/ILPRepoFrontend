@@ -2,14 +2,26 @@ import { useState } from "react";
 import { Upload, X, Plus, FileText } from "lucide-react";
 
 // Document Selector Component
+type Document = {
+  id: number;
+  name: string;
+};
+
+type DocumentSelectorProps = {
+  documents: Document[];
+  selectedDocs: number[];
+  onDocumentToggle: (id: number) => void;
+  onAddDocument: (name: string) => void;
+};
+
 const DocumentSelector = ({
   documents,
   selectedDocs,
   onDocumentToggle,
   onAddDocument,
-}) => {
+}: DocumentSelectorProps) => {
   const [newDocName, setNewDocName] = useState("");
-  const [isAddingDoc, setIsAddingDoc] = useState(false);
+  const [, setIsAddingDoc] = useState(false);
 
   const handleAddClick = () => {
     if (newDocName.trim()) {
@@ -19,7 +31,7 @@ const DocumentSelector = ({
     }
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleAddClick();
     }
@@ -95,15 +107,21 @@ const DocumentSelector = ({
 };
 
 // File Upload Component
+type FileUploadProps = {
+  onFileSelect: (file: File) => void;
+  onCancel: () => void;
+  acceptedFormats?: string[];
+};
+
 const FileUpload = ({
   onFileSelect,
   onCancel,
   acceptedFormats = [".xlsx", ".pdf"],
-}) => {
+}: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
@@ -112,7 +130,7 @@ const FileUpload = ({
     setIsDragging(false);
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
 
@@ -122,15 +140,16 @@ const FileUpload = ({
     }
   };
 
-  const handleFileInput = (e) => {
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files.length > 0) {
+    if (files && files.length > 0) {
       handleFileSelection(files[0]);
     }
   };
 
-  const handleFileSelection = (file) => {
-    const fileExtension = "." + file.name.split(".").pop().toLowerCase();
+  const handleFileSelection = (file: File) => {
+    const ext = file.name.split(".").pop();
+    const fileExtension = ext ? "." + ext.toLowerCase() : "";
 
     if (acceptedFormats.includes(fileExtension)) {
       setSelectedFile(file);
@@ -233,10 +252,10 @@ export default function App() {
     { id: 4, name: "MOM documentation" },
   ]);
 
-  const [selectedDocs, setSelectedDocs] = useState([]);
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [selectedDocs, setSelectedDocs] = useState<number[]>([]);
+  const [, setUploadedFile] = useState<File | null>(null);
 
-  const handleDocumentToggle = (docId) => {
+  const handleDocumentToggle = (docId: number) => {
     setSelectedDocs((prev) =>
       prev.includes(docId)
         ? prev.filter((id) => id !== docId)
@@ -244,13 +263,13 @@ export default function App() {
     );
   };
 
-  const handleAddDocument = (docName) => {
+  const handleAddDocument = (docName: string) => {
     const newId = Math.max(...documents.map((d) => d.id), 0) + 1;
     const newDoc = { id: newId, name: docName };
     setDocuments([...documents, newDoc]);
   };
 
-  const handleFileSelect = (file) => {
+  const handleFileSelect = (file: File) => {
     setUploadedFile(file);
     alert(`File uploaded: ${file.name}`);
   };
