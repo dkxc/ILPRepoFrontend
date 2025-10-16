@@ -47,7 +47,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
 ProjectCard.displayName = "ProjectCard";
 
 export default function Projects() {
-  const [selectedBatch, setSelectedBatch] = useState<string | null>("");
+  const [selectedBatch] = useState<string | null>("");
   const navigate = useNavigate();
 
   const projectsData: Project[] = [

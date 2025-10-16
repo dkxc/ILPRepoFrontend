@@ -15,6 +15,10 @@ export type BatchAssessment = BaseBatch & {
   status: "Pending" | "Completed";
 };
 
+export type BatchDocument = BaseBatch & {
+  totalTrainees: number;
+};
+
 export type Assessment = {
   id: number;
   batchId: string;

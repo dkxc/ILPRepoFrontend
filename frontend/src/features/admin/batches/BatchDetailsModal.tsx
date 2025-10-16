@@ -150,33 +150,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
     onClose();
   };
 
-  // ✅ Custom option renderer
-  const CustomOption = ({ data, innerRef, innerProps }: any) => (
-    <div
-      ref={innerRef}
-      {...innerProps}
-      className="flex justify-between items-center px-3 py-2 cursor-pointer hover:bg-blue-50"
-    >
-      <span>{data.label}</span>
-      {data.value !== "custom" && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            const updated = types.filter((t) => t.value !== data.value);
-            localStorage.setItem("allBatchTypes", JSON.stringify(updated));
-            setTypes(updated);
-            if (form.batchType === data.value)
-              setForm((f) => ({ ...f, batchType: "" }));
-          }}
-          className="text-red-500 hover:text-red-700 text-sm ml-2"
-        >
-          ✕
-        </button>
-      )}
-    </div>
-  );
-
   if (!isOpen) return null;
 
   return (

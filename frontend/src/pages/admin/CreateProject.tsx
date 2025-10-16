@@ -5,7 +5,6 @@ import {
   type DragEvent,
   useEffect,
 } from "react";
-import { Upload, Download } from "lucide-react";
 import * as XLSX from "xlsx";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 
