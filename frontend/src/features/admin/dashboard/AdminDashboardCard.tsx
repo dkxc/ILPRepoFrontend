@@ -31,11 +31,17 @@ const AdminDashboardCard: React.FC<Props> = ({
       </div>
 
       <div className="flex-1">
-        <div className="text-sm text-[var(--color-menuitem-text)] font-medium">{title}</div>
+        <div className="text-sm text-[var(--color-menuitem-text)] font-medium">
+          {title}
+        </div>
         {subtitle && <div className="text-xs text-gray-500">{subtitle}</div>}
       </div>
 
-      {value && <div className="text-xl font-semibold text-[var(--color-text-base)]">{value}</div>}
+      {value && (
+        <div className="text-xl font-semibold text-[var(--color-text-base)]">
+          {value}
+        </div>
+      )}
     </button>
   );
 };

@@ -1,30 +1,45 @@
-import { useState } from "react";
-import AdminDashboardCard from "../../../features/admin/dashboard/AdminDashboardCard";
 import DashboardProjectCard from "../../../features/admin/dashboard/DashboardProjectCard";
 import SmallBatchCard from "../../../features/admin/dashboard/RecentBatchesCards";
 
-const topCards = [
-  { id: "batches", title: "All Batches", subtitle: "1", value: <span className="text-2xl">1</span> },
-  { id: "projects", title: "Projects", subtitle: "8", value: <span className="text-2xl">8</span> },
-  { id: "hours", title: "Total Training Hours", subtitle: "hr/week", value: <span className="text-2xl">48</span> },
-];
-
 const sampleBatches = [
-  { id: "1", title: "ILP 2025 -26 Batch 4", subtitle: "Full Stack", status: "Ongoing" },
-  { id: "2", title: "ILP 2025 -26 Batch 3", subtitle: "Full Stack", status: "Ongoing" },
-  { id: "3", title: "ILP 2025 -26 Batch 2", subtitle: "Full Stack", status: "Ongoing" },
-  { id: "4", title: "ILP 2025 -26 Batch 1", subtitle: "Full Stack", status: "Completed" },
+  {
+    id: "1",
+    title: "ILP 2025 -26 Batch 4",
+    subtitle: "Full Stack",
+    status: "Ongoing",
+  },
+  {
+    id: "2",
+    title: "ILP 2025 -26 Batch 3",
+    subtitle: "Full Stack",
+    status: "Ongoing",
+  },
+  {
+    id: "3",
+    title: "ILP 2025 -26 Batch 2",
+    subtitle: "Full Stack",
+    status: "Ongoing",
+  },
+  {
+    id: "4",
+    title: "ILP 2025 -26 Batch 1",
+    subtitle: "Full Stack",
+    status: "Completed",
+  },
 ];
-
 
 type DashboardProjectsProps = {
   selectedBatchId: string;
   setSelectedBatchId: (id: string) => void;
 };
 
-export default function DashboardProjects({ selectedBatchId, setSelectedBatchId }: DashboardProjectsProps) {
+export default function DashboardProjects({
+  selectedBatchId,
+  setSelectedBatchId,
+}: DashboardProjectsProps) {
   // The top card selection is managed by AdminDashboard, so we don't need it here
-  const selectedBatch = sampleBatches.find((b) => b.id === selectedBatchId) || sampleBatches[0];
+  const selectedBatch =
+    sampleBatches.find((b) => b.id === selectedBatchId) || sampleBatches[0];
 
   const projects = new Array(6).fill(0).map((_, idx) => ({
     id: String(idx + 1),
@@ -43,7 +58,12 @@ export default function DashboardProjects({ selectedBatchId, setSelectedBatchId 
         </div>
         <div className="flex gap-4 overflow-x-auto py-2">
           {sampleBatches.map((b) => (
-            <SmallBatchCard key={b.id} batch={b} selected={b.id === selectedBatchId} onClick={() => setSelectedBatchId(b.id)} />
+            <SmallBatchCard
+              key={b.id}
+              batch={b}
+              selected={b.id === selectedBatchId}
+              onClick={() => setSelectedBatchId(b.id)}
+            />
           ))}
         </div>
       </div>
@@ -62,7 +82,11 @@ export default function DashboardProjects({ selectedBatchId, setSelectedBatchId 
           </thead>
           <tbody>
             {projects.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50 cursor-pointer border-b" onClick={() => console.log('row clicked', p.id)}>
+              <tr
+                key={p.id}
+                className="hover:bg-gray-50 cursor-pointer border-b"
+                onClick={() => console.log("row clicked", p.id)}
+              >
                 <td className="py-3">{p.name}</td>
                 <td className="py-3 text-gray-500">{p.lead}</td>
                 <td className="py-3">{p.trainees}</td>

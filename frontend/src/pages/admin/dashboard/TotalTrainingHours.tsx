@@ -1,11 +1,4 @@
 import { useMemo, useState } from "react";
-import AdminDashboardCard from "../../../features/admin/dashboard/AdminDashboardCard";
-import { useNavigate } from "react-router";
-const topCards = [
-  { id: "batches", title: "All Batches", subtitle: "1", value: <span className="text-2xl">1</span> },
-  { id: "projects", title: "Projects", subtitle: "8", value: <span className="text-2xl">8</span> },
-  { id: "hours", title: "Total Training Hours", subtitle: "hr/week", value: <span className="text-2xl">48</span> },
-];
 import Card from "../../../features/ui/card/Card";
 import CardContent from "../../../features/ui/card/CardContent";
 import CardHeader from "../../../features/ui/card/CardHeader";
@@ -17,9 +10,16 @@ const sampleRows = Array.from({ length: 5 }).map(() => ({
   days: `120 Days`,
 }));
 
-import { useRef, useState as useLocalState } from "react";
+import { useRef } from "react";
 
-function CalendarGrid({ year, month, highlighted = [], onDayClick, selectedDay, setPopupDay }: {
+function CalendarGrid({
+  year,
+  month,
+  highlighted = [],
+  onDayClick,
+  selectedDay,
+  setPopupDay,
+}: {
   year: number;
   month: number;
   highlighted?: number[];
@@ -41,10 +41,12 @@ function CalendarGrid({ year, month, highlighted = [], onDayClick, selectedDay, 
 
   return (
     <div className="grid grid-cols-7 gap-2 text-sm relative" ref={gridRef}>
-      {["S", "M", "T", "W", "T", "F", "S"].map((h, idx) => (
+      {["S", "M", "T", "W", "T", "F", "S"].map((h, _) => (
         <div
           key={h}
-          className={"text-xs text-center h-8 flex items-center justify-center bg-white text-gray-400"}
+          className={
+            "text-xs text-center h-8 flex items-center justify-center bg-white text-gray-400"
+          }
         >
           {h}
         </div>
@@ -67,10 +69,10 @@ function CalendarGrid({ year, month, highlighted = [], onDayClick, selectedDay, 
                 d === null
                   ? "invisible"
                   : isSunday
-                  ? "bg-white text-gray-400"
-                  : isHighlighted
-                  ? "bg-green-100 text-green-800"
-                  : "text-green-800 hover:bg-green-100"
+                    ? "bg-white text-gray-400"
+                    : isHighlighted
+                      ? "bg-green-100 text-green-800"
+                      : "text-green-800 hover:bg-green-100"
               }`}
             >
               {d}
@@ -86,7 +88,15 @@ function CalendarGrid({ year, month, highlighted = [], onDayClick, selectedDay, 
                     <div className="text-xs text-gray-500">Training Hours:</div>
                     <div className="text-lg font-semibold">8</div>
                   </div>
-                  <button className="bg-gray-100 text-gray-700 px-2 py-1 rounded" onClick={() => { setPopupDay(null); alert(`Marked day ${d} as holiday!`); }}>Mark as Holiday</button>
+                  <button
+                    className="bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                    onClick={() => {
+                      setPopupDay(null);
+                      alert(`Marked day ${d} as holiday!`);
+                    }}
+                  >
+                    Mark as Holiday
+                  </button>
                 </div>
               </div>
             )}
@@ -98,13 +108,15 @@ function CalendarGrid({ year, month, highlighted = [], onDayClick, selectedDay, 
 }
 
 export default function TotalTrainingHours() {
-  const [from, setFrom] = useState('2025-01-01');
-  const [to, setTo] = useState('2025-12-31');
-  const [batchType, setBatchType] = useState('All Batch Types');
-  const [selectedBatch, setSelectedBatch] = useState('ILP 2024 - 25 Batch 4');
+  const [from, setFrom] = useState("2025-01-01");
+  const [to, setTo] = useState("2025-12-31");
+  const [batchType, setBatchType] = useState("All Batch Types");
+  const [selectedBatch, setSelectedBatch] = useState("ILP 2024 - 25 Batch 4");
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const highlighted = [9,10,11,12,13,14,16,17,18,19,20,21,23,24,25,26,27,28,30,31];
-  const navigate = useNavigate();
+  const highlighted = [
+    9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28, 30,
+    31,
+  ];
 
   return (
     <div className="p-6">
@@ -116,23 +128,45 @@ export default function TotalTrainingHours() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                   <div>
-                    <label className="text-sm text-gray-600">Select Start Date</label>
-                    <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-full border rounded px-3 py-2" />
+                    <label className="text-sm text-gray-600">
+                      Select Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={from}
+                      onChange={(e) => setFrom(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                    />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Select End Date</label>
-                    <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-full border rounded px-3 py-2" />
+                    <label className="text-sm text-gray-600">
+                      Select End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={to}
+                      onChange={(e) => setTo(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                    />
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">&nbsp;</label>
-                    <button className="w-full bg-blue-600 text-white rounded px-4 py-2">Apply Filter</button>
+                    <button className="w-full bg-blue-600 text-white rounded px-4 py-2">
+                      Apply Filter
+                    </button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                   <div>
-                    <label className="text-sm text-gray-600">Select Batch Type</label>
-                    <select value={batchType} onChange={(e) => setBatchType(e.target.value)} className="w-full border rounded px-3 py-2">
+                    <label className="text-sm text-gray-600">
+                      Select Batch Type
+                    </label>
+                    <select
+                      value={batchType}
+                      onChange={(e) => setBatchType(e.target.value)}
+                      className="w-full border rounded px-3 py-2"
+                    >
                       <option>All Batch Types</option>
                       <option>Full Stack</option>
                       <option>Frontend</option>
@@ -141,7 +175,12 @@ export default function TotalTrainingHours() {
                   <div />
                   <div className="text-right">
                     <label className="text-sm text-gray-600">&nbsp;</label>
-                    <div className="inline-block bg-gray-100 px-3 py-2 rounded">Total Training Hours: <span className="font-semibold text-blue-600">48 hr/week</span></div>
+                    <div className="inline-block bg-gray-100 px-3 py-2 rounded">
+                      Total Training Hours:{" "}
+                      <span className="font-semibold text-blue-600">
+                        48 hr/week
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -154,11 +193,18 @@ export default function TotalTrainingHours() {
                   </div>
                   <div className="p-4 space-y-3">
                     {sampleRows.map((r, i) => (
-                      <div key={i} className="grid grid-cols-4 items-center text-sm">
+                      <div
+                        key={i}
+                        className="grid grid-cols-4 items-center text-sm"
+                      >
                         <div className="text-gray-700">{r.name}</div>
                         <div className="text-muted-foreground">{r.type}</div>
-                        <div className="text-blue-600 font-semibold">{r.hrs}</div>
-                        <div className="text-blue-600 font-semibold">{r.days}</div>
+                        <div className="text-blue-600 font-semibold">
+                          {r.hrs}
+                        </div>
+                        <div className="text-blue-600 font-semibold">
+                          {r.days}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -175,16 +221,24 @@ export default function TotalTrainingHours() {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm text-gray-600">Select Batch</label>
-                  <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} className="w-full border rounded px-3 py-2">
+                  <select
+                    value={selectedBatch}
+                    onChange={(e) => setSelectedBatch(e.target.value)}
+                    className="w-full border rounded px-3 py-2"
+                  >
                     <option>ILP 2024 - 25 Batch 4</option>
                     <option>ILP 2025 - 26 Batch 1</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-600">Click a Date to Edit</label>
+                  <label className="text-sm text-gray-600">
+                    Click a Date to Edit
+                  </label>
                   <div className="mt-3 p-4 border rounded">
-                    <div className="text-center mb-3 font-medium">September 2025</div>
+                    <div className="text-center mb-3 font-medium">
+                      September 2025
+                    </div>
                     <CalendarGrid
                       year={2025}
                       month={9}

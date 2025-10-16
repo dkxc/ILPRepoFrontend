@@ -21,10 +21,16 @@ export const SmallBatchCard: React.FC<{
           : "border-gray-200 bg-[var(--color-card)] hover:shadow-sm"
       }`}
     >
-      <div className="text-sm font-medium text-[var(--color-text-base)]">{batch.title}</div>
-      {batch.subtitle && <div className="text-xs text-gray-500">{batch.subtitle}</div>}
+      <div className="text-sm font-medium text-[var(--color-text-base)]">
+        {batch.title}
+      </div>
+      {batch.subtitle && (
+        <div className="text-xs text-gray-500">{batch.subtitle}</div>
+      )}
       {batch.status && (
-        <div className="mt-3 inline-block text-xs px-3 py-1 rounded-full bg-[var(--color-inactive-badge)]">{batch.status}</div>
+        <div className="mt-3 inline-block text-xs px-3 py-1 rounded-full bg-[var(--color-inactive-badge)]">
+          {batch.status}
+        </div>
       )}
     </button>
   );
@@ -50,10 +56,18 @@ export const SquareInfoCard: React.FC<{
   return (
     <div className="border rounded-md p-4 h-full bg-[var(--color-card)]">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-md flex items-center justify-center text-[var(--color-brand-600)] bg-[var(--color-brand-50)]">{icon}</div>
+        <div className="w-10 h-10 rounded-md flex items-center justify-center text-[var(--color-brand-600)] bg-[var(--color-brand-50)]">
+          {icon}
+        </div>
         <div>
-          {title && <div className="text-xs text-[var(--color-menuitem-text)] font-medium">{title}</div>}
-          {subtitle !== undefined && <div className="text-sm text-gray-500">{subtitle}</div>}
+          {title && (
+            <div className="text-xs text-[var(--color-menuitem-text)] font-medium">
+              {title}
+            </div>
+          )}
+          {subtitle !== undefined && (
+            <div className="text-sm text-gray-500">{subtitle}</div>
+          )}
         </div>
       </div>
     </div>
@@ -71,7 +85,9 @@ export const ProjectItem: React.FC<{
         <div className="text-sm font-medium">{name}</div>
         {lead && <div className="text-xs text-gray-500">Team Lead: {lead}</div>}
       </div>
-      <div className="w-10 h-10 rounded-full border flex items-center justify-center text-xs text-[var(--color-brand-600)]">{percent}%</div>
+      <div className="w-10 h-10 rounded-full border flex items-center justify-center text-xs text-[var(--color-brand-600)]">
+        {percent}%
+      </div>
     </li>
   );
 };
