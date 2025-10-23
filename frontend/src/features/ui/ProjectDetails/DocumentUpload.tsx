@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../../ui/Button";
 import { Trash2, X, CircleCheckBig } from "lucide-react";
-import { DocumentSubmissionModal } from "../../../features/admin/document_upload";
+import DocumentSubmissionModal from "../../ui/DocumentUpload";
 
 interface Document {
   id: string;
