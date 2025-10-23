@@ -11,6 +11,7 @@ import {
   Moon,
   Sun,
   UserRoundCog,
+  Settings,
 } from "lucide-react";
 import Header from "./features/ui/header/Header";
 import experionLogo from "./assets/experionlogo.svg";
@@ -38,6 +39,12 @@ const adminNavItems = [
 
 const dropDownItems = [
   { to: "/profile", label: "My Profile", icon: UserRoundCog },
+  { to: "/traineeSettings", label: "Settings", icon: Settings },
+  { to: "/signout", label: "Sign Out", icon: LogOut },
+];
+const adminDropDownItems = [
+  { to: "/profile", label: "My Profile", icon: UserRoundCog },
+  { to: "/adminSettings", label: "Settings", icon: Settings },
   { to: "/signout", label: "Sign Out", icon: LogOut },
 ];
 
@@ -93,7 +100,9 @@ function App() {
               )}
             </HeaderItem>
             <ProfileIconWithDropDown>
-              <SideBar navItems={dropDownItems} />
+              <SideBar
+                navItems={isAdmin ? adminDropDownItems : dropDownItems}
+              />
             </ProfileIconWithDropDown>
           </HeaderBar>
         </Header>
