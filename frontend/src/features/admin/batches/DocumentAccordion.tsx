@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
-  Plus,
   Upload,
   Trash2,
   Download,
@@ -27,12 +26,16 @@ function DropdownMenu({
   setEditingRowId,
   setEditDraft,
   handleDeleteRow,
+  handleToggleMultiple,
+  handleToggleBroadcast,
   notifications,
 }: {
   row: DocumentRow;
   setEditingRowId: (id: number) => void;
   setEditDraft: (draft: { documentName: string; deadline: string }) => void;
   handleDeleteRow: (id: number) => void;
+  handleToggleMultiple: (id: number) => void;
+  handleToggleBroadcast: (id: number) => void;
   notifications: typeof import("@mantine/notifications").notifications;
 }) {
   const [open, setOpen] = useState(false);
@@ -122,30 +125,34 @@ function DropdownMenu({
             <button
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-800 text-sm"
               onClick={() => {
+                handleToggleMultiple(row.id);
                 notifications.show({
                   title: "Multiple Upload",
-                  message: "Multiple files upload triggered",
+                  message: `Multiple upload ${row.isMultiple ? "disabled" : "enabled"} for ${row.documentName}`,
                   color: "blue",
                 });
                 setOpen(false);
               }}
               type="button"
             >
-              <Layers className="w-4 h-4" /> Multiple
+              <Layers className="w-4 h-4" />{" "}
+              {row.isMultiple ? "Disable" : "Enable"} Multiple
             </button>
             <button
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-800 text-sm"
               onClick={() => {
+                handleToggleBroadcast(row.id);
                 notifications.show({
                   title: "Broadcast",
-                  message: "File broadcasted to all batchmates",
+                  message: `Broadcast ${row.isBroadcast ? "disabled" : "enabled"} for ${row.documentName}`,
                   color: "teal",
                 });
                 setOpen(false);
               }}
               type="button"
             >
-              <Send className="w-4 h-4" /> Broadcast
+              <Send className="w-4 h-4" />{" "}
+              {row.isBroadcast ? "Disable" : "Enable"} Broadcast
             </button>
           </div>,
           document.body,
@@ -160,6 +167,8 @@ interface DocumentRow {
   documentName: string;
   deadline: string;
   templateFile: File | null;
+  isMultiple?: boolean;
+  isBroadcast?: boolean;
 }
 
 interface LinkRow {
@@ -189,7 +198,6 @@ export default function DocumentUpload({
   ],
   onDocumentChange,
   onLinksChange,
-  defaultOpen = false,
 }: DocumentUploadProps) {
   const [documentRows, setDocumentRows] =
     useState<DocumentRow[]>(initialDocuments);
@@ -258,9 +266,29 @@ export default function DocumentUpload({
       header: "Action",
       align: "center",
       width: "15%",
-      render: (_v, row) => (
-        <div className="flex gap-2 justify-center">
-          <>
+      render: (_v, row) =>
+        editingLinkId === row.id ? (
+          <div className="flex gap-2 justify-center">
+            <button
+              className="px-3 py-1 text-sm text-green-600 hover:text-green-700 font-medium hover:bg-green-50 rounded transition-colors"
+              onClick={handleSaveLinkEdit}
+              type="button"
+            >
+              Save
+            </button>
+            <button
+              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded transition-colors"
+              onClick={() => {
+                setEditingLinkId(null);
+                setLinkEditDraft(null);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2 justify-center">
             <button
               type="button"
               className="p-2 rounded hover:bg-gray-200"
@@ -281,13 +309,12 @@ export default function DocumentUpload({
             >
               <Trash2 className="w-5 h-5 text-red-600" />
             </button>
-          </>
-        </div>
-      ),
+          </div>
+        ),
     },
   ];
 
-  const [accordionOpen, setAccordionOpen] = useState(true);
+  const [accordionOpen, setAccordionOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"documents" | "links">(
     "documents",
   );
@@ -357,6 +384,60 @@ export default function DocumentUpload({
     });
   };
 
+  const handleToggleMultiple = (id: number) => {
+    const updatedDocs = documentRows.map((doc) =>
+      doc.id === id ? { ...doc, isMultiple: !doc.isMultiple } : doc,
+    );
+    updateDocuments(updatedDocs);
+  };
+
+  const handleToggleBroadcast = (id: number) => {
+    const updatedDocs = documentRows.map((doc) =>
+      doc.id === id ? { ...doc, isBroadcast: !doc.isBroadcast } : doc,
+    );
+    updateDocuments(updatedDocs);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingRowId && editDraft) {
+      const updatedDocs = documentRows.map((doc) =>
+        doc.id === editingRowId
+          ? {
+              ...doc,
+              documentName: editDraft.documentName,
+              deadline: editDraft.deadline,
+            }
+          : doc,
+      );
+      updateDocuments(updatedDocs);
+      setEditingRowId(null);
+      setEditDraft(null);
+      notifications.show({
+        title: "Saved",
+        message: "Document updated successfully",
+        color: "green",
+      });
+    }
+  };
+
+  const handleSaveLinkEdit = () => {
+    if (editingLinkId && linkEditDraft) {
+      const updatedLinks = linkRows.map((link) =>
+        link.id === editingLinkId
+          ? { ...link, linkName: linkEditDraft.linkName }
+          : link,
+      );
+      updateLinks(updatedLinks);
+      setEditingLinkId(null);
+      setLinkEditDraft(null);
+      notifications.show({
+        title: "Saved",
+        message: "Link updated successfully",
+        color: "green",
+      });
+    }
+  };
+
   const documentColumns: ColumnDef<DocumentRow>[] = [
     {
       key: "documentName",
@@ -373,7 +454,19 @@ export default function DocumentUpload({
             placeholder="Enter document name"
           />
         ) : (
-          <span>{row.documentName}</span>
+          <div className="flex items-center gap-2">
+            <span>{row.documentName}</span>
+            {row.isMultiple && (
+              <span title="Multiple upload enabled">
+                <Layers className="w-4 h-4 text-blue-600" />
+              </span>
+            )}
+            {row.isBroadcast && (
+              <span title="Broadcast enabled">
+                <Send className="w-4 h-4 text-teal-600" />
+              </span>
+            )}
+          </div>
         ),
     },
     {
@@ -454,130 +547,163 @@ export default function DocumentUpload({
       header: "Action",
       align: "center",
       width: "15%",
-      render: (_value, row) => (
-        <DropdownMenu
-          row={row}
-          setEditingRowId={setEditingRowId}
-          setEditDraft={setEditDraft}
-          handleDeleteRow={handleDeleteRow}
-          notifications={notifications}
-        />
-      ),
+      render: (_value, row) =>
+        editingRowId === row.id ? (
+          <div className="flex gap-2 justify-center">
+            <button
+              className="px-3 py-1 text-sm text-green-600 hover:text-green-700 font-medium hover:bg-green-50 rounded transition-colors"
+              onClick={handleSaveEdit}
+              type="button"
+            >
+              Save
+            </button>
+            <button
+              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded transition-colors"
+              onClick={() => {
+                setEditingRowId(null);
+                setEditDraft(null);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <DropdownMenu
+            row={row}
+            setEditingRowId={setEditingRowId}
+            setEditDraft={setEditDraft}
+            handleDeleteRow={handleDeleteRow}
+            handleToggleMultiple={handleToggleMultiple}
+            handleToggleBroadcast={handleToggleBroadcast}
+            notifications={notifications}
+          />
+        ),
     },
   ];
 
   return (
-    <div className="p-1">
-      <div className="bg-white shadow-md rounded-sm p-1 space-y-0">
-        {/* Accordion Header with Add Button */}
-        <div className="flex items-center justify-between mb-4">
-          <button
-            className="flex items-center gap-2 text-xl font-semibold focus:outline-none select-none"
-            onClick={() => setAccordionOpen((v) => !v)}
-            aria-expanded={accordionOpen}
-            aria-controls="document-accordion-content"
-            type="button"
-          >
-            {accordionOpen ? (
-              <ChevronDown className="w-6 h-6" />
-            ) : (
-              <ChevronUp className="w-6 h-6" />
-            )}
-            {batchTitle}
-          </button>
-
-          {/* Add Button aligned to right */}
-          {accordionOpen && (
-            <Button
-              variant="default"
-              className="!bg-white hover:!bg-gray-100 !text-blue-600 border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
-              onClick={
-                activeTab === "documents" ? handleAddDocument : handleAddLink
-              }
+    <div className="p-0">
+      <div className="bg-white border border-[#F8F9FA] rounded-[6px] w-full">
+        <div className="pt-5 px-3">
+          {/* Accordion Header with Add Button */}
+          <div className="flex items-center justify-between mb-4 ml-4">
+            <button
+              className="flex items-center gap-2 text-xl font-semibold focus:outline-none select-none"
+              onClick={() => setAccordionOpen((v) => !v)}
+              aria-expanded={accordionOpen}
+              aria-controls="document-accordion-content"
+              type="button"
             >
-              + Add {activeTab === "documents" ? "Document" : "Link"}
-            </Button>
-          )}
-        </div>
+              {accordionOpen ? (
+                <ChevronUp className="w-6 h-6" />
+              ) : (
+                <ChevronDown className="w-6 h-6" />
+              )}
+              {batchTitle}
+            </button>
 
-        {/* Tabs below header - Full-width Phase Tabs Styling with Lucide icons */}
-        {accordionOpen && (
-          <div className="mb-2 w-full">
-            <div className="flex w-full gap-3 bg-gray-50 rounded-lg">
-              {["documents", "links"].map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab as "documents" | "links")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                    activeTab === tab
-                      ? "bg-blue-50 text-blue-600 my-1"
-                      : "text-gray-600 hover:bg-gray-100 my-1"
-                  }`}
-                >
-                  {tab === "documents" ? (
-                    <FileText className="w-4 h-4" />
-                  ) : (
-                    <Link className="w-4 h-4" />
-                  )}
-                  <span className="capitalize">{tab}</span>
-                </button>
-              ))}
-            </div>
+            {/* Add Button aligned to right */}
+            {accordionOpen && (
+              <Button
+                variant="default"
+                className="!bg-white hover:!bg-gray-100 !text-blue-600 border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
+                onClick={
+                  activeTab === "documents" ? handleAddDocument : handleAddLink
+                }
+              >
+                + Add {activeTab === "documents" ? "Document" : "Link"}
+              </Button>
+            )}
           </div>
-        )}
 
-        {/* Accordion Content with Tabs */}
-        <div
-          id="document-accordion-content"
-          className={`${accordionOpen ? "block" : "hidden"} space-y-6`}
-        >
-          {activeTab === "documents" && (
-            <>
-              <DataTable
-                columns={documentColumns}
-                data={documentRows}
-                showHeaderSection={true}
-                headerTitle="Documents"
-                enableSearch={true}
-                enablePagination={true}
-                pageSize={5}
-                pageSizeOptions={[5, 10, 25]}
-                highlightOnHover={true}
-                withBorder={true}
-                rowStyle={{ fontSize: "16px", height: "56px", lineHeight: "1" }}
-                headerStyle={{
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  height: "40px",
-                  background: "#F8F9FA",
-                }}
-              />
-            </>
+          {/* Tabs below header - Full-width Phase Tabs Styling with Lucide icons */}
+          {accordionOpen && (
+            <div className="mb-2 w-full">
+              <div className="flex w-full gap-3 bg-gray-50 rounded-lg">
+                {["documents", "links"].map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab as "documents" | "links")}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      activeTab === tab
+                        ? "bg-blue-50 text-blue-600 my-1"
+                        : "text-gray-600 hover:bg-gray-100 my-1"
+                    }`}
+                  >
+                    {tab === "documents" ? (
+                      <FileText className="w-4 h-4" />
+                    ) : (
+                      <Link className="w-4 h-4" />
+                    )}
+                    <span className="capitalize">{tab}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
-          {activeTab === "links" && (
-            <>
-              <DataTable
-                columns={linkColumns}
-                data={linkRows}
-                showHeaderSection={true}
-                headerTitle="Links"
-                enableSearch={true}
-                enablePagination={true}
-                pageSize={5}
-                pageSizeOptions={[5, 10, 25]}
-                highlightOnHover={true}
-                withBorder={true}
-                rowStyle={{ fontSize: "16px", height: "56px", lineHeight: "1" }}
-                headerStyle={{
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  height: "40px",
-                  background: "#F8F9FA",
-                }}
-              />
-            </>
-          )}
+
+          {/* Accordion Content with Tabs */}
+          <div
+            id="document-accordion-content"
+            className={`${accordionOpen ? "block" : "hidden"} space-y-6`}
+          >
+            {activeTab === "documents" && (
+              <>
+                <DataTable
+                  columns={documentColumns}
+                  data={documentRows}
+                  showHeaderSection={true}
+                  headerTitle="Documents"
+                  enableSearch={true}
+                  enablePagination={true}
+                  pageSize={5}
+                  pageSizeOptions={[5, 10, 25]}
+                  highlightOnHover={true}
+                  withBorder={true}
+                  rowStyle={{
+                    fontSize: "16px",
+                    height: "56px",
+                    lineHeight: "1",
+                  }}
+                  headerStyle={{
+                    fontWeight: 500,
+                    fontSize: "16px",
+                    height: "40px",
+                    background: "#F8F9FA",
+                  }}
+                />
+              </>
+            )}
+            {activeTab === "links" && (
+              <>
+                <DataTable
+                  columns={linkColumns}
+                  data={linkRows}
+                  showHeaderSection={true}
+                  headerTitle="Links"
+                  enableSearch={true}
+                  enablePagination={true}
+                  pageSize={5}
+                  pageSizeOptions={[5, 10, 25]}
+                  highlightOnHover={true}
+                  withBorder={true}
+                  rowStyle={{
+                    fontSize: "16px",
+                    height: "56px",
+                    lineHeight: "1",
+                  }}
+                  headerStyle={{
+                    fontWeight: 500,
+                    fontSize: "16px",
+                    height: "40px",
+                    background: "#F8F9FA",
+                  }}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

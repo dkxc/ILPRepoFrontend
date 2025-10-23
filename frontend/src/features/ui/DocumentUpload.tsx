@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Upload, Download, Filter, ChevronRight, Check } from "lucide-react";
+import { X, Upload, Download, Filter, Check } from "lucide-react";
 import { useEffect } from "react";
 
 interface UploadedDocument {
@@ -97,10 +97,10 @@ const DocumentSubmissionModal = ({
     } else if (fileType === "application/pdf") {
       objectURL = URL.createObjectURL(selectedFile);
       setFilePreview(
-        <embed
+        <iframe
           src={objectURL}
-          type="application/pdf"
-          className="w-full min-h-[500px] max-h-[70vh] rounded-lg border"
+          className="w-full h-[750px]"
+          title="PDF Preview"
         />,
       );
       setPreviewLoading(false);
@@ -176,89 +176,88 @@ const DocumentSubmissionModal = ({
     onClose();
   };
 
-  const getFilePreview = () => {
-    if (!selectedFile) return null;
-
-    const fileType = selectedFile.type;
-    if (fileType.startsWith("image/")) {
-      return (
-        <img
-          src={URL.createObjectURL(selectedFile)}
-          alt="Preview"
-          className="max-w-full max-h-96 mx-auto"
-        />
-      );
-    }
-    return (
-      <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg">
-        <div className="text-6xl mb-4">📄</div>
-        <p className="text-lg font-medium text-gray-700">{selectedFile.name}</p>
-        <p className="text-sm text-gray-500 mt-2">
-          {(selectedFile.size / 1024).toFixed(2)} KB
-        </p>
-      </div>
-    );
-  };
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
-        {/* Modal Header - Simplified */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Document Submission
-          </h2>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[92vh] flex flex-col border border-gray-200">
+        {/* Modal Header - Minimalistic */}
+        <div className="flex items-center justify-between px-8 py-3 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{
+                backgroundColor:
+                  "color-mix(in srgb, var(--color-brand-500) 10%, white)",
+              }}
+            >
+              <Upload
+                className="w-4 h-4"
+                style={{ color: "var(--color-brand-500)" }}
+              />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">
+                Document Submission
+              </h2>
+              <p className="text-xs text-gray-500">
+                Upload and manage project documents
+              </p>
+            </div>
+          </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Close"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
-        {/* Stepper */}
-        <div className="px-6 py-4 border-b bg-gray-50">
-          <div className="flex items-center justify-between max-w-2xl mx-auto">
+        {/* Stepper - Minimalistic */}
+        <div className="px-8 py-3 border-b border-gray-100 bg-gray-50">
+          <div className="flex items-center justify-center gap-2 max-w-xl mx-auto">
             {[
-              { num: 1, label: "View Documents" },
-              { num: 2, label: "Upload File" },
-              { num: 3, label: "Preview & Confirm" },
+              { num: 1, label: "View" },
+              { num: 2, label: "Upload" },
+              { num: 3, label: "Preview" },
             ].map((step, idx) => (
-              <div key={step.num} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
+              <div key={step.num} className="flex items-center">
+                <div className="flex items-center gap-2">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
                       currentStep > step.num
-                        ? "bg-green-600 text-white"
+                        ? "bg-green-500 text-white"
                         : currentStep === step.num
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-300 text-gray-600"
+                          ? "text-white"
+                          : "bg-gray-200 text-gray-500"
                     }`}
+                    style={
+                      currentStep === step.num
+                        ? { backgroundColor: "var(--color-brand-500)" }
+                        : {}
+                    }
                   >
                     {currentStep > step.num ? (
-                      <Check className="w-5 h-5" />
+                      <Check className="w-4 h-4" />
                     ) : (
                       step.num
                     )}
                   </div>
                   <span
-                    className={`text-sm mt-2 ${
+                    className={`text-sm font-medium ${
                       currentStep >= step.num
-                        ? "text-gray-800 font-medium"
-                        : "text-gray-500"
+                        ? "text-gray-900"
+                        : "text-gray-400"
                     }`}
                   >
                     {step.label}
                   </span>
                 </div>
                 {idx < 2 && (
-                  <ChevronRight
-                    className={`w-5 h-5 mx-2 ${
-                      currentStep > step.num
-                        ? "text-green-600"
-                        : "text-gray-400"
+                  <div
+                    className={`w-12 h-0.5 mx-2 ${
+                      currentStep > step.num ? "bg-green-500" : "bg-gray-200"
                     }`}
                   />
                 )}
@@ -278,7 +277,12 @@ const DocumentSubmissionModal = ({
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
+                    style={
+                      {
+                        "--tw-ring-color": "var(--color-brand-500)",
+                      } as React.CSSProperties
+                    }
                   >
                     <option value="all">All Types</option>
                     {documentTypes.map((type) => (
@@ -291,7 +295,10 @@ const DocumentSubmissionModal = ({
 
                 <button
                   onClick={() => setCurrentStep(2)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors"
+                  style={{ backgroundColor: "var(--color-brand-500)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
                 >
                   <Upload className="w-4 h-4" />
                   Upload Document
@@ -349,17 +356,22 @@ const DocumentSubmissionModal = ({
 
           {/* Step 2: Upload File */}
           {currentStep === 2 && (
-            <div>
-              <div className="mb-6">
+            <div className="max-w-2xl mx-auto">
+              <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Document Type
+                  Document Type
                 </label>
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent text-sm"
+                  style={
+                    {
+                      "--tw-ring-color": "var(--color-brand-500)",
+                    } as React.CSSProperties
+                  }
                 >
-                  <option value="">Choose type...</option>
+                  <option value="">Select document type...</option>
                   {documentTypes.map((type) => (
                     <option key={type} value={type}>
                       {type}
@@ -369,25 +381,51 @@ const DocumentSubmissionModal = ({
               </div>
 
               <div
-                className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                  isDragging
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-300 bg-gray-50"
-                }`}
+                className="border-2 border-dashed rounded-xl p-12 text-center transition-all"
+                style={{
+                  borderColor: isDragging
+                    ? "var(--color-brand-500)"
+                    : "#d1d5db",
+                  backgroundColor: isDragging
+                    ? "color-mix(in srgb, var(--color-brand-500) 5%, white)"
+                    : "#f9fafb",
+                }}
+                onMouseEnter={(e) =>
+                  !isDragging &&
+                  (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                }
+                onMouseLeave={(e) =>
+                  !isDragging &&
+                  (e.currentTarget.style.backgroundColor = "#f9fafb")
+                }
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
                 <div className="flex flex-col items-center">
-                  <div className="p-4 bg-blue-100 rounded-full mb-4">
-                    <Upload className="w-12 h-12 text-blue-600" />
+                  <div
+                    className="p-4 rounded-full mb-4 transition-colors"
+                    style={{
+                      backgroundColor: isDragging
+                        ? "color-mix(in srgb, var(--color-brand-500) 20%, white)"
+                        : "color-mix(in srgb, var(--color-brand-500) 10%, white)",
+                    }}
+                  >
+                    <Upload
+                      className="w-10 h-10"
+                      style={{
+                        color: isDragging
+                          ? "var(--color-brand-500)"
+                          : "color-mix(in srgb, var(--color-brand-500) 80%, black)",
+                      }}
+                    />
                   </div>
 
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  <h3 className="text-base font-semibold text-gray-900 mb-2">
                     Drop your file here, or browse
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Supports: PDF, XLSX, DOCX, PNG, JPG
+                  <p className="text-sm text-gray-500 mb-6">
+                    Supports: PDF, XLSX, DOCX, PNG, JPG (Max 10MB)
                   </p>
 
                   <input
@@ -398,19 +436,33 @@ const DocumentSubmissionModal = ({
                     accept=".pdf,.xlsx,.xls,.docx,.doc,.png,.jpg,.jpeg"
                   />
                   <label htmlFor="file-upload">
-                    <span className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors">
+                    <span
+                      className="inline-block px-6 py-2.5 text-white text-sm font-medium rounded-lg cursor-pointer transition-opacity"
+                      style={{ backgroundColor: "var(--color-brand-500)" }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.opacity = "0.9")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.opacity = "1")
+                      }
+                    >
                       Browse Files
                     </span>
                   </label>
 
                   {selectedFile && (
-                    <div className="mt-6 p-4 bg-white border border-gray-200 rounded-lg">
-                      <p className="text-sm font-medium text-gray-800">
-                        Selected: {selectedFile.name}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {(selectedFile.size / 1024).toFixed(2)} KB
-                      </p>
+                    <div className="mt-8 p-4 bg-white border border-gray-200 rounded-lg w-full flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Check className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-medium text-gray-900">
+                          {selectedFile.name}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {(selectedFile.size / 1024).toFixed(2)} KB
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -420,30 +472,57 @@ const DocumentSubmissionModal = ({
 
           {/* Step 3: Preview */}
           {currentStep === 3 && (
-            <div>
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
                   Document Preview
                 </h3>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span>
-                    <strong>Type:</strong> {selectedType}
-                  </span>
-                  <span>
-                    <strong>Filename:</strong> {selectedFile?.name}
-                  </span>
+                <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">Type:</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium text-xs">
+                      {selectedType}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">Filename:</span>
+                    <span className="text-gray-900 font-medium">
+                      {selectedFile?.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">Size:</span>
+                    <span className="text-gray-900 font-medium">
+                      {selectedFile ? (selectedFile.size / 1024).toFixed(2) : 0}{" "}
+                      KB
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                {getFilePreview()}
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                {previewLoading ? (
+                  <div className="flex flex-col items-center justify-center h-96">
+                    <div
+                      className="animate-spin rounded-full h-12 w-12 border-b-2 mb-4"
+                      style={{ borderBottomColor: "var(--color-brand-500)" }}
+                    ></div>
+                    <span className="text-gray-500 text-sm">
+                      Loading preview...
+                    </span>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
+                    {filePreview}
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+        <div className="flex items-center justify-between px-6 py-3 border-t bg-gray-50">
           <button
             onClick={() => {
               if (currentStep > 1) setCurrentStep(currentStep - 1);
@@ -458,11 +537,26 @@ const DocumentSubmissionModal = ({
             <button
               onClick={handleNext}
               disabled={!selectedFile || !selectedType}
-              className={`px-6 py-2 rounded-lg transition-colors ${
+              className={`px-6 py-2 rounded-lg transition-opacity ${
                 selectedFile && selectedType
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
+              style={
+                selectedFile && selectedType
+                  ? { backgroundColor: "var(--color-brand-500)" }
+                  : {}
+              }
+              onMouseEnter={(e) =>
+                selectedFile &&
+                selectedType &&
+                (e.currentTarget.style.opacity = "0.9")
+              }
+              onMouseLeave={(e) =>
+                selectedFile &&
+                selectedType &&
+                (e.currentTarget.style.opacity = "1")
+              }
             >
               Next
             </button>
