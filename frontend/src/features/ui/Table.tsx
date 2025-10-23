@@ -69,6 +69,7 @@ export interface DataTableProps<T = any> {
   headerRightContent?: ReactNode;
   enableDateFilter?: boolean;
   dateFilterColumn?: string;
+  multipleFilters?: { [key: string]: string | null };
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -182,7 +183,7 @@ export default function DataTable<T extends Record<string, any>>({
 
   if (enableFilter && !enableMultipleFilters && filterValue && filterColumn) {
     filteredData = filteredData.filter(
-      (row) => row[filterColumn] === filterValue,
+      (row) => row[filterColumn] === filterValue
     );
   }
 
@@ -227,7 +228,7 @@ export default function DataTable<T extends Record<string, any>>({
   const paginatedData = enablePagination
     ? filteredData.slice(
         (activePage - 1) * currentPageSize,
-        activePage * currentPageSize,
+        activePage * currentPageSize
       )
     : filteredData;
 
@@ -444,7 +445,14 @@ export default function DataTable<T extends Record<string, any>>({
                           style={{
                             display: "flex",
                             alignItems: "center",
+                            justifyContent:
+                              column.align === "center"
+                                ? "center"
+                                : column.align === "right"
+                                  ? "flex-end"
+                                  : "flex-start",
                             gap: "0.25rem",
+                            width: "100%",
                           }}
                         >
                           {column.header}

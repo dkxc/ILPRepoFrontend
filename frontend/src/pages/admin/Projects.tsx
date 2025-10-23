@@ -41,7 +41,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
         </div>
       </div>
     );
-  },
+  }
 );
 
 ProjectCard.displayName = "ProjectCard";
@@ -323,15 +323,23 @@ export default function Projects() {
           showHeaderSection={true}
           headerTitle="All Projects"
           headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
-          enableFilter={true}
-          filterColumn="batch"
-          filterOptions={[
-            "ILP 2025-26 Batch 5",
-            "ILP 2025-26 Batch 6",
-            "ILP 2025-26 Batch 7",
-            "ILP 2025-26 Batch 8",
-            "ILP 2025-26 Batch 9",
-          ]}
+          enableMultipleFilters={true}
+          columnFilters={{
+            batch: [
+              "ILP 2025-26 Batch 5",
+              "ILP 2025-26 Batch 6",
+              "ILP 2025-26 Batch 7",
+              "ILP 2025-26 Batch 8",
+              "ILP 2025-26 Batch 9",
+            ],
+            batch1: [
+              "ILP 2025-26 Batch 5",
+              "ILP 2025-26 Batch 6",
+              "ILP 2025-26 Batch 7",
+              "ILP 2025-26 Batch 8",
+              "ILP 2025-26 Batch 9",
+            ],
+          }}
           enableSearch={true}
           enablePagination={true}
           enableDateFilter={true}

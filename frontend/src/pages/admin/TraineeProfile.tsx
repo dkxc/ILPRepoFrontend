@@ -1,5 +1,5 @@
-//pages/TraineeProfilee.tsx
 import { useState } from "react";
+import { User, Briefcase, Phone, MapPin } from "lucide-react";
 import InfoCard from "../../features/ui/TraineeProfile/InfoCard";
 import EditModal from "../../features/ui/TraineeProfile/EditModel";
 
@@ -7,19 +7,38 @@ function TraineeProfile() {
   // Modal state
   const [modalState, setModalState] = useState({
     opened: false,
-    type: null as "personal" | "contact" | "emergency" | "address" | null,
+    type: null as
+      | "personal"
+      | "contact"
+      | "emergency"
+      | "address"
+      | "official"
+      | "status"
+      | null,
     title: "",
     initialData: {} as any,
   });
 
-  // State for all the data
+  // Trainee active/inactive status
+  const [isActive, setIsActive] = useState(true);
+
+  // State for all data
   const [personalInfoData, setPersonalInfoData] = useState({
     fullName: "Arjun Sharma",
-    batch: "ILP 2025-26 Batch-1",
     bloodGroup: "B+",
     adhaarId: "123456789012",
     healthConditions: "None",
     personalInterests: "Cricket, Photography, Reading",
+  });
+
+  const [officialInfoData, setOfficialInfoData] = useState({
+    batch: "ILP 2025-26 Batch-1",
+    techStack: "React, Node.js, MongoDB",
+    projectsInvolved: "Carbon Zero, HR Portal",
+    buddy: "Rohit Verma",
+    ojtMentor: "Anita Das",
+    duAllocation: "Banking DU",
+    location: "Bangalore",
   });
 
   const [contactInfoData, setContactInfoData] = useState({
@@ -33,19 +52,16 @@ function TraineeProfile() {
   });
 
   const [addressInfoData, setAddressInfoData] = useState({
-    residentialAddress: "123 MG Road, Bangalore, Karnataka 560001",
+    currentAddress: "123 MG Road, Bangalore, Karnataka 560001",
+    contactNumber: "9876543210",
+    permanentAddress: "45 Park Avenue, Chennai, Tamil Nadu 600001",
   });
 
-  // Convert data to display format for InfoCard
+  // Card data formatting
   const personalInfo = [
     {
       label: "Full Name",
       value: personalInfoData.fullName,
-      gridCols: "single" as const,
-    },
-    {
-      label: "Batch",
-      value: personalInfoData.batch,
       gridCols: "single" as const,
     },
     {
@@ -54,7 +70,7 @@ function TraineeProfile() {
       gridCols: "single" as const,
     },
     {
-      label: "Adhaar ID",
+      label: "Aadhaar ID",
       value: personalInfoData.adhaarId,
       gridCols: "single" as const,
     },
@@ -70,80 +86,123 @@ function TraineeProfile() {
     },
   ];
 
-  const contactInfo = [
+  const officialInfo = [
+    {
+      label: "Batch",
+      value: officialInfoData.batch,
+      gridCols: "double" as const,
+    },
+    {
+      label: "Tech Stack",
+      value: officialInfoData.techStack,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Projects Involved",
+      value: officialInfoData.projectsInvolved,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Buddy",
+      value: officialInfoData.buddy,
+      gridCols: "single" as const,
+    },
+    {
+      label: "OJT Mentor",
+      value: officialInfoData.ojtMentor,
+      gridCols: "single" as const,
+    },
+    {
+      label: "DU Allocation",
+      value: officialInfoData.duAllocation,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Location",
+      value: officialInfoData.location,
+      gridCols: "single" as const,
+    },
+  ];
+
+  const contactAndEmergencyInfo = [
     {
       type: "phone" as const,
       label: "Phone Number",
       value: contactInfoData.phoneNumber,
+      gridCols: "single" as const,
     },
-    { type: "email" as const, label: "Email", value: contactInfoData.email },
-  ];
-
-  const emergencyContact = [
+    {
+      type: "email" as const,
+      label: "Email",
+      value: contactInfoData.email,
+      gridCols: "single" as const,
+    },
     {
       type: "phone" as const,
-      label: "Contact Number",
+      label: "Emergency Contact Number",
       value: emergencyContactData.contactNumber,
+      gridCols: "single" as const,
     },
     {
       type: "text" as const,
       label: "Relationship",
       value: emergencyContactData.relationship,
+      gridCols: "single" as const,
     },
   ];
 
   const addressInfo = [
     {
-      label: "Residential Address",
-      value: addressInfoData.residentialAddress,
+      label: "Current Address",
+      value: addressInfoData.currentAddress,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Contact Number",
+      value: addressInfoData.contactNumber,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Permanent Address",
+      value: addressInfoData.permanentAddress,
       gridCols: "double" as const,
     },
   ];
 
   // Modal handlers
   const openModal = (
-    type: "personal" | "contact" | "emergency" | "address",
+    type:
+      | "personal"
+      | "contact"
+      | "emergency"
+      | "address"
+      | "official"
+      | "status",
     title: string,
-    data: any,
+    data: any
   ) => {
-    console.log("Opening modal:", { type, title, data });
-    setModalState({
-      opened: true,
-      type,
-      title,
-      initialData: data,
-    });
+    setModalState({ opened: true, type, title, initialData: data });
   };
 
-  const closeModal = () => {
-    console.log("Closing modal");
-    setModalState({
-      opened: false,
-      type: null,
-      title: "",
-      initialData: {},
-    });
-  };
+  const closeModal = () =>
+    setModalState({ opened: false, type: null, title: "", initialData: {} });
 
   const handleSave = (data: any) => {
-    console.log("Saving data for type:", modalState.type, data);
-
     switch (modalState.type) {
       case "personal":
         setPersonalInfoData(data);
-        console.log("Updated personal info:", data);
+        break;
+      case "official":
+        setOfficialInfoData(data);
         break;
       case "contact":
         setContactInfoData(data);
-        console.log("Updated contact info:", data);
         break;
       case "emergency":
         setEmergencyContactData(data);
-        console.log("Updated emergency contact:", data);
         break;
       case "address":
         setAddressInfoData(data);
-        console.log("Updated address info:", data);
         break;
     }
   };
@@ -151,152 +210,172 @@ function TraineeProfile() {
   return (
     <div className="max-w-6xl mx-auto p-4">
       {/* Header */}
-      <div className="flex items-center space-x-3 mb-6">
-        <div
-          className="w-10 h-10 rounded-4xl flex items-center justify-center text-white font-semibold text-base"
-          style={{ backgroundColor: "#2563EB" }}
-        >
-          AS
-        </div>
-        <div>
-          <h1 className="text-xl font-bold" style={{ color: "#565E6C" }}>
-            {personalInfoData.fullName}
-          </h1>
-          <div className="flex items-center mt-1">
-            <div className="flex items-center bg-green-100 px-3 py-1 rounded-full">
-              <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-              <span className="text-xs text-green-700 font-medium">Active</span>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <div
+            className="w-10 h-10 rounded-4xl flex items-center justify-center text-white font-semibold text-base"
+            style={{ backgroundColor: "#2563EB" }}
+          >
+            AS
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-[#565E6C]">
+              {personalInfoData.fullName}
+            </h1>
+
+            {/* ✅ Clickable Badge */}
+            <div className="flex items-center mt-1">
+              <button
+                onClick={() =>
+                  openModal(
+                    "status",
+                    isActive ? "Mark Inactive" : "Mark Active",
+                    {}
+                  )
+                }
+                className={`flex items-center px-3 py-1 rounded-full transition duration-200 ${
+                  isActive
+                    ? "bg-green-100 hover:bg-green-200"
+                    : "bg-gray-200 hover:bg-gray-300"
+                }`}
+              >
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${
+                    isActive ? "bg-green-400" : "bg-gray-500"
+                  }`}
+                ></div>
+                <span
+                  className={`text-xs font-medium ${
+                    isActive ? "text-green-700" : "text-gray-700"
+                  }`}
+                >
+                  {isActive ? "Active" : "Inactive"}
+                </span>
+              </button>
             </div>
           </div>
         </div>
+
+        {/* View Results Button */}
+        <button
+          onClick={() => console.log("View Results clicked")} // Replace with navigation logic
+          className="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
+        >
+          View Results
+        </button>
       </div>
 
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left Column - Personal Information and Address */}
-        <div className="lg:col-span-2 space-y-4">
-          <InfoCard
-            title="Personal Information"
-            items={personalInfo}
-            onEdit={() =>
-              openModal(
-                "personal",
-                "Edit Personal Information",
-                personalInfoData,
-              )
-            }
-            titleIcon={
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            }
-          />
-
-          <InfoCard
-            title="Address Information"
-            items={addressInfo}
-            onEdit={() =>
-              openModal("address", "Edit Address Information", addressInfoData)
-            }
-            titleIcon={
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            }
-          />
-        </div>
-
-        {/* Right Column - Contact Information */}
-        <div className="space-y-4">
-          <InfoCard
-            title="Contact Information"
-            contacts={contactInfo}
-            onEdit={() =>
-              openModal("contact", "Edit Contact Information", contactInfoData)
-            }
-            titleIcon={
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                />
-              </svg>
-            }
-          />
-
-          <InfoCard
-            title="Emergency Contact"
-            contacts={emergencyContact}
-            onEdit={() =>
-              openModal(
-                "emergency",
-                "Edit Emergency Contact",
-                emergencyContactData,
-              )
-            }
-            titleIcon={
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            }
-          />
-        </div>
-      </div>
-
-      {/* Edit Modal */}
-      {modalState.opened && modalState.type && (
-        <EditModal
-          opened={modalState.opened}
-          onClose={closeModal}
-          onSave={handleSave}
-          title={modalState.title}
-          type={modalState.type}
-          initialData={modalState.initialData}
+      {/* === Row 1 === */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <InfoCard
+          title={
+            <div className="flex items-center space-x-2">
+              <User className="w-4 h-4 text-blue-500" />
+              <span>Personal Information</span>
+            </div>
+          }
+          items={personalInfo}
+          onEdit={() =>
+            openModal("personal", "Edit Personal Information", personalInfoData)
+          }
         />
-      )}
+
+        <InfoCard
+          title={
+            <div className="flex items-center space-x-2">
+              <Briefcase className="w-4 h-4 text-blue-500" />
+              <span>Official Information</span>
+            </div>
+          }
+          items={officialInfo}
+          onEdit={() =>
+            openModal("official", "Edit Official Information", officialInfoData)
+          }
+        />
+      </div>
+
+      {/* === Row 2 === */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <InfoCard
+          title={
+            <div className="flex items-center space-x-2">
+              <Phone className="w-4 h-4 text-blue-500" />
+              <span>Contact & Emergency Information</span>
+            </div>
+          }
+          items={contactAndEmergencyInfo}
+          onEdit={() =>
+            openModal("contact", "Edit Contact & Emergency Information", {
+              ...contactInfoData,
+              ...emergencyContactData,
+            })
+          }
+        />
+
+        <InfoCard
+          title={
+            <div className="flex items-center space-x-2">
+              <MapPin className="w-4 h-4 text-blue-500" />
+              <span>Address Information</span>
+            </div>
+          }
+          items={addressInfo}
+          onEdit={() =>
+            openModal("address", "Edit Address Information", addressInfoData)
+          }
+        />
+      </div>
+
+      {/* === Modal Section === */}
+      {modalState.opened &&
+        modalState.type &&
+        (modalState.type === "status" ? (
+          // ✅ Status Confirmation Modal
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+            <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+              <h2 className="text-lg font-semibold mb-4 text-gray-800">
+                {isActive
+                  ? "Mark trainee as Inactive?"
+                  : "Mark trainee as Active?"}
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">
+                {isActive
+                  ? "This will mark the trainee as inactive. They will no longer appear in the active trainees list."
+                  : "This will mark the trainee as active again."}
+              </p>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={closeModal}
+                  className="px-3 py-1 text-sm bg-gray-200 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setIsActive(!isActive);
+                    closeModal();
+                  }}
+                  className={`px-3 py-1 text-sm rounded-lg text-white ${
+                    isActive
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
+                >
+                  {isActive ? "Mark Inactive" : "Mark Active"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <EditModal
+            opened={modalState.opened}
+            onClose={closeModal}
+            onSave={handleSave}
+            title={modalState.title}
+            type={modalState.type}
+            initialData={modalState.initialData}
+          />
+        ))}
     </div>
   );
 }
