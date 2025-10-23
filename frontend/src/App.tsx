@@ -27,6 +27,8 @@ const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
   { to: "/ilpprojects", label: "ILP Projects", icon: FolderGit2 },
   { to: "/results", label: "Results", icon: ChartNoAxesCombined },
+    { to: "/curriculum", label: "Curriculum", icon: ChartLine },
+
 ];
 
 const adminNavItems = [
@@ -34,7 +36,8 @@ const adminNavItems = [
   { to: "/batches", label: "Batches", icon: GitMerge },
   { to: "/projects", label: "Projects", icon: FolderGit2 },
   { to: "/documents", label: "Documents", icon: ChartNoAxesCombined },
-  { to: "/adminres", label: "Reports", icon: ChartLine },
+    { to: "/curriculumAdmin", label: "Curriculum", icon: ChartLine },
+
 ];
 
 const dropDownItems = [

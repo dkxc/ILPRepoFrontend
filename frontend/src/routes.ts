@@ -18,6 +18,7 @@ export default [
     route("upload-trainee-data", "./pages/admin/UploadTraineeDataPage.tsx"),
     route("upload-project-data", "./pages/admin/CreateProjectByBatch.tsx"),
     route("traineeSettings", "./pages/trainee/TraineeSettings.tsx"),
+    route("curriculum", "./pages/trainee/Curriculum.tsx"),
 
     route("projects", "./pages/admin/Projects.tsx"),
     route("projectsDetailsAdmin/:id", "./pages/admin/ProjectDetailsAdmin.tsx"),
@@ -26,5 +27,8 @@ export default [
     route("adminSettings", "./pages/admin/AdminSettings.tsx"),
     // route("documentupload", "./pages/admin/DocumentUploadSection.tsx"),
     // route("documentsubmitdemo", "./features/admin/DocumentSubmitStepper.tsx"),
+     route("curriculumAdmin", "./pages/admin/Curriculum.tsx"),
+
+ 
   ]),
 ] satisfies RouteConfig;
