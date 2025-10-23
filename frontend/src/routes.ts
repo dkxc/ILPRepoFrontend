@@ -19,8 +19,9 @@ export default [
 
     route("projects", "./pages/admin/Projects.tsx"),
     route("projectsDetailsAdmin/:id", "./pages/admin/ProjectDetailsAdmin.tsx"),
-    route("documents", "./pages/admin/Documents.tsx"),
+    route("documents", "./pages/admin/Documents_incoming.tsx"),
     route("adminres", "./pages/admin/Results.tsx"),
-    route("documentupload", "./pages/admin/DocumentUploadSection.tsx"),
+    // route("documentupload", "./pages/admin/DocumentUploadSection.tsx"),
+    // route("documentsubmitdemo", "./features/admin/DocumentSubmitStepper.tsx"),
   ]),
 ] satisfies RouteConfig;
