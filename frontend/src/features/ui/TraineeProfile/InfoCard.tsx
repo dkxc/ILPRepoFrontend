@@ -15,7 +15,7 @@ interface ContactItem {
 }
 
 interface InfoCardProps {
-  title: string;
+  title: React.ReactNode; // ✅ Updated: accepts JSX elements or strings
   titleIcon?: React.ReactNode;
   items?: InfoItem[];
   contacts?: ContactItem[];
@@ -81,7 +81,7 @@ function InfoCard({
         <div className="flex items-center space-x-2">
           {titleIcon && <div className="text-blue-500">{titleIcon}</div>}
           <CardTitle
-            className="text-lg font-semibold"
+            className="text-lg font-semibold flex items-center space-x-2"
             style={{ color: "#565E6C" }}
           >
             {title}
@@ -121,11 +121,9 @@ function InfoCard({
                   item.gridCols === "double" ? "col-span-2" : "col-span-1",
                 )}
               >
-                {/* Label stays gray */}
                 <div className="text-xs font-medium text-gray-500 pb-0.25">
                   {item.label}
                 </div>
-                {/* Value in custom color and semi-bold */}
                 <div
                   className="text-sm font-semibold"
                   style={{ color: "#565E6C" }}
@@ -141,7 +139,6 @@ function InfoCard({
           <div className="space-y-3">
             {contacts.map((contact, index) => (
               <div key={index} className="space-y-0.5">
-                {/* Label stays gray */}
                 <div className="text-xs font-medium text-gray-500 pb-0.25">
                   {contact.label}
                 </div>
@@ -151,7 +148,6 @@ function InfoCard({
                       {getContactIcon(contact.type)}
                     </div>
                   )}
-                  {/* Value in custom color and semi-bold */}
                   <span
                     className="text-sm font-semibold"
                     style={{ color: "#565E6C" }}

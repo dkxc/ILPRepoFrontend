@@ -1,30 +1,89 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Button from "../../ui/Button";
-import { Badge, Card } from "@mantine/core";
+import { Card } from "@mantine/core";
 import { CardContent } from "@mui/material";
+import StatusBadge from "../../ui/StatusBadge";
+import { Upload, Pencil, MoreVertical } from "lucide-react";
+import { createPortal } from "react-dom";
+import { notifications } from "@mantine/notifications";
+import { useNavigate } from "react-router";
 
 interface BatchDetailsCardProps {
   batchName: string;
-  status: "Ongoing" | "Completed" | "Upcoming";
   startDate: string;
   endDate: string;
   batchType: string;
   totalTrainees: number;
   totalTrainingHours: number;
+  techStack: string;
+  onEdit?: () => void;
+  onAddTrainee?: () => void;
+  onUploadTrainees?: () => void;
 }
 
 const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
   batchName,
-  status,
   startDate,
   endDate,
   batchType,
   totalTrainees,
   totalTrainingHours,
+  techStack,
+  onEdit,
+  onAddTrainee,
+  onUploadTrainees,
 }) => {
-  const getStatusColor = () => {
-    return status === "Ongoing" ? "green" : "gray";
+  const computeStatus = (): "Not Started" | "Ongoing" | "Completed" => {
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (now < start) return "Not Started";
+    if (now >= start && now <= end) return "Ongoing";
+    return "Completed";
   };
+
+  const [status, setStatus] = useState(computeStatus());
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const menuHeight = 180;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const dropUp = spaceBelow < menuHeight && spaceAbove > menuHeight;
+
+      setMenuStyle({
+        position: "absolute",
+        top: dropUp
+          ? rect.top + window.scrollY - menuHeight - 4
+          : rect.bottom + window.scrollY + 4,
+        left: rect.right - 176 + window.scrollX,
+        zIndex: 9999,
+        minWidth: 176,
+        background: "#fff",
+        border: "1px solid #ccc",
+        borderRadius: 8,
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+      });
+
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownOpen]);
 
   const DetailItem: React.FC<{ label: string; value: string | number }> = ({
     label,
@@ -36,37 +95,104 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
     </div>
   );
 
+  const navigate = useNavigate();
+
   return (
-    <Card className="p-0 border-none bg-white w-full">
-      <div className="p-4">
-        {/* REVISED: Title, Status Badge, AND Edit Button in the same flex container */}
+    <Card className="p-0 border border-[#F8F9FA] rounded-[6px] bg-white w-full">
+      <div className="pt-5 px-3">
         <div className="flex items-start justify-between ml-4 mb-4">
-          {/* Left Side: Title and Status */}
-          <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3 ">
+          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
             {batchName}
-            <Badge
-              color={getStatusColor()}
-              size="lg"
-              radius="xl"
-              className="font-light text-base"
-            >
-              {status}
-            </Badge>
+            <StatusBadge status={status} />
           </h1>
 
-          {/* Right Side: EDIT Button (Now inside the card) */}
-          <Button
-            variant="default" // Use the default variant to ensure base styling
-            // Custom classes to replicate the light gray, rounded style from the image
-            //className="!bg-gray-200 hover:!bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg shadow-sm h-10 w-auto"
-          >
-            Edit
-          </Button>
+          {/* Buttons section */}
+          <div className="flex items-center gap-2 relative">
+            <Button
+              variant="default"
+              className="!bg-white hover:!bg-gray-100 !text-blue-600 border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
+              onClick={onAddTrainee}
+            >
+              + Add
+            </Button>
+
+            <Button
+              variant="default"
+              className="!bg-gray-200 hover:!bg-gray-300 text-gray-700 font-medium px-2 py-1 rounded-lg shadow-sm h-7 w-auto flex items-center justify-center"
+              onClick={onEdit}
+            >
+              <Pencil size={16} />
+            </Button>
+
+            {/* 3-dot dropdown button */}
+            <button
+              ref={buttonRef}
+              className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
+              onClick={() => setDropdownOpen((v) => !v)}
+              type="button"
+            >
+              <MoreVertical className="w-6 h-6 text-gray-700" />
+            </button>
+
+            {dropdownOpen &&
+              createPortal(
+                <div
+                  ref={dropdownRef}
+                  style={menuStyle}
+                  className="flex flex-col"
+                >
+                  {[
+                    {
+                      label: "Upload Trainee Data",
+                      action: () => navigate("/upload-trainee-data"),
+                    },
+                    {
+                      label: "Upload Curriculum",
+                      action: () =>
+                        notifications.show({
+                          title: "Curriculum",
+                          message: "Uploading Curriculum",
+                          color: "blue",
+                        }),
+                    },
+                    {
+                      label: "Upload Project",
+                      action: () =>
+                        notifications.show({
+                          title: "Project",
+                          message: "Uploading Project",
+                          color: "blue",
+                        }),
+                    },
+                    {
+                      label: "Upload Results",
+                      action: () =>
+                        notifications.show({
+                          title: "Results",
+                          message: "Uploading Results",
+                          color: "blue",
+                        }),
+                    },
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-800 text-sm"
+                      onClick={() => {
+                        item.action();
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>,
+                document.body,
+              )}
+          </div>
         </div>
 
-        {/* Details Grid - Using CardContent's base padding and styling */}
         <CardContent className="p-0 pt-0">
-          <div className="grid grid-cols-5 gap-7 text-sm">
+          <div className="flex flex-wrap items-start gap-12 text-sm px-0 pb-0">
             <DetailItem label="Start Date" value={startDate} />
             <DetailItem label="End Date" value={endDate} />
             <DetailItem label="Batch Type" value={batchType} />
@@ -75,6 +201,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
               label="Total Training Hours"
               value={`${totalTrainingHours} hrs`}
             />
+            <DetailItem label="Tech Stack" value={techStack} />
           </div>
         </CardContent>
       </div>

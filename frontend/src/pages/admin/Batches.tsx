@@ -1,70 +1,169 @@
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import BatchCard from "../../features/admin/batches/BatchCard";
+import { ActionIcon } from "@mantine/core";
+// import { modals } from "@mantine/modals";
+// import { notifications } from "@mantine/notifications";
+import { useNavigate } from "react-router"; // ✅ Correct import for @react-router/dev
+
 import Button from "../../features/ui/Button";
-import BatchManager from "../../features/admin/batches/BatchManager";
+import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
-import type { Batch } from "../../features/admin/batches/BatchTable";
-import { batchService } from "../../services/batchService";
+import StatusBadge from "../../features/ui/StatusBadge";
+import { openDeleteModal } from "../../features/ui/DeleteConfirmModal";
 
-function Batches() {
+// ---------------------- Types ----------------------
+interface Batch {
+  id: number;
+  name: string;
+  type: string;
+  totalTrainees: number;
+  totalTrainingHours: number;
+  status: "Not Started" | "Ongoing" | "Completed";
+  startDate?: string;
+  endDate?: string;
+}
+
+export default function Batches() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [batches, setBatches] = useState<Batch[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // ✅ Load batches from API on mount
-  useEffect(() => {
-    loadBatches();
-  }, []);
+  const [batches, setBatches] = useState<Batch[]>([
+    {
+      id: 1,
+      name: "React Basics",
+      type: "Developer Batch",
+      totalTrainees: 12,
+      totalTrainingHours: 40,
+      status: "Ongoing",
+      startDate: "2025-10-01",
+      endDate: "2025-10-20",
+    },
+    {
+      id: 2,
+      name: "Advanced TypeScript",
+      type: "BA Batch",
+      totalTrainees: 8,
+      totalTrainingHours: 32,
+      status: "Not Started",
+      startDate: "2025-11-01",
+      endDate: "2025-11-15",
+    },
+    {
+      id: 3,
+      name: "Node.js Bootcamp",
+      type: "SDET",
+      totalTrainees: 15,
+      totalTrainingHours: 50,
+      status: "Completed",
+      startDate: "2025-09-01",
+      endDate: "2025-09-20",
+    },
+  ]);
 
-  const loadBatches = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      console.log("Loading batches...");
-      const batchesData = await batchService.getAllBatches();
-      console.log("Batches loaded successfully:", batchesData);
-      setBatches(batchesData);
-    } catch (err: any) {
-      const errorMessage =
-        err.message || "Failed to load batches. Please try again.";
-
-      // Check if it's a CORS error
-      if (
-        err.message?.includes("NetworkError") ||
-        err.message?.includes("fetch")
-      ) {
-        setError(
-          "CORS Error: Please configure your backend to allow requests from this frontend. Add CORS policy to your .NET API.",
-        );
-      } else {
-        setError(`Failed to load batches: ${errorMessage}`);
-      }
-
-      console.error("Error loading batches:", err);
-    } finally {
-      setLoading(false);
-    }
+  // 🧠 Auto-update batch status
+  const determineStatus = (
+    startDate?: string,
+    endDate?: string,
+  ): Batch["status"] => {
+    if (!startDate || !endDate) return "Not Started";
+    const today = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (today < start) return "Not Started";
+    if (today > end) return "Completed";
+    return "Ongoing";
   };
 
-  // ✅ Handle adding new batch
-  const handleAddBatch = async (data: {
+  useEffect(() => {
+    const updateStatuses = () => {
+      setBatches((prev) =>
+        prev.map((b) => ({
+          ...b,
+          status: determineStatus(b.startDate, b.endDate),
+        })),
+      );
+    };
+
+    updateStatuses();
+    const interval = setInterval(updateStatuses, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 🗑️ Delete batch
+  const handleDelete = (batch: Batch) => {
+    openDeleteModal({
+      itemName: batch.name,
+      itemType: "Batch",
+      onConfirm: () =>
+        setBatches((prev) => prev.filter((b) => b.id !== batch.id)),
+    });
+  };
+
+  // ➕ Add new batch
+  const handleAddBatch = (data: {
     batchName: string;
     batchType: string;
     startDate: string;
     endDate: string;
   }) => {
-    try {
-      setError(null);
-      const newBatch = await batchService.createBatch(data);
-      setBatches((prev) => [...prev, newBatch]);
-      setIsModalOpen(false);
-    } catch (err) {
-      setError("Failed to create batch. Please try again.");
-      console.error("Error creating batch:", err);
-    }
+    const newBatch: Batch = {
+      id: Date.now(),
+      name: data.batchName,
+      type: data.batchType,
+      totalTrainees: 0,
+      totalTrainingHours: 0,
+      status: determineStatus(data.startDate, data.endDate),
+      startDate: data.startDate,
+      endDate: data.endDate,
+    };
+    setBatches((prev) => [...prev, newBatch]);
+    setIsModalOpen(false);
   };
+
+  const columns: ColumnDef<Batch>[] = [
+    { key: "name", header: "Batch Name", sortable: true, width: "22%" },
+    { key: "type", header: "Batch Type", sortable: true, width: "16%" },
+    {
+      key: "totalTrainees",
+      header: "Total Trainees",
+      align: "center",
+      sortable: true,
+      width: "15%",
+    },
+    {
+      key: "totalTrainingHours",
+      header: "Training Hours",
+      align: "center",
+      sortable: true,
+      width: "15%",
+    },
+    {
+      key: "status",
+      header: "Status",
+      align: "center",
+      sortable: true,
+      width: "18%",
+      render: (value) => <StatusBadge status={value as Batch["status"]} />,
+    },
+    {
+      key: "action",
+      header: "Action",
+      align: "center",
+      width: "15%",
+      render: (_, row) => (
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(row);
+          }}
+        >
+          <Trash2 size={18} />
+        </ActionIcon>
+      ),
+    },
+  ];
 
   return (
     <div className="p-4">
@@ -82,60 +181,41 @@ function Batches() {
         </Button>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-          <button
-            onClick={loadBatches}
-            className="ml-2 underline hover:no-underline"
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* Summary Cards */}
-      {loading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 pt-3">
-          <div className="h-24 bg-gray-200 animate-pulse rounded"></div>
-          <div className="h-24 bg-gray-200 animate-pulse rounded"></div>
-          <div className="h-24 bg-gray-200 animate-pulse rounded"></div>
-          <div className="h-24 bg-gray-200 animate-pulse rounded"></div>
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 pt-3">
-          <BatchCard type="all" value={batches.length} />
-          <BatchCard
-            type="ongoing"
-            value={batches.filter((b) => b.status === "Ongoing").length}
-          />
-          <BatchCard
-            type="completed"
-            value={batches.filter((b) => b.status === "Completed").length}
-          />
-          <BatchCard type="hours" value="48" subtitle="hrs" />
-        </div>
-      )}
-
-      {/* Table + Modal */}
+      {/* Table */}
       <div className="pt-8">
-        {loading ? (
-          <div className="bg-white rounded-lg p-8">
-            <div className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-              <div className="space-y-3">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <BatchManager batches={batches} setBatches={setBatches} />
-        )}
+        <DataTable
+          columns={columns}
+          data={batches}
+          showHeaderSection={true}
+          headerTitle="All Batches"
+          headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
+          enableFilter={true}
+          filterColumn="status"
+          filterOptions={["Ongoing", "Completed", "Not Started"]}
+          enableSearch={true}
+          enablePagination={true}
+          pageSize={10}
+          pageSizeOptions={[5, 10, 25, 50]}
+          striped={false}
+          highlightOnHover={true}
+          withBorder={true}
+          rowStyle={{
+            fontSize: "16px",
+            height: "56px",
+            lineHeight: "1",
+            cursor: "pointer",
+          }}
+          headerStyle={{
+            fontWeight: 500,
+            fontSize: "16px",
+            height: "40px",
+            background: "#F8F9FA",
+          }}
+          onRowClick={(row) => navigate(`/batches/${row.id}`)} // ✅ navigate
+        />
       </div>
 
+      {/* Create Batch Modal */}
       <BatchDetailsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -146,4 +226,283 @@ function Batches() {
   );
 }
 
-export default Batches;
+// src/pages/Batches.tsx
+// import { Plus, Trash2 } from "lucide-react";
+// import { useState, useEffect } from "react";
+// import { ActionIcon } from "@mantine/core";
+// import { notifications } from "@mantine/notifications";
+// import { useNavigate } from "react-router";
+
+// import Button from "../../features/ui/Button";
+// import DataTable, { type ColumnDef } from "../../features/ui/Table";
+// import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
+// import StatusBadge from "../../features/ui/StatusBadge";
+// import { openDeleteModal } from "../../features/ui/DeleteConfirmModal";
+// import { batchService, type BatchDto } from "../../services/batchService";
+
+// interface Batch {
+//   id: number;
+//   name: string;
+//   type: string;
+//   totalTrainees: number;
+//   totalTrainingHours: number;
+//   status: "Not Started" | "Ongoing" | "Completed";
+//   startDate?: string;
+//   endDate?: string;
+// }
+
+// export default function Batches() {
+//   const navigate = useNavigate();
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+//   const [batches, setBatches] = useState<Batch[]>([]);
+//   const [loading, setLoading] = useState(true);
+
+//   // Determine batch status based on dates
+//   const determineStatus = (
+//     startDate?: string,
+//     endDate?: string
+//   ): Batch["status"] => {
+//     if (!startDate || !endDate) return "Not Started";
+//     const today = new Date();
+//     const start = new Date(startDate);
+//     const end = new Date(endDate);
+//     if (today < start) return "Not Started";
+//     if (today > end) return "Completed";
+//     return "Ongoing";
+//   };
+
+//   // Fetch batches from backend
+//   const fetchBatches = async () => {
+//     try {
+//       setLoading(true);
+//       const data = await batchService.getAllBatches();
+
+//       const mappedBatches: Batch[] = data.map((b: BatchDto) => ({
+//         id: b.id,
+//         name: b.name,
+//         type: b.type,
+//         totalTrainees: b.totalTrainees, // Now calculated from relationship
+//         totalTrainingHours: b.totalTrainingHours, // Now calculated from dates
+//         startDate: b.startDate,
+//         endDate: b.endDate,
+//         status: determineStatus(b.startDate, b.endDate),
+//       }));
+
+//       setBatches(mappedBatches);
+//     } catch (error) {
+//       notifications.show({
+//         title: "Error",
+//         message: "Failed to fetch batches",
+//         color: "red",
+//       });
+//       console.error("Error fetching batches:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchBatches();
+//   }, []);
+
+//   // Auto-update statuses every minute
+//   useEffect(() => {
+//     const updateStatuses = () => {
+//       setBatches((prev) =>
+//         prev.map((b) => ({
+//           ...b,
+//           status: determineStatus(b.startDate, b.endDate),
+//         }))
+//       );
+//     };
+
+//     updateStatuses();
+//     const interval = setInterval(updateStatuses, 60000);
+//     return () => clearInterval(interval);
+//   }, []);
+
+//   // Delete batch
+//   const handleDelete = (batch: Batch) => {
+//     openDeleteModal({
+//       itemName: batch.name,
+//       itemType: "Batch",
+//       onConfirm: async () => {
+//         try {
+//           await batchService.deleteBatch(batch.id);
+//           setBatches((prev) => prev.filter((b) => b.id !== batch.id));
+//           notifications.show({
+//             title: "Success",
+//             message: "Batch deleted successfully",
+//             color: "green",
+//           });
+//         } catch (error) {
+//           notifications.show({
+//             title: "Error",
+//             message: "Failed to delete batch",
+//             color: "red",
+//           });
+//           console.error("Error deleting batch:", error);
+//         }
+//       },
+//     });
+//   };
+
+//   // Add new batch
+//   const handleAddBatch = async (data: {
+//     batchName: string;
+//     batchType: string;
+//     startDate: string;
+//     endDate: string;
+//   }) => {
+//     try {
+//       const newBatchDto = {
+//         name: data.batchName,
+//         type: data.batchType,
+//         startDate: data.startDate,
+//         endDate: data.endDate,
+//       };
+
+//       const createdBatch = await batchService.createBatch(newBatchDto);
+
+//       const newBatch: Batch = {
+//         id: createdBatch.id,
+//         name: createdBatch.name,
+//         type: createdBatch.type,
+//         totalTrainees: createdBatch.totalTrainees,
+//         totalTrainingHours: createdBatch.totalTrainingHours,
+//         startDate: createdBatch.startDate,
+//         endDate: createdBatch.endDate,
+//         status: determineStatus(createdBatch.startDate, createdBatch.endDate),
+//       };
+
+//       setBatches((prev) => [...prev, newBatch]);
+//       setIsModalOpen(false);
+
+//       notifications.show({
+//         title: "Success",
+//         message: "Batch created successfully",
+//         color: "green",
+//       });
+//     } catch (error) {
+//       notifications.show({
+//         title: "Error",
+//         message: "Failed to create batch",
+//         color: "red",
+//       });
+//       console.error("Error creating batch:", error);
+//     }
+//   };
+
+//   const columns: ColumnDef<Batch>[] = [
+//     { key: "name", header: "Batch Name", sortable: true, width: "25%" },
+//     { key: "type", header: "Batch Type", sortable: true, width: "18%" },
+//     {
+//       key: "totalTrainees",
+//       header: "Total Trainees",
+//       align: "center",
+//       sortable: true,
+//       width: "15%",
+//     },
+//     {
+//       key: "totalTrainingHours",
+//       header: "Training Hours",
+//       align: "center",
+//       sortable: true,
+//       width: "15%",
+//     },
+//     {
+//       key: "status",
+//       header: "Status",
+//       align: "center",
+//       sortable: true,
+//       width: "15%",
+//       render: (value) => <StatusBadge status={value as Batch["status"]} />,
+//     },
+//     {
+//       key: "action",
+//       header: "Action",
+//       align: "center",
+//       width: "12%",
+//       render: (_, row) => (
+//         <ActionIcon
+//           variant="subtle"
+//           color="gray"
+//           onClick={(e) => {
+//             e.stopPropagation();
+//             handleDelete(row);
+//           }}
+//         >
+//           <Trash2 size={18} />
+//         </ActionIcon>
+//       ),
+//     },
+//   ];
+
+//   if (loading) {
+//     return (
+//       <div className="p-4 flex justify-center items-center h-64">
+//         <div className="text-lg text-gray-600">Loading batches...</div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="p-4">
+//       {/* Header */}
+//       <div className="flex justify-between items-center">
+//         <span className="text-[30px] font-semibold text-[#565E6C]">
+//           Batches
+//         </span>
+//         <Button
+//           onClick={() => setIsModalOpen(true)}
+//           size="sm"
+//           className="rounded-[18px]"
+//         >
+//           <Plus size={16} /> Create new batch
+//         </Button>
+//       </div>
+
+//       {/* Table */}
+//       <div className="pt-8">
+//         <DataTable
+//           columns={columns}
+//           data={batches}
+//           showHeaderSection={true}
+//           headerTitle="All Batches"
+//           headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
+//           enableFilter={true}
+//           filterColumn="status"
+//           filterOptions={["Ongoing", "Completed", "Not Started"]}
+//           enableSearch={true}
+//           enablePagination={true}
+//           pageSize={10}
+//           pageSizeOptions={[5, 10, 25, 50]}
+//           striped={false}
+//           highlightOnHover={true}
+//           withBorder={true}
+//           rowStyle={{
+//             fontSize: "16px",
+//             height: "56px",
+//             lineHeight: "1",
+//             cursor: "pointer",
+//           }}
+//           headerStyle={{
+//             fontWeight: 500,
+//             fontSize: "16px",
+//             height: "40px",
+//             background: "#F8F9FA",
+//           }}
+//           onRowClick={(row) => navigate(`/batches/${row.id}`)}
+//         />
+//       </div>
+
+//       {/* Create Batch Modal */}
+//       <BatchDetailsModal
+//         isOpen={isModalOpen}
+//         onClose={() => setIsModalOpen(false)}
+//         onSubmit={handleAddBatch}
+//         title="Create Batch"
+//       />
+//     </div>
+//   );
+// }
