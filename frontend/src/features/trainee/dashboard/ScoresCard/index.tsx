@@ -17,101 +17,97 @@ function ScoreCard({
 }: ScoreCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn("flex justify-between gap-4", className)}
+      className={cn("flex flex-col h-full", className)}
       ref={ref}
       {...props}
     >
-      <div className="w-full">
-        <Card.CardHeader>
-          <Card.CardTitle>Average Score</Card.CardTitle>
-        </Card.CardHeader>
+      <Card.CardHeader>
+        <Card.CardTitle>Average Score</Card.CardTitle>
+      </Card.CardHeader>
 
-        <Card.CardContent className="flex h-4/5">
-          <div className="flex-1">
-            <ResponsivePie
-              data={getPieDataFromPercent(scores.average, {
-                1: "Average Score",
-                2: "Gap",
-              })}
-              colors={["var(--color-brand-500)", "var(--color-inactive-badge)"]}
-              innerRadius={0.65}
-              padAngle={0.65}
-              cornerRadius={2}
-              activeOuterRadiusOffset={8}
-              margin={{ top: 16, right: 16, bottom: 16 }}
-              enableArcLinkLabels={false}
-              enableArcLabels={false}
-              theme={{
-                labels: {
-                  text: {
-                    fontWeight: "bold",
-                    fontSize: 12,
-                  },
+      <Card.CardContent className="flex-1 relative p-0">
+        <div className="absolute top-0 left-0 w-full h-full p-5 pt-0">
+          <ResponsivePie
+            data={getPieDataFromPercent(scores.average, {
+              1: "Average Score",
+              2: "Gap",
+            })}
+            colors={["var(--color-brand-500)", "var(--color-inactive-badge)"]}
+            innerRadius={0.65}
+            padAngle={0.65}
+            cornerRadius={2}
+            activeOuterRadiusOffset={8}
+            margin={{ top: 16, right: 16, bottom: 16 }}
+            enableArcLinkLabels={false}
+            enableArcLabels={false}
+            theme={{
+              labels: {
+                text: {
+                  fontWeight: "bold",
+                  fontSize: 12,
                 },
-              }}
-              layers={[
-                "arcs",
-                ({ centerX, centerY }) => (
-                  <>
-                    <text
-                      x={centerX}
-                      y={centerY}
-                      dy={-10}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      className="text-xl font-semibold"
-                      style={{ fill: "var(--color-text-base)" }}
-                    >
-                      {`${scores.average}%`}
-                    </text>
-                    <text
-                      x={centerX}
-                      y={centerY}
-                      dy={14}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      className="text-xs"
-                      style={{ fill: "var(--color-text-base)" }}
-                    >
-                      Average Score
-                    </text>
-                  </>
-                ),
-              ]}
-              tooltip={({ datum }) => (
+              },
+            }}
+            layers={[
+              "arcs",
+              ({ centerX, centerY }) => (
                 <>
-                  <div className="p-2 bg-background rounded-md shadow-md text-sm font-secondary whitespace-nowrap">
-                    <div>
-                      <span
-                        className={cn(
-                          "font-medium",
-                          (datum.color === "var(--color-brand-500)" &&
-                            "text-brand") ||
-                            "text-text-error",
-                        )}
-                      >
-                        {datum.label}
-                      </span>
-                      : {datum.value}%
-                    </div>
-                    <div>
-                      {datum.label === "Average Score" &&
-                        scores.courses.map((course) => (
-                          <div key={course.caption}>
-                            <span className="font-medium">
-                              {course.caption}
-                            </span>
-                            : {course.value}%
-                          </div>
-                        ))}
-                    </div>
-                  </div>
+                  <text
+                    x={centerX}
+                    y={centerY}
+                    dy={-10}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="text-xl font-semibold"
+                    style={{ fill: "var(--color-text-base)" }}
+                  >
+                    {`${scores.average}%`}
+                  </text>
+                  <text
+                    x={centerX}
+                    y={centerY}
+                    dy={14}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="text-xs"
+                    style={{ fill: "var(--color-text-base)" }}
+                  >
+                    Average Score
+                  </text>
                 </>
-              )}
-            />
-          </div>
-        </Card.CardContent>
-      </div>
+              ),
+            ]}
+            tooltip={({ datum }) => (
+              <>
+                <div className="p-2 bg-background rounded-md shadow-md text-sm font-secondary whitespace-nowrap">
+                  <div>
+                    <span
+                      className={cn(
+                        "font-medium",
+                        (datum.color === "var(--color-brand-500)" &&
+                          "text-brand") ||
+                          "text-text-error",
+                      )}
+                    >
+                      {datum.label}
+                    </span>
+                    : {datum.value}%
+                  </div>
+                  <div>
+                    {datum.label === "Average Score" &&
+                      scores.courses.map((course) => (
+                        <div key={course.caption}>
+                          <span className="font-medium">{course.caption}</span>:{" "}
+                          {course.value}%
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </>
+            )}
+          />
+        </div>
+      </Card.CardContent>
     </Card.Card>
   );
 }

@@ -17,16 +17,16 @@ function UpcomingSessionCard({
 }: UpcomingSessionCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn("flex justify-between gap-4", className)}
+      className={cn("flex flex-col h-full", className)}
       ref={ref}
       {...props}
     >
-      <div className="flex flex-col w-full">
-        <Card.CardHeader>
-          <Card.CardTitle>Upcoming Sessions</Card.CardTitle>
-        </Card.CardHeader>
+      <Card.CardHeader>
+        <Card.CardTitle>Upcoming Sessions</Card.CardTitle>
+      </Card.CardHeader>
 
-        <Card.CardContent className="flex flex-col gap-2 h-52 max-h-52 overflow-y-auto w-11/12 self-center-safe">
+      <Card.CardContent className="flex-1 overflow-y-auto">
+        <div className="flex flex-col gap-2">
           {activities.map((activity) => (
             <div key={activity.id} className="w-full">
               <>
@@ -34,8 +34,10 @@ function UpcomingSessionCard({
               </>
             </div>
           ))}
-        </Card.CardContent>
-      </div>
+        </div>
+      </Card.CardContent>
+
+      <Card.CardFooter />
     </Card.Card>
   );
 }

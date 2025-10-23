@@ -9,6 +9,7 @@ import { Pencil, Radio, UploadCloud } from "lucide-react";
 import { useState } from "react";
 import DocumentSubmissionModal from "../../ui/DocumentUpload";
 import Badge from "../../ui/badge/Badge";
+import { createPortal } from "react-dom";
 
 export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
   project: Project;
@@ -148,11 +149,15 @@ function ProjectCard({
           </div>
         </div>
       </Card.Card>
-      <DocumentSubmissionModal
-        isOpen={showStepper}
-        onClose={() => setShowStepper(false)}
-        onSubmit={() => setShowStepper(false)}
-      />
+      {showStepper &&
+        createPortal(
+          <DocumentSubmissionModal
+            isOpen={showStepper}
+            onClose={() => setShowStepper(false)}
+            onSubmit={() => setShowStepper(false)}
+          />,
+          document.body,
+        )}
     </>
   );
 }

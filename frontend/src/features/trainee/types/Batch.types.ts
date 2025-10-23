@@ -8,7 +8,9 @@ export type Batch = BaseBatch & {
   startDate: Date;
   endDate: Date;
   day: number;
+  status: BatchStatus;
 };
+export type BatchStatus = "Not Started" | "Ongoing" | "Completed";
 
 export type BatchAssessment = BaseBatch & {
   totalTrainees: number;

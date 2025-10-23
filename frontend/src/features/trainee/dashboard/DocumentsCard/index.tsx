@@ -18,16 +18,16 @@ function DocumentsCard({
 }: DocumentsCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Card.Card
-      className={cn("flex justify-between gap-4", className)}
+      className={cn("flex flex-col h-full", className)}
       ref={ref}
       {...props}
     >
-      <div className="w-full">
-        <Card.CardHeader>
-          <Card.CardTitle>Public Documents</Card.CardTitle>
-        </Card.CardHeader>
+      <Card.CardHeader>
+        <Card.CardTitle>Public Documents</Card.CardTitle>
+      </Card.CardHeader>
 
-        <Card.CardContent className="flex flex-col h-52 max-h-52 overflow-y-auto">
+      <Card.CardContent className="flex-1 overflow-y-auto p-0">
+        <div className="p-5 pt-0">
           {documents.map((doc) => (
             <NavLink
               key={doc.url}
@@ -40,10 +40,10 @@ function DocumentsCard({
               </>
             </NavLink>
           ))}
-        </Card.CardContent>
+        </div>
+      </Card.CardContent>
 
-        <Card.CardFooter />
-      </div>
+      <Card.CardFooter />
     </Card.Card>
   );
 }
