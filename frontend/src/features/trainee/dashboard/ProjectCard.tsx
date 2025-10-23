@@ -74,7 +74,11 @@ function ProjectCard({
             </Card.CardContent>
 
             <Card.CardFooter className="flex gap-2">
-              <Button size="sm" className="px-4 text-xs" onClick={() => setShowStepper(true)}>
+              <Button
+                size="sm"
+                className="px-4 text-xs"
+                onClick={() => setShowStepper(true)}
+              >
                 <UploadCloud /> Upload Documents
               </Button>
               <Button size="sm" variant="secondary" className="px-4 text-xs">

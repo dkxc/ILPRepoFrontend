@@ -55,16 +55,19 @@ function BatchMetadata({
     setSaving(true);
     setSaveError(null);
     try {
-      const response = await fetch("https://localhost:7153/api/ProjectDetails/edit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id,
-          gitHubLink: editRepo,
-          figmaLink: editFigma,
-          stack: editTechStackArr.join(","),
-        }),
-      });
+      const response = await fetch(
+        "https://localhost:7153/api/ProjectDetails/edit",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id,
+            gitHubLink: editRepo,
+            figmaLink: editFigma,
+            stack: editTechStackArr.join(","),
+          }),
+        },
+      );
       if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
       // Optionally handle response
       setCurrentTechStack(editTechStackArr);
@@ -91,7 +94,9 @@ function BatchMetadata({
           {status || "Ongoing"}
         </span>
         {typeof progress === "number" && (
-          <span className="ml-2 text-sm font-semibold text-green-700">Progress: {progress}%</span>
+          <span className="ml-2 text-sm font-semibold text-green-700">
+            Progress: {progress}%
+          </span>
         )}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 gap-y-4 gap-x-2 rounded-t-lg">
@@ -114,12 +119,18 @@ function BatchMetadata({
             <ChartBarStacked className="h-5 w-5" style={{ color: "#7B7575" }} />
             Tech Stack
           </span>
-          <div className="flex flex-wrap gap-2 relative items-center" style={{ minHeight: 40 }}>
+          <div
+            className="flex flex-wrap gap-2 relative items-center"
+            style={{ minHeight: 40 }}
+          >
             {currentTechStack.length === 0 ? (
               <span className="text-gray-400 italic">Stack not given</span>
             ) : (
               <>
-                <div className="flex items-center" style={{ flexWrap: 'nowrap', gap: 8, position: 'relative' }}>
+                <div
+                  className="flex items-center"
+                  style={{ flexWrap: "nowrap", gap: 8, position: "relative" }}
+                >
                   {currentTechStack.slice(0, 2).map((stack, idx) => (
                     <span
                       key={idx}
@@ -130,10 +141,17 @@ function BatchMetadata({
                     </span>
                   ))}
                   {currentTechStack.length > 2 && (
-                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
                       <button
                         className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 border border-gray-300 shadow-sm"
-                        style={{ position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)' }}
+                        style={{
+                          position: "absolute",
+                          right: -10,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                        }}
                         onClick={() => setShowAllTechStack((v) => !v)}
                         type="button"
                         title={`Show ${currentTechStack.length - 2} more`}
@@ -142,12 +160,17 @@ function BatchMetadata({
                         <ChevronDown size={16} style={{ marginLeft: -4 }} />
                       </button>
                       {showAllTechStack && (
-                        <div className="absolute left-0 mt-2 z-10 bg-white border border-gray-300 rounded shadow-lg min-w-max p-2 flex flex-col gap-1" style={{ minWidth: 120 }}>
+                        <div
+                          className="absolute left-0 mt-2 z-10 bg-white border border-gray-300 rounded shadow-lg min-w-max p-2 flex flex-col gap-1"
+                          style={{ minWidth: 120 }}
+                        >
                           {currentTechStack.slice(2).map((stack, idx) => (
                             <span
                               key={idx}
                               className="px-3 py-1 rounded-full text-sm font-medium bg-brand text-white border border-blue-200 shadow-sm cursor-pointer"
-                              style={{ boxShadow: "0 1px 4px rgba(37,99,235,0.08)" }}
+                              style={{
+                                boxShadow: "0 1px 4px rgba(37,99,235,0.08)",
+                              }}
                             >
                               {stack}
                             </span>
@@ -325,7 +348,9 @@ function BatchMetadata({
               >
                 {saving ? "Saving..." : "Save"}
               </Button>
-              {saveError && <div className="text-red-500 text-sm mt-2">{saveError}</div>}
+              {saveError && (
+                <div className="text-red-500 text-sm mt-2">{saveError}</div>
+              )}
             </div>
           </div>
         </div>

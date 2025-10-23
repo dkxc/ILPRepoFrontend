@@ -55,7 +55,9 @@ export default function Projects() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("https://localhost:7153/api/ProjectDetails");
+        const response = await fetch(
+          "https://localhost:7153/api/ProjectDetails",
+        );
         if (!response.ok) {
           setError(`Network error: ${response.status} ${response.statusText}`);
           return;
@@ -86,23 +88,33 @@ export default function Projects() {
           // Find team lead from trainees array if available
           let teamLead = "Unknown Lead";
           if (Array.isArray(p.trainees)) {
-            const lead = p.trainees.find((t: any) => t.role && t.role.toLowerCase().includes("lead"));
+            const lead = p.trainees.find(
+              (t: any) => t.role && t.role.toLowerCase().includes("lead"),
+            );
             if (lead) teamLead = lead.traineeName;
           }
           return {
             id: p.id ?? idx,
             name: p.projectName ?? "Unnamed Project",
-            batch: p.batch?.batchName || (p.batchId ? `ILP Batch ${p.batchId}` : "Unknown Batch"),
+            batch:
+              p.batch?.batchName ||
+              (p.batchId ? `ILP Batch ${p.batchId}` : "Unknown Batch"),
             teamLead,
             status:
-              p.status === "InProgress" ? "In Progress" :
-              p.status === "NotLive" ? "Not Live" :
-              p.status === "Completed" ? "Completed" :
-              p.status === "Live" ? "Live" :
-              p.status ?? "Unknown",
+              p.status === "InProgress"
+                ? "In Progress"
+                : p.status === "NotLive"
+                  ? "Not Live"
+                  : p.status === "Completed"
+                    ? "Completed"
+                    : p.status === "Live"
+                      ? "Live"
+                      : (p.status ?? "Unknown"),
             startDate: p.startDate ?? "",
             endDate: p.endDate ?? "",
-            techStack: Array.isArray(p.techStacks) ? p.techStacks.map((s: any) => s.stackName) : [],
+            techStack: Array.isArray(p.techStacks)
+              ? p.techStacks.map((s: any) => s.stackName)
+              : [],
           };
         });
         setProjectsData(mappedProjects);
@@ -112,7 +124,9 @@ export default function Projects() {
         } else if (err instanceof TypeError) {
           setError("Network error or CORS issue.");
         } else {
-          setError("Unexpected error: " + ((err as Error)?.message || String(err)));
+          setError(
+            "Unexpected error: " + ((err as Error)?.message || String(err)),
+          );
         }
         console.error("Fetch error:", err);
       } finally {
@@ -153,13 +167,18 @@ export default function Projects() {
       width: "25%",
       render: (value) => (
         <div className="flex flex-wrap gap-1">
-          {Array.isArray(value) && value.length > 0
-            ? value.map((stack: string, idx: number) => (
-                <span key={idx} className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-medium mr-1">
-                  {stack}
-                </span>
-              ))
-            : <span className="text-gray-400 italic">No stack</span>}
+          {Array.isArray(value) && value.length > 0 ? (
+            value.map((stack: string, idx: number) => (
+              <span
+                key={idx}
+                className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-medium mr-1"
+              >
+                {stack}
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 italic">No stack</span>
+          )}
         </div>
       ),
     },
@@ -200,14 +219,22 @@ export default function Projects() {
   ];
 
   const filteredData = selectedBatch
-  ? projectsData.filter((project) => project.batch === selectedBatch)
-  : projectsData;
+    ? projectsData.filter((project) => project.batch === selectedBatch)
+    : projectsData;
 
   if (loading) {
-    return <div className="min-h-screen w-full flex items-center justify-center">Loading projects...</div>;
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        Loading projects...
+      </div>
+    );
   }
   if (error) {
-    return <div className="min-h-screen w-full flex items-center justify-center text-red-500">{error}</div>;
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center text-red-500">
+        {error}
+      </div>
+    );
   }
   return (
     <>
@@ -230,19 +257,19 @@ export default function Projects() {
         <ProjectCard
           type="inProgress"
           title="Projects In Progress"
-          value={projectsData.filter(p => p.status === "In Progress").length}
+          value={projectsData.filter((p) => p.status === "In Progress").length}
           className="text-sm w-60 h-16"
         />
         <ProjectCard
           type="live"
           title="Live Projects"
-          value={projectsData.filter(p => p.status === "Live").length}
+          value={projectsData.filter((p) => p.status === "Live").length}
           className="text-sm w-60 h-16"
         />
         <ProjectCard
           type="notLive"
           title="Not Live Projects"
-          value={projectsData.filter(p => p.status === "Not Live").length}
+          value={projectsData.filter((p) => p.status === "Not Live").length}
           className="text-sm w-60 h-16"
         />
       </div>

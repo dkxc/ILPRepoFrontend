@@ -41,7 +41,6 @@ function ProjectDocuments({
     setDocuments(documents.filter((doc) => doc.id !== id));
   };
 
-
   return (
     <div className="bg-white px-4 md:px-8 py-6 mt-10">
       <div className="pl-4 pr-5">

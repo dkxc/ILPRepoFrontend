@@ -55,13 +55,17 @@ function projectsDetailsTrainee() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`https://localhost:7153/api/ProjectDetails`);
+        const response = await fetch(
+          `https://localhost:7153/api/ProjectDetails`,
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
         if (result.status === 200 && Array.isArray(result.data)) {
-          const found = result.data.find((p: any) => String(p.id) === String(id));
+          const found = result.data.find(
+            (p: any) => String(p.id) === String(id),
+          );
           if (found) {
             setProjectData(found);
           } else {
@@ -81,21 +85,37 @@ function projectsDetailsTrainee() {
     fetchProjectDetails();
   }, [id]);
   if (loading) {
-    return <div className="min-h-screen w-full flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
   if (error) {
-    return <div className="min-h-screen w-full flex items-center justify-center text-red-500">{error}</div>;
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center text-red-500">
+        {error}
+      </div>
+    );
   }
   if (!projectData) {
-    return <div className="min-h-screen w-full flex items-center justify-center">No project data found.</div>;
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        No project data found.
+      </div>
+    );
   }
   // Map tech stack and links for BatchMetadata
   const techStackArr = Array.isArray(projectData.techStacks)
     ? projectData.techStacks.map((s) => s.stackName)
     : [];
   // Find links by name
-  const repoLink = projectData.links?.find((l) => l.linkName.toLowerCase().includes("github"))?.linkUrl || "";
-  const figmaLink = projectData.links?.find((l) => l.linkName.toLowerCase().includes("figma"))?.linkUrl || "";
+  const repoLink =
+    projectData.links?.find((l) => l.linkName.toLowerCase().includes("github"))
+      ?.linkUrl || "";
+  const figmaLink =
+    projectData.links?.find((l) => l.linkName.toLowerCase().includes("figma"))
+      ?.linkUrl || "";
   return (
     <div className="min-h-screen w-full bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -103,7 +123,10 @@ function projectsDetailsTrainee() {
           <BatchMetadata
             id={projectData.id}
             projectName={projectData.projectName}
-            name={projectData.batch?.batchName ?? `Batch ${projectData.batchId ?? ''}`}
+            name={
+              projectData.batch?.batchName ??
+              `Batch ${projectData.batchId ?? ""}`
+            }
             trainees={projectData.noTrainees}
             techStack={techStackArr}
             repositoryUrl={repoLink}
