@@ -34,6 +34,8 @@ function ScoreCard({
                 2: "Gap",
               })}
               colors={["var(--color-brand-500)", "var(--color-inactive-badge)"]}
+              innerRadius={0.65}
+              padAngle={0.65}
               cornerRadius={2}
               activeOuterRadiusOffset={8}
               margin={{ top: 16, right: 16, bottom: 16 }}
@@ -47,6 +49,35 @@ function ScoreCard({
                   },
                 },
               }}
+              layers={[
+                "arcs",
+                ({ centerX, centerY }) => (
+                  <>
+                    <text
+                      x={centerX}
+                      y={centerY}
+                      dy={-10}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      className="text-xl font-semibold"
+                      style={{ fill: "var(--color-text-base)" }}
+                    >
+                      {`${scores.average}%`}
+                    </text>
+                    <text
+                      x={centerX}
+                      y={centerY}
+                      dy={14}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      className="text-xs"
+                      style={{ fill: "var(--color-text-base)" }}
+                    >
+                      Average Score
+                    </text>
+                  </>
+                ),
+              ]}
               tooltip={({ datum }) => (
                 <>
                   <div className="p-2 bg-background rounded-md shadow-md text-sm font-secondary whitespace-nowrap">
