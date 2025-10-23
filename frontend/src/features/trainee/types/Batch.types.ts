@@ -1,17 +1,27 @@
+export type BatchStatus = "Not Started" | "Ongoing" | "Completed";
+
 export type BaseBatch = {
   id: number;
   title: string;
   type: string;
 };
 
-export type Batch = BaseBatch & {
-  startDate: Date;
-  endDate: Date;
+export type BaseBatchWithDayAndStatus = BaseBatch & {
   day: number;
   status: BatchStatus;
 };
-export type BatchStatus = "Not Started" | "Ongoing" | "Completed";
 
+export type Batch = BaseBatchWithDayAndStatus & {
+  startDate: Date;
+  endDate: Date;
+};
+
+export type ApiBatch = BaseBatchWithDayAndStatus & {
+  startDate: string;
+  endDate: string;
+};
+
+/* Batch Assessment */
 export type BatchAssessment = BaseBatch & {
   totalTrainees: number;
   status: "Pending" | "Completed";
