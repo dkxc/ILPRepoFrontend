@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ActionIcon } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import Button from "../../features/ui/Button";
 import BatchDetailsCard from "../../features/admin/batches/BatchDetailsCard";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
 import StatusBadge from "../../features/ui/StatusBadge";
@@ -18,6 +17,7 @@ import {
   Trash2,
   Pencil,
 } from "lucide-react";
+import DocumentUpload from "../../features/admin/batches/DocumentAccordion";
 
 interface Trainee {
   id: number;
@@ -672,6 +672,29 @@ export default function BatchDetailsPage() {
           onSave={handleSavePhaseEdit}
         />
       )}
+
+      {/* Document & Link Requirements Accordion */}
+      <div className="mt-6">
+        <DocumentUpload
+          batchTitle="Document and Link Requirements"
+          initialDocuments={[
+            { id: 1, documentName: "BRD", deadline: "", templateFile: null },
+            { id: 2, documentName: "UAT", deadline: "", templateFile: null },
+            {
+              id: 3,
+              documentName: "Sprint Tracker",
+              deadline: "",
+              templateFile: null,
+            },
+          ]}
+          initialLinks={[
+            { id: 1, linkName: "GitHub Repo" },
+            { id: 2, linkName: "Deployment Link" },
+          ]}
+          onDocumentChange={(docs: any) => console.log("Updated Docs:", docs)}
+          onLinksChange={(links: any) => console.log("Updated Links:", links)}
+        />
+      </div>
     </div>
   );
 }
