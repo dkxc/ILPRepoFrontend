@@ -7,7 +7,7 @@ import { ResponsivePie } from "@nivo/pie";
 import { getPieDataFromPercent } from "../../../lib/graphs/utils";
 import { Pencil, Radio, UploadCloud } from "lucide-react";
 import { useState } from "react";
-import { DocumentSubmissionModal } from "../../admin/document_upload";
+import DocumentSubmissionModal from "../../ui/DocumentUpload";
 import Badge from "../../ui/badge/Badge";
 
 export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
