@@ -9,6 +9,7 @@ import {
 
 import { lazy } from "react";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { useDashboardData } from "../../features/trainee/dashboard/hooks/useDashboardQueries";
 
 const BatchCard = lazy(
   () => import("../../features/trainee/dashboard/BatchCard"),
@@ -62,7 +63,11 @@ function Dashboard() {
 
   return (
     <>
-      <WelcomeHeader className="pt-6" firstName={firstName} />
+      <WelcomeHeader
+        className="pt-6"
+        firstName={profileQuery.data?.firstName}
+        isLoading={profileQuery.isLoading}
+      />
       <ResponsiveGridLayout
         className="layout p-4"
         layouts={layouts}
@@ -73,19 +78,19 @@ function Dashboard() {
         draggableHandle=".drag-handle"
       >
         <div key="project">
-          <ProjectCard project={project} className="h-full" />
+          <ProjectCard query={projectQuery} className="h-full" />
         </div>
         <div key="batch">
-          <BatchCard batch={batch} className="h-full" />
+          <BatchCard query={batchQuery} className="h-full" />
         </div>
         <div key="documents">
-          <DocumentsCard documents={documents} className="h-full" />
+          <DocumentsCard query={documentsQuery} className="h-full" />
         </div>
         <div key="scores">
-          <ScoreCard scores={scores} className="h-full" />
+          <ScoreCard query={scoresQuery} className="h-full" />
         </div>
         <div key="sessions">
-          <UpcomingSessionsCard activities={recent} className="h-full" />
+          <UpcomingSessionsCard query={sessionsQuery} className="h-full" />
         </div>
       </ResponsiveGridLayout>
     </>
