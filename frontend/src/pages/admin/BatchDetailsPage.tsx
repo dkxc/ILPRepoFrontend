@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ActionIcon } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import Button from "../../features/ui/Button";
 import BatchDetailsCard from "../../features/admin/batches/BatchDetailsCard";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
 import StatusBadge from "../../features/ui/StatusBadge";
@@ -18,6 +17,7 @@ import {
   Trash2,
   Pencil,
 } from "lucide-react";
+import DocumentUpload from "../../features/admin/batches/DocumentAccordion";
 
 interface Trainee {
   id: number;
@@ -234,7 +234,7 @@ export default function BatchDetailsPage() {
 
   const handleEditRow = (
     row: any,
-    phase: "Specialization" | "Business Orientation" | "DU",
+    phase: "Specialization" | "Business Orientation" | "DU"
   ) => {
     setCurrentEditRow(row);
     setCurrentEditPhase(phase);
@@ -244,15 +244,15 @@ export default function BatchDetailsPage() {
   const handleSavePhaseEdit = (updatedRow: any) => {
     if (currentEditPhase === "Specialization") {
       setSpecializationData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
+        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r))
       );
     } else if (currentEditPhase === "Business Orientation") {
       setBusinessOrientationData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
+        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r))
       );
     } else if (currentEditPhase === "DU") {
       setDuData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
+        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r))
       );
     }
     setIsEditPhaseModalOpen(false);
@@ -368,7 +368,7 @@ export default function BatchDetailsPage() {
                 {getPhaseIcon(phase)}
                 <span>{phase}</span>
               </button>
-            ),
+            )
           )}
         </div>
       </div>
@@ -490,10 +490,10 @@ export default function BatchDetailsPage() {
           enableMultipleFilters={true}
           columnFilters={{
             techStack: Array.from(
-              new Set(specializationData.map((d) => d.techStack)),
+              new Set(specializationData.map((d) => d.techStack))
             ),
             project: Array.from(
-              new Set(specializationData.map((d) => d.project)),
+              new Set(specializationData.map((d) => d.project))
             ),
           }}
         />
@@ -548,7 +548,7 @@ export default function BatchDetailsPage() {
           enableMultipleFilters={true}
           columnFilters={{
             buddy: Array.from(
-              new Set(businessOrientationData.map((d) => d.buddy)),
+              new Set(businessOrientationData.map((d) => d.buddy))
             ),
             du: Array.from(new Set(businessOrientationData.map((d) => d.du))),
           }}
@@ -672,6 +672,29 @@ export default function BatchDetailsPage() {
           onSave={handleSavePhaseEdit}
         />
       )}
+
+      {/* Document & Link Requirements Accordion */}
+      <div className="mt-6">
+        <DocumentUpload
+          batchTitle="Document and Link Requirements"
+          initialDocuments={[
+            { id: 1, documentName: "BRD", deadline: "", templateFile: null },
+            { id: 2, documentName: "UAT", deadline: "", templateFile: null },
+            {
+              id: 3,
+              documentName: "Sprint Tracker",
+              deadline: "",
+              templateFile: null,
+            },
+          ]}
+          initialLinks={[
+            { id: 1, linkName: "GitHub Repo" },
+            { id: 2, linkName: "Deployment Link" },
+          ]}
+          onDocumentChange={(docs: any) => console.log("Updated Docs:", docs)}
+          onLinksChange={(links: any) => console.log("Updated Links:", links)}
+        />
+      </div>
     </div>
   );
 }
