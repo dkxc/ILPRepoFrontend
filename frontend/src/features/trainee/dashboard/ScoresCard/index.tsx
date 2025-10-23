@@ -1,20 +1,55 @@
 import { type Scores } from "../../types/scores/Score.types";
 import * as Card from "../../../ui/card";
+import Skeleton from "../../../ui/Skeleton";
 
 import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
 import { getPieDataFromPercent } from "../../../../lib/graphs/utils";
+import { type UseQueryResult } from "@tanstack/react-query";
 
 export interface ScoreCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  scores: Scores;
+  query: UseQueryResult<Scores>;
 }
 
 function ScoreCard({
-  scores,
+  query,
   className,
   ref,
   ...props
 }: ScoreCardProps & { ref?: React.Ref<HTMLDivElement> }) {
+  const { data: scores, status } = query;
+
+  if (status === "pending") {
+    return (
+      <Card.Card className={cn("flex flex-col h-full", className)}>
+        <Card.CardHeader>
+          <Skeleton className="h-6 w-3/4" />
+        </Card.CardHeader>
+        <Card.CardContent className="flex-1 flex items-center justify-center">
+          <Skeleton className="h-48 w-48 rounded-full" />
+        </Card.CardContent>
+      </Card.Card>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <Card.Card
+        className={cn(
+          "flex flex-col h-full items-center justify-center",
+          className,
+        )}
+      >
+        <Card.CardHeader className="text-center">
+          <Card.CardTitle>Something went wrong.</Card.CardTitle>
+          <Card.CardDescription>Could not load scores.</Card.CardDescription>
+        </Card.CardHeader>
+      </Card.Card>
+    );
+  }
+
+  if (!scores) return null;
+
   return (
     <Card.Card
       className={cn("flex flex-col h-full", className)}
