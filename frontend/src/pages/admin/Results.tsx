@@ -1,7 +1,5 @@
-import { useState } from "react";
-
 import { Trash2 } from "lucide-react";
-import { Badge, ActionIcon } from "@mantine/core";
+import { ActionIcon } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
@@ -70,10 +68,6 @@ export default function Results() {
       status: "Completed",
     },
   ];
-
-  const getStatusColor = (status: string) => {
-    return status === "Completed" ? "green" : "yellow";
-  };
 
   const handleDelete = (batch: BatchAssessment) => {
     modals.openConfirmModal({

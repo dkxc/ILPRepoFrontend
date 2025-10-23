@@ -4,11 +4,14 @@ import type { ScoreItem } from "../../types/scores/ScoreItem.types";
 export interface ScoreCardItemProps
   extends React.HTMLAttributes<HTMLDivElement> {
   item: ScoreItem;
+  headingClasses?: string;
+  isPercent?: boolean;
 }
 
 function ScoreCardItem({
   item,
   className,
+  isPercent = false,
   ref,
   ...props
 }: ScoreCardItemProps & { ref?: React.Ref<HTMLDivElement> }) {
@@ -22,7 +25,10 @@ function ScoreCardItem({
       {...props}
     >
       <div>
-        <h2 className="font-medium text-xl">{item.value}</h2>
+        <h2 className={"font-medium text-xl"}>
+          {item.value}
+          {(isPercent && "%") || ""}
+        </h2>
       </div>
       <div className="text-xs overflow-hidden">{item.caption}</div>
     </div>

@@ -215,15 +215,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
     onClose();
   };
 
-  const handleDeleteCustomType = (typeValue: string) => {
-    const updated = types.filter((t) => t.value !== typeValue);
-    localStorage.setItem("allBatchTypes", JSON.stringify(updated));
-    setTypes(updated);
-    if (form.batchType === typeValue) {
-      setForm((f) => ({ ...f, batchType: "" }));
-    }
-  };
-
   if (!isOpen) return null;
 
   return (

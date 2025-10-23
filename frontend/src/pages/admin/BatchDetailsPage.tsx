@@ -607,12 +607,11 @@ export default function BatchDetailsPage() {
           pageSize={5}
           highlightOnHover
           withBorder
-          enableMultipleFilters={true} 
+          enableMultipleFilters={true}
           columnFilters={{
             duAllocated: Array.from(new Set(duData.map((d) => d.duAllocated))),
             location: Array.from(new Set(duData.map((d) => d.location))),
           }}
-          
         />
       )}
 

@@ -1,21 +1,6 @@
 import { useRef, useState, type ReactNode } from "react";
-import {
-  Table,
-  Badge,
-  ActionIcon,
-  Group,
-  Text,
-  Paper,
-  TextInput,
-  Select,
-  Pagination,
-  Progress,
-  Tooltip,
-  Checkbox,
-  Stack,
-  Box,
-} from "@mantine/core";
-import { Search, X } from "lucide-react";
+import { Table, Text, Paper, Checkbox, Stack, Box } from "@mantine/core";
+import { Search } from "lucide-react";
 import DataTablePagination from "./DataTablePagination";
 import DataTableInfo from "./DataTableInfo";
 import DataTableFilter from "./DataTableFilter";
@@ -78,7 +63,6 @@ export default function DataTable<T extends Record<string, any>>({
   striped = true,
   highlightOnHover = true,
   withBorder = true,
-  withPadding = true,
   headerBgColor = "#f8f9fa",
   headerTextColor = "#000",
   hideHeader = false,
@@ -222,9 +206,6 @@ export default function DataTable<T extends Record<string, any>>({
     });
   }
 
-  const totalPages = enablePagination
-    ? Math.ceil(filteredData.length / currentPageSize)
-    : 1;
   const paginatedData = enablePagination
     ? filteredData.slice(
         (activePage - 1) * currentPageSize,

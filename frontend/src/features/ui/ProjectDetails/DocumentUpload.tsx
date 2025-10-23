@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "../../ui/Button";
-import { Trash2, Plus, X, CircleCheckBig } from "lucide-react";
+import { Trash2, X, CircleCheckBig } from "lucide-react";
 
 interface Document {
   id: string;
@@ -60,7 +60,7 @@ function ProjectDocuments({
     <div className="bg-white px-4 md:px-8 py-6 mt-10">
       <div className="pl-4 pr-5">
         <div className="flex items-center justify-between mb-12">
-          <h2 className="text-lg font-bold text-gray-900">Project Document</h2>
+          <h2 className="text-lg font-bold text-gray-900">Project Files</h2>
           {canUpload && (
             <div className="flex gap-3">
               <Button
