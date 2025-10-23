@@ -27,8 +27,6 @@ export default [
     route("adminSettings", "./pages/admin/AdminSettings.tsx"),
     // route("documentupload", "./pages/admin/DocumentUploadSection.tsx"),
     // route("documentsubmitdemo", "./features/admin/DocumentSubmitStepper.tsx"),
-     route("curriculumAdmin", "./pages/admin/Curriculum.tsx"),
-
- 
+    route("curriculumAdmin", "./pages/admin/Curriculum.tsx"),
   ]),
 ] satisfies RouteConfig;

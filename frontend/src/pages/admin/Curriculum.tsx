@@ -1072,9 +1072,8 @@ function TraineeCurriculumCalendar() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
           <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 h-[75vh] overflow-hidden flex flex-col">
-           <div className="grid grid-cols-7 mb-2 top-0 bg-white z-10 py-3 border-b border-slate-200">
+            <div className="grid grid-cols-7 mb-2 top-0 bg-white z-10 py-3 border-b border-slate-200">
               {dayNames.map((day) => (
                 <div
                   key={day}
@@ -1084,7 +1083,6 @@ function TraineeCurriculumCalendar() {
                 </div>
               ))}
             </div>
-
 
             <div className="grid grid-cols-7 gap-2 overflow-y-auto">
               {calendarDays.map((day, index) => {
