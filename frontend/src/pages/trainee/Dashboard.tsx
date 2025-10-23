@@ -1,4 +1,13 @@
-import { lazy } from "react";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+import {
+  Responsive,
+  WidthProvider,
+  type Layout,
+  type Layouts,
+} from "react-grid-layout";
+
+import { lazy, useState } from "react";
 import type { Batch } from "../../features/trainee/types/Batch.types";
 import type { TraineeDocument } from "../../features/trainee/types/TraineeDocument.types";
 import type { Project } from "../../features/trainee/types/Project.types";
@@ -23,6 +32,8 @@ const ScoreCard = lazy(
 const WelcomeHeader = lazy(
   () => import("../../features/trainee/dashboard/WelcomeHeader"),
 );
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 /* TODO: Remove this dummy data */
 function Dashboard() {
@@ -54,6 +65,7 @@ function Dashboard() {
     startDate: new Date(2025, 7, 4),
     endDate: new Date(2025, 11, 9),
     day: 23,
+    status: "Ongoing",
   };
 
   const documents: TraineeDocument[] = [
@@ -102,7 +114,7 @@ function Dashboard() {
     },
     {
       id: 3,
-      title: "React epogQo{egvPEWgvPO:wkgvOPWmgpv",
+      title: "React epogQo{egvP EWgvPO:wkgvOPWmgpv",
       category: "wINDOWS",
       date: new Date(2025, 5, 3, 9, 7, 2),
     },
@@ -135,17 +147,49 @@ function Dashboard() {
     ],
   };
 
+  const initialLayouts = {
+    lg: [
+      { i: "project", x: 0, y: 0, w: 6, h: 9, minW: 4, minH: 9 },
+      { i: "batch", x: 6, y: 0, w: 4, h: 9, minW: 3, minH: 9 },
+      { i: "documents", x: 0, y: 2, w: 3, h: 12, minW: 3, minH: 9 },
+      { i: "scores", x: 3, y: 2, w: 3, h: 12, minW: 3, minH: 9 },
+      { i: "sessions", x: 6, y: 2, w: 4, h: 12, minW: 3, minH: 9 },
+    ],
+  };
+
+  const [layouts, setLayouts] = useState<Layouts>(initialLayouts);
+  const onLayoutChange = (_currentLayout: Layout[], allLayouts: Layouts) => {
+    setLayouts(allLayouts);
+  };
+
   return (
     <>
       <WelcomeHeader className="pt-6" firstName={firstName} />
-      <div className="grid gap-2 p-4 md:grid-cols-2 lg:grid-cols-10">
-        <ProjectCard className="col-span-6" project={project} />
-        <BatchCard className="col-span-4" batch={batch} />
-
-        <DocumentsCard className="col-span-3" documents={documents} />
-        <ScoreCard className="col-span-3" scores={scores} />
-        <UpcomingSessionsCard className="col-span-4" activities={recent} />
-      </div>
+      <ResponsiveGridLayout
+        className="layout p-4"
+        layouts={layouts}
+        onLayoutChange={onLayoutChange}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 10, md: 10, sm: 6, xs: 4, xxs: 2 }}
+        rowHeight={20}
+        draggableHandle=".drag-handle"
+      >
+        <div key="project">
+          <ProjectCard project={project} className="h-full" />
+        </div>
+        <div key="batch">
+          <BatchCard batch={batch} className="h-full" />
+        </div>
+        <div key="documents">
+          <DocumentsCard documents={documents} className="h-full" />
+        </div>
+        <div key="scores">
+          <ScoreCard scores={scores} className="h-full" />
+        </div>
+        <div key="sessions">
+          <UpcomingSessionsCard activities={recent} className="h-full" />
+        </div>
+      </ResponsiveGridLayout>
     </>
   );
 }
