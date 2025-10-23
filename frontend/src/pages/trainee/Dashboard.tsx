@@ -7,12 +7,13 @@ import {
   type Layouts,
 } from "react-grid-layout";
 
-import { lazy, useState } from "react";
+import { lazy } from "react";
 import type { Batch } from "../../features/trainee/types/Batch.types";
 import type { TraineeDocument } from "../../features/trainee/types/TraineeDocument.types";
 import type { Project } from "../../features/trainee/types/Project.types";
 import type { Scores } from "../../features/trainee/types/scores/Score.types";
 import type { Session } from "../../features/trainee/types/Session.types";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 const BatchCard = lazy(
   () => import("../../features/trainee/dashboard/BatchCard"),
@@ -157,7 +158,10 @@ function Dashboard() {
     ],
   };
 
-  const [layouts, setLayouts] = useState<Layouts>(initialLayouts);
+  const [layouts, setLayouts] = useLocalStorage<Layouts>(
+    "dashboard-layouts",
+    initialLayouts,
+  );
   const onLayoutChange = (_currentLayout: Layout[], allLayouts: Layouts) => {
     setLayouts(allLayouts);
   };
