@@ -125,6 +125,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
             </Button>
 
             {/* 3-dot dropdown button */}
+
             <button
               ref={buttonRef}
               className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
@@ -157,12 +158,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
                     },
                     {
                       label: "Upload Project",
-                      action: () =>
-                        notifications.show({
-                          title: "Project",
-                          message: "Uploading Project",
-                          color: "blue",
-                        }),
+                      action: () => navigate("/upload-project-data"),
                     },
                     {
                       label: "Upload Results",
