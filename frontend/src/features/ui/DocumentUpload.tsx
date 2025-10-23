@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Upload, Download, Filter, ChevronRight, Check } from "lucide-react";
+import { useEffect } from "react";
 
 interface UploadedDocument {
   id: number;
@@ -15,7 +16,7 @@ interface DocumentSubmissionModalProps {
   onSubmit?: (file: File, type: string) => void;
 }
 
-export const DocumentSubmissionModal = ({
+const DocumentSubmissionModal = ({
   isOpen,
   onClose,
   onSubmit,
@@ -25,12 +26,14 @@ export const DocumentSubmissionModal = ({
   const [selectedType, setSelectedType] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
   const [isDragging, setIsDragging] = useState(false);
+  const [filePreview, setFilePreview] = useState<React.ReactNode>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   // Mock uploaded documents
   const [uploadedDocuments] = useState<UploadedDocument[]>([
     {
       id: 1,
-      filename: "BRD_Document_v1.pdf",
+      filename: "BRD_Document_v1.pdfhaha",
       type: "BRD",
       uploadDate: "2025-10-15",
       fileUrl: "#",
@@ -73,6 +76,68 @@ export const DocumentSubmissionModal = ({
     e.preventDefault();
     setIsDragging(true);
   };
+  useEffect(() => {
+    if (!selectedFile) {
+      setFilePreview(null);
+      return;
+    }
+    const fileType = selectedFile.type;
+    setPreviewLoading(true);
+    let objectURL: string | null = null;
+    if (fileType.startsWith("image/")) {
+      objectURL = URL.createObjectURL(selectedFile);
+      setFilePreview(
+        <img
+          src={objectURL}
+          alt="Preview"
+          className="max-w-full max-h-96 mx-auto rounded-lg border"
+        />,
+      );
+      setPreviewLoading(false);
+    } else if (fileType === "application/pdf") {
+      objectURL = URL.createObjectURL(selectedFile);
+      setFilePreview(
+        <embed
+          src={objectURL}
+          type="application/pdf"
+          className="w-full min-h-[500px] max-h-[70vh] rounded-lg border"
+        />,
+      );
+      setPreviewLoading(false);
+    } else if (fileType.startsWith("text/")) {
+      // Read text file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFilePreview(
+          <pre className="w-full min-h-[300px] max-h-[70vh] overflow-auto bg-gray-50 rounded-lg p-4 text-left text-xs whitespace-pre-wrap">
+            {e.target?.result as string}
+          </pre>,
+        );
+        setPreviewLoading(false);
+      };
+      reader.readAsText(selectedFile);
+    } else {
+      setFilePreview(
+        <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg">
+          <div className="text-6xl mb-4">📄</div>
+          <p className="text-lg font-medium text-gray-700">
+            {selectedFile.name}
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            {(selectedFile.size / 1024).toFixed(2)} KB
+          </p>
+        </div>,
+      );
+      setPreviewLoading(false);
+    }
+    // Clean up object URLs
+    return () => {
+      if (objectURL) {
+        URL.revokeObjectURL(objectURL);
+      }
+    };
+    // eslint-disable-next-line
+  }, [selectedFile]);
 
   const handleDragLeave = () => {
     setIsDragging(false);
@@ -140,16 +205,16 @@ export const DocumentSubmissionModal = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">
+        {/* Modal Header - Simplified */}
+        <div className="flex items-center justify-between px-6 py-4 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">
             Document Submission
           </h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X className="w-6 h-6 text-gray-600" />
+            <X className="w-5 h-5 text-gray-600" />
           </button>
         </div>
 
@@ -332,11 +397,10 @@ export const DocumentSubmissionModal = ({
                     onChange={handleFileInput}
                     accept=".pdf,.xlsx,.xls,.docx,.doc,.png,.jpg,.jpeg"
                   />
-                  <label
-                    htmlFor="file-upload"
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
-                  >
-                    Browse Files
+                  <label htmlFor="file-upload">
+                    <span className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors">
+                      Browse Files
+                    </span>
                   </label>
 
                   {selectedFile && (
@@ -418,44 +482,4 @@ export const DocumentSubmissionModal = ({
   );
 };
 
-// Demo App
-export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleSubmit = (file: File, type: string) => {
-    console.log("Submitted:", { file: file.name, type });
-    alert(`Document "${file.name}" of type "${type}" uploaded successfully!`);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">
-          Document Submission System
-        </h1>
-
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Manage Your Documents
-          </h2>
-          <p className="text-gray-600 mb-6">
-            View, upload, and manage your documents with our easy-to-use
-            submission system.
-          </p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Open Document Submission
-          </button>
-        </div>
-
-        <DocumentSubmissionModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleSubmit}
-        />
-      </div>
-    </div>
-  );
-}
+export default DocumentSubmissionModal;

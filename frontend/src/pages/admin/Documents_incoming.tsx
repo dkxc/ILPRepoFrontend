@@ -12,6 +12,10 @@ import {
   Layers,
   Send,
 } from "lucide-react";
+import { notifications } from "@mantine/notifications";
+import DataTable, { type ColumnDef } from "../../features/ui/Table";
+import Button from "../../features/ui/Button";
+
 // DropdownMenu for action column
 function DropdownMenu({
   row,
@@ -30,8 +34,8 @@ function DropdownMenu({
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
-
   const [dropUp, setDropUp] = useState(false);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -45,10 +49,9 @@ function DropdownMenu({
     }
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
-      // Position the menu below or above the button depending on viewport
       if (buttonRef.current) {
         const rect = buttonRef.current.getBoundingClientRect();
-        const menuHeight = 180; // estimate, adjust if needed
+        const menuHeight = 180;
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceAbove = rect.top;
         const shouldDropUp = spaceBelow < menuHeight && spaceAbove > menuHeight;
@@ -58,7 +61,7 @@ function DropdownMenu({
           top: shouldDropUp
             ? rect.top + window.scrollY - menuHeight - 4
             : rect.bottom + window.scrollY + 4,
-          left: rect.right - 176 + window.scrollX, // 176px = menu width
+          left: rect.right - 176 + window.scrollX,
           zIndex: 9999,
           minWidth: 176,
         });
@@ -83,7 +86,9 @@ function DropdownMenu({
           <div
             ref={menuRef}
             style={menuStyle}
-            className={`w-44 bg-white border border-gray-200 rounded-lg shadow-lg py-1 flex flex-col ${dropUp ? "animate-dropup" : ""}`}
+            className={`w-44 bg-white border border-gray-200 rounded-lg shadow-lg py-1 flex flex-col ${
+              dropUp ? "animate-dropup" : ""
+            }`}
           >
             <button
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-800 text-sm"
@@ -143,10 +148,8 @@ function DropdownMenu({
     </>
   );
 }
-import { notifications } from "@mantine/notifications";
-import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import Button from "../../features/ui/Button";
 
+// Types
 interface DocumentRow {
   id: number;
   documentName: string;
@@ -169,7 +172,7 @@ interface DocumentUploadProps {
 }
 
 export default function DocumentUpload({
-  batchTitle = "Documents Requirements",
+  batchTitle = "Document and Link Requirements",
   initialDocuments = [
     { id: 1, documentName: "BRD", deadline: "", templateFile: null },
     { id: 2, documentName: "UAT", deadline: "", templateFile: null },
@@ -191,13 +194,12 @@ export default function DocumentUpload({
     deadline: string;
   } | null>(null);
 
-  // Links state
   const [linkRows, setLinkRows] = useState<LinkRow[]>(initialLinks);
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
   const [linkEditDraft, setLinkEditDraft] = useState<{
     linkName: string;
   } | null>(null);
-  // Update parent on links change
+
   const updateLinks = (newLinks: LinkRow[]) => {
     setLinkRows(newLinks);
     onLinksChange?.(newLinks);
@@ -227,6 +229,7 @@ export default function DocumentUpload({
     );
   };
 
+  // Columns
   const linkColumns: ColumnDef<LinkRow>[] = [
     {
       key: "linkName",
@@ -252,66 +255,38 @@ export default function DocumentUpload({
       width: "15%",
       render: (_v, row) => (
         <div className="flex gap-2 justify-center">
-          {editingLinkId === row.id ? (
-            <>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => {
-                  // Save edit
-                  const updatedLinks = linkRows.map((l) =>
-                    l.id === row.id ? { ...l, ...linkEditDraft! } : l,
-                  );
-                  updateLinks(updatedLinks);
-                  setEditingLinkId(null);
-                  setLinkEditDraft(null);
-                }}
-              >
-                Save
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-gray-400 hover:bg-gray-500 text-white"
-                onClick={() => {
-                  setEditingLinkId(null);
-                  setLinkEditDraft(null);
-                }}
-              >
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-yellow-500 hover:bg-yellow-600 text-white"
-                onClick={() => {
-                  setEditingLinkId(row.id);
-                  setLinkEditDraft({ linkName: row.linkName });
-                }}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={() => handleDeleteLink(row.id)}
-              >
-                Delete
-              </Button>
-            </>
-          )}
+          <>
+            <button
+              type="button"
+              className="p-2 rounded hover:bg-gray-200"
+              onClick={() => {
+                setEditingLinkId(row.id);
+                setLinkEditDraft({ linkName: row.linkName });
+              }}
+              title="Edit"
+            >
+              <SquarePen className="w-5 h-5 text-gray-700" />
+            </button>
+
+            <button
+              type="button"
+              className="p-2 rounded hover:bg-gray-200"
+              onClick={() => handleDeleteLink(row.id)}
+              title="Delete"
+            >
+              <Trash2 className="w-5 h-5 text-red-600" />
+            </button>
+          </>
         </div>
       ),
     },
   ];
-  const [isOpen, setIsOpen] = useState(defaultOpen);
 
-  // Update parent component when documents change
+  const [accordionOpen, setAccordionOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<"documents" | "links">(
+    "documents",
+  );
+
   const updateDocuments = (newDocuments: DocumentRow[]) => {
     setDocumentRows(newDocuments);
     onDocumentChange?.(newDocuments);
@@ -428,17 +403,16 @@ export default function DocumentUpload({
                   {(value as File).name}
                 </span>
               </div>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-red-600 hover:bg-red-700"
+              <button
+                className="p-2 inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm border border-gray-300 rounded"
                 onClick={(e: React.MouseEvent) => {
                   e.preventDefault();
                   handleDeleteTemplate(row.id);
                 }}
               >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+                <Trash2 size={16} />
+                Delete Template
+              </button>
             </>
           ) : (
             <>
@@ -452,10 +426,8 @@ export default function DocumentUpload({
                 }}
               />
               <label htmlFor={`template-upload-${row.id}`}>
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="cursor-pointer bg-blue-600 hover:bg-blue-700"
+                <button
+                  className="px-2 py-1 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm border border-gray-300 rounded"
                   onClick={(e: React.MouseEvent) => {
                     e.preventDefault();
                     document
@@ -463,9 +435,9 @@ export default function DocumentUpload({
                       ?.click();
                   }}
                 >
-                  <Upload className="w-4 h-4 mr-2" />
+                  <Upload size={16} />
                   Upload Template
-                </Button>
+                </button>
               </label>
             </>
           )}
@@ -489,54 +461,154 @@ export default function DocumentUpload({
     },
   ];
 
-  // Accordion state
-  const [accordionOpen, setAccordionOpen] = useState(true);
-
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <button
-          className="flex items-center gap-2 text-xl font-semibold focus:outline-none select-none"
-          onClick={() => setAccordionOpen((v) => !v)}
-          aria-expanded={accordionOpen}
-          aria-controls="document-accordion-content"
-          type="button"
-        >
-          {accordionOpen ? (
-            <ChevronDown className="w-6 h-6" />
-          ) : (
-            <ChevronUp className="w-6 h-6" />
-          )}
-          {batchTitle}
-        </button>
-        <Button
-          variant="default"
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={handleAddDocument}
-          type="button"
-        >
-          <Plus className="w-4 h-4 mr-1" /> Add Document
-        </Button>
-      </div>
-      <div
-        id="document-accordion-content"
-        className={accordionOpen ? "block" : "hidden"}
-      >
-        <DataTable columns={documentColumns} data={documentRows} />
-        {/* Links Table Section */}
-        <div className="mt-10">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold">Required Links</h3>
-            <Button
-              variant="default"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={handleAddLink}
-              type="button"
-            >
-              <Plus className="w-4 h-4 mr-1" /> Add Link
-            </Button>
+    <div className="p-6">
+      <div className="bg-white shadow-md rounded-xl p-4 space-y-4">
+        {/* Accordion Header */}
+        <div className="flex items-center justify-between">
+          <button
+            className="flex items-center gap-2 text-xl font-semibold focus:outline-none select-none"
+            onClick={() => setAccordionOpen((v) => !v)}
+            aria-expanded={accordionOpen}
+            aria-controls="document-accordion-content"
+            type="button"
+          >
+            {accordionOpen ? (
+              <ChevronDown className="w-6 h-6" />
+            ) : (
+              <ChevronUp className="w-6 h-6" />
+            )}
+            {batchTitle}
+          </button>
+        </div>
+
+        {/* Tabs below header - Updated styling */}
+        {accordionOpen && (
+          <div className="flex justify-center mb-4">
+            <div className="inline-flex gap-2 bg-gray-50 rounded-lg p-1">
+              <button
+                className={`px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none flex items-center gap-2 ${
+                  activeTab === "documents"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+                onClick={() => setActiveTab("documents")}
+                type="button"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Documents
+              </button>
+              <button
+                className={`px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none flex items-center gap-2 ${
+                  activeTab === "links"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+                onClick={() => setActiveTab("links")}
+                type="button"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                  />
+                </svg>
+                Links
+              </button>
+            </div>
           </div>
-          <DataTable columns={linkColumns} data={linkRows} />
+        )}
+
+        {/* Accordion Content with Tabs */}
+        <div
+          id="document-accordion-content"
+          className={`${accordionOpen ? "block" : "hidden"} space-y-6`}
+        >
+          {activeTab === "documents" && (
+            <>
+              <div className="flex justify-end mb-2">
+                <Button
+                  variant="default"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleAddDocument}
+                  type="button"
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Add Document
+                </Button>
+              </div>
+              <DataTable
+                columns={documentColumns}
+                data={documentRows}
+                showHeaderSection={true}
+                headerTitle="Documents"
+                enableSearch={true}
+                enablePagination={true}
+                pageSize={5}
+                pageSizeOptions={[5, 10, 25]}
+                highlightOnHover={true}
+                withBorder={true}
+                rowStyle={{ fontSize: "16px", height: "56px", lineHeight: "1" }}
+                headerStyle={{
+                  fontWeight: 500,
+                  fontSize: "16px",
+                  height: "40px",
+                  background: "#F8F9FA",
+                }}
+              />
+            </>
+          )}
+          {activeTab === "links" && (
+            <>
+              <div className="flex justify-end mb-2">
+                <Button
+                  variant="default"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleAddLink}
+                  type="button"
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Add Link
+                </Button>
+              </div>
+              <DataTable
+                columns={linkColumns}
+                data={linkRows}
+                showHeaderSection={true}
+                headerTitle="Links"
+                enableSearch={true}
+                enablePagination={true}
+                pageSize={5}
+                pageSizeOptions={[5, 10, 25]}
+                highlightOnHover={true}
+                withBorder={true}
+                rowStyle={{ fontSize: "16px", height: "56px", lineHeight: "1" }}
+                headerStyle={{
+                  fontWeight: 500,
+                  fontSize: "16px",
+                  height: "40px",
+                  background: "#F8F9FA",
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
