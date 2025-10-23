@@ -24,7 +24,7 @@ function DocumentsCard({
     >
       <div className="w-full">
         <Card.CardHeader>
-          <Card.CardTitle>Documents</Card.CardTitle>
+          <Card.CardTitle>Public Documents</Card.CardTitle>
         </Card.CardHeader>
 
         <Card.CardContent className="flex flex-col h-52 max-h-52 overflow-y-auto">

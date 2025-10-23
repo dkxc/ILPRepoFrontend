@@ -2,7 +2,7 @@ import type { Session } from "../../types/Session.types";
 import * as Card from "../../../ui/card";
 
 import { cn } from "../../../../lib/utils";
-import RecentActivityCardItem from "./UpcomingSessionCardItem";
+import UpcomingSessionCardItem from "./UpcomingSessionCardItem";
 
 export interface UpcomingSessionCardProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -26,11 +26,11 @@ function UpcomingSessionCard({
           <Card.CardTitle>Upcoming Sessions</Card.CardTitle>
         </Card.CardHeader>
 
-        <Card.CardContent className="flex flex-col h-52 max-h-52 overflow-y-auto w-11/12 self-center-safe">
+        <Card.CardContent className="flex flex-col gap-2 h-52 max-h-52 overflow-y-auto w-11/12 self-center-safe">
           {activities.map((activity) => (
             <div key={activity.id} className="w-full">
               <>
-                <RecentActivityCardItem session={activity} />
+                <UpcomingSessionCardItem session={activity} />
               </>
             </div>
           ))}
