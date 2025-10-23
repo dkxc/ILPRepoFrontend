@@ -10,8 +10,13 @@ export default [
     ),
     route("results", "./pages/trainee/Results.tsx"),
 
-    route("admindash", "./pages/admin/Dashboard.tsx"),
+    route("admindash", "./pages/admin/dashboard/AdminDashboard.tsx"),
+    // route("training-hours", "./pages/admin/dashboard/DashboardTrainingHours.tsx"),
     route("batches", "./pages/admin/Batches.tsx"),
+    route("batches/:id", "./pages/admin/BatchDetailsPage.tsx"),
+    route("batchDetails/:id", "./pages/admin/TraineeProfile.tsx"),
+    route("upload-trainee-data", "./pages/admin/UploadTraineeDataPage.tsx"),
+
     route("projects", "./pages/admin/Projects.tsx"),
     route("projectsDetailsAdmin/:id", "./pages/admin/ProjectDetailsAdmin.tsx"),
     route("documents", "./pages/admin/Documents_incoming.tsx"),

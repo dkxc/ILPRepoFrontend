@@ -54,6 +54,7 @@ export interface DataTableProps<T = any> {
   headerRightContent?: ReactNode;
   enableDateFilter?: boolean;
   dateFilterColumn?: string;
+  multipleFilters?: { [key: string]: string | null };
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -425,7 +426,14 @@ export default function DataTable<T extends Record<string, any>>({
                           style={{
                             display: "flex",
                             alignItems: "center",
+                            justifyContent:
+                              column.align === "center"
+                                ? "center"
+                                : column.align === "right"
+                                  ? "flex-end"
+                                  : "flex-start",
                             gap: "0.25rem",
+                            width: "100%",
                           }}
                         >
                           {column.header}
