@@ -148,7 +148,7 @@ function DropdownMenu({
               <Send className="w-4 h-4" /> Broadcast
             </button>
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );
@@ -230,7 +230,7 @@ export default function DocumentUpload({
 
   const handleLinkNameChange = (newName: string) => {
     setLinkEditDraft((draft) =>
-      draft ? { ...draft, linkName: newName } : draft
+      draft ? { ...draft, linkName: newName } : draft,
     );
   };
 
@@ -289,7 +289,7 @@ export default function DocumentUpload({
 
   const [accordionOpen, setAccordionOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<"documents" | "links">(
-    "documents"
+    "documents",
   );
 
   const updateDocuments = (newDocuments: DocumentRow[]) => {
@@ -309,7 +309,7 @@ export default function DocumentUpload({
 
   const handleTemplateUpload = (id: number, file: File) => {
     const updatedDocs = documentRows.map((doc) =>
-      doc.id === id ? { ...doc, templateFile: file } : doc
+      doc.id === id ? { ...doc, templateFile: file } : doc,
     );
     updateDocuments(updatedDocs);
 
@@ -323,7 +323,7 @@ export default function DocumentUpload({
   const handleDeleteTemplate = (id: number) => {
     const doc = documentRows.find((d) => d.id === id);
     const updatedDocs = documentRows.map((d) =>
-      d.id === id ? { ...d, templateFile: null } : d
+      d.id === id ? { ...d, templateFile: null } : d,
     );
     updateDocuments(updatedDocs);
 
@@ -336,13 +336,13 @@ export default function DocumentUpload({
 
   const handleDocumentNameChange = (newName: string) => {
     setEditDraft((draft) =>
-      draft ? { ...draft, documentName: newName } : draft
+      draft ? { ...draft, documentName: newName } : draft,
     );
   };
 
   const handleDeadlineChange = (newDeadline: string) => {
     setEditDraft((draft) =>
-      draft ? { ...draft, deadline: newDeadline } : draft
+      draft ? { ...draft, deadline: newDeadline } : draft,
     );
   };
 
