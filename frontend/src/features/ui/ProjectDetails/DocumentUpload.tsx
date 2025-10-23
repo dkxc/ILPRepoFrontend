@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../../ui/Button";
 import { Trash2, X, CircleCheckBig } from "lucide-react";
+import { DocumentSubmissionModal } from "../../../features/admin/document_upload";
 
 interface Document {
   id: string;
@@ -31,29 +32,13 @@ function ProjectDocuments({
           { id: "4", name: "UAT file", filename: "repo_uat.docx" },
         ],
   );
-  const [isAdding, setIsAdding] = useState(false);
+  const [showStepper, setShowStepper] = useState(false);
   const [isNotifyOpen, setIsNotifyOpen] = useState(false);
-  const [newDocName, setNewDocName] = useState("");
-  const [newDocFilename, setNewDocFilename] = useState("");
   const [notifySubject, setNotifySubject] = useState("");
   const [notifyMessage, setNotifyMessage] = useState("");
 
   const handleDelete = (id: string) => {
     setDocuments(documents.filter((doc) => doc.id !== id));
-  };
-
-  const handleAdd = () => {
-    if (newDocName.trim() && newDocFilename.trim()) {
-      const newDoc: Document = {
-        id: Date.now().toString(),
-        name: newDocName.trim(),
-        filename: newDocFilename.trim(),
-      };
-      setDocuments([...documents, newDoc]);
-      setNewDocName("");
-      setNewDocFilename("");
-      setIsAdding(false);
-    }
   };
 
   return (
@@ -67,7 +52,7 @@ function ProjectDocuments({
                 size="default"
                 variant="default"
                 className="h-10 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-150"
-                onClick={() => setIsAdding(true)}
+                onClick={() => setShowStepper(true)}
               >
                 Upload Documents
               </Button>
@@ -122,70 +107,14 @@ function ProjectDocuments({
       </div>
 
       {/* Send Notification Modal removed for trainee side */}
-      {isAdding && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Upload Document</h3>
-              <Button
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewDocName("");
-                  setNewDocFilename("");
-                }}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                Document Name
-              </label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={newDocName}
-                onChange={(e) => setNewDocName(e.target.value)}
-                placeholder="e.g., BRD file"
-              />
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-1">Filename</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={newDocFilename}
-                onChange={(e) => setNewDocFilename(e.target.value)}
-                placeholder="e.g., document.pdf"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="default"
-                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewDocName("");
-                  setNewDocFilename("");
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="default"
-                className="px-4 py-2 rounded bg-brand text-white"
-                onClick={handleAdd}
-              >
-                Upload
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Stepper Modal Integration */}
+      <DocumentSubmissionModal
+        isOpen={showStepper}
+        onClose={() => setShowStepper(false)}
+        onSubmit={() => {
+          setShowStepper(false);
+        }}
+      />
 
       {isNotifyOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
