@@ -234,7 +234,7 @@ export default function BatchDetailsPage() {
 
   const handleEditRow = (
     row: any,
-    phase: "Specialization" | "Business Orientation" | "DU"
+    phase: "Specialization" | "Business Orientation" | "DU",
   ) => {
     setCurrentEditRow(row);
     setCurrentEditPhase(phase);
@@ -244,15 +244,15 @@ export default function BatchDetailsPage() {
   const handleSavePhaseEdit = (updatedRow: any) => {
     if (currentEditPhase === "Specialization") {
       setSpecializationData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r))
+        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
       );
     } else if (currentEditPhase === "Business Orientation") {
       setBusinessOrientationData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r))
+        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
       );
     } else if (currentEditPhase === "DU") {
       setDuData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r))
+        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
       );
     }
     setIsEditPhaseModalOpen(false);
@@ -368,7 +368,7 @@ export default function BatchDetailsPage() {
                 {getPhaseIcon(phase)}
                 <span>{phase}</span>
               </button>
-            )
+            ),
           )}
         </div>
       </div>
@@ -490,10 +490,10 @@ export default function BatchDetailsPage() {
           enableMultipleFilters={true}
           columnFilters={{
             techStack: Array.from(
-              new Set(specializationData.map((d) => d.techStack))
+              new Set(specializationData.map((d) => d.techStack)),
             ),
             project: Array.from(
-              new Set(specializationData.map((d) => d.project))
+              new Set(specializationData.map((d) => d.project)),
             ),
           }}
         />
@@ -548,7 +548,7 @@ export default function BatchDetailsPage() {
           enableMultipleFilters={true}
           columnFilters={{
             buddy: Array.from(
-              new Set(businessOrientationData.map((d) => d.buddy))
+              new Set(businessOrientationData.map((d) => d.buddy)),
             ),
             du: Array.from(new Set(businessOrientationData.map((d) => d.du))),
           }}

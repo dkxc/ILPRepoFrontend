@@ -36,7 +36,10 @@ export default function UploadDetails() {
   useEffect(() => {
     if (data.length > 0 && previewRef.current) {
       setTimeout(() => {
-        previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        previewRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }, 100);
     }
   }, [data]);
@@ -109,16 +112,38 @@ export default function UploadDetails() {
     if (!selectedType) return;
     let sampleData: any[] = [];
     if (selectedType === "Trainee Details") {
-      sampleData = [{ "Full Name": "John Doe", Email: "john@example.com", "Phone Number": "9876543210" }];
+      sampleData = [
+        {
+          "Full Name": "John Doe",
+          Email: "john@example.com",
+          "Phone Number": "9876543210",
+        },
+      ];
     } else if (selectedType === "BO Details") {
-      sampleData = [{ "Trainee Name": "John Doe", Buddy: "Jane Smith", "Buddy's DU": "DU-1" }];
+      sampleData = [
+        {
+          "Trainee Name": "John Doe",
+          Buddy: "Jane Smith",
+          "Buddy's DU": "DU-1",
+        },
+      ];
     } else if (selectedType === "DU Details") {
-      sampleData = [{ "Trainee Name": "John Doe", "DU allocated": "DU-2", Location: "Bangalore", "OJT mentor": "Mentor A" }];
+      sampleData = [
+        {
+          "Trainee Name": "John Doe",
+          "DU allocated": "DU-2",
+          Location: "Bangalore",
+          "OJT mentor": "Mentor A",
+        },
+      ];
     }
     const worksheet = XLSX.utils.json_to_sheet(sampleData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, selectedType);
-    XLSX.writeFile(workbook, `${selectedType.replace(/\s/g, "_").toLowerCase()}_template.xlsx`);
+    XLSX.writeFile(
+      workbook,
+      `${selectedType.replace(/\s/g, "_").toLowerCase()}_template.xlsx`,
+    );
   };
 
   const handleCancel = () => {
@@ -138,20 +163,45 @@ export default function UploadDetails() {
       return [
         { key: "fullName", header: "Full Name", sortable: true, align: "left" },
         { key: "email", header: "Email", sortable: true, align: "left" },
-        { key: "phoneNumber", header: "Phone Number", sortable: true, align: "left" },
+        {
+          key: "phoneNumber",
+          header: "Phone Number",
+          sortable: true,
+          align: "left",
+        },
       ];
     } else if (selectedType === "BO Details") {
       return [
-        { key: "traineeName", header: "Trainee Name", sortable: true, align: "left" },
+        {
+          key: "traineeName",
+          header: "Trainee Name",
+          sortable: true,
+          align: "left",
+        },
         { key: "buddy", header: "Buddy", sortable: true, align: "left" },
         { key: "buddyDU", header: "Buddy's DU", sortable: true, align: "left" },
       ];
     } else if (selectedType === "DU Details") {
       return [
-        { key: "traineeName", header: "Trainee Name", sortable: true, align: "left" },
-        { key: "duAllocated", header: "DU Allocated", sortable: true, align: "left" },
+        {
+          key: "traineeName",
+          header: "Trainee Name",
+          sortable: true,
+          align: "left",
+        },
+        {
+          key: "duAllocated",
+          header: "DU Allocated",
+          sortable: true,
+          align: "left",
+        },
         { key: "location", header: "Location", sortable: true, align: "left" },
-        { key: "ojtMentor", header: "OJT Mentor", sortable: true, align: "left" },
+        {
+          key: "ojtMentor",
+          header: "OJT Mentor",
+          sortable: true,
+          align: "left",
+        },
       ];
     }
     return [];
@@ -199,10 +249,10 @@ export default function UploadDetails() {
             !selectedType
               ? "bg-gray-50 cursor-not-allowed border-gray-300"
               : isDragging
-              ? "bg-blue-50 border-blue-500"
-              : uploadedFile
-              ? "bg-blue-50 border-blue-500"
-              : "bg-white border-blue-300"
+                ? "bg-blue-50 border-blue-500"
+                : uploadedFile
+                  ? "bg-blue-50 border-blue-500"
+                  : "bg-white border-blue-300"
           }`}
         >
           <input

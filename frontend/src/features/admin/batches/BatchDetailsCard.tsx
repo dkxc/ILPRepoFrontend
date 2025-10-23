@@ -8,7 +8,6 @@ import { createPortal } from "react-dom";
 import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router";
 
-
 interface BatchDetailsCardProps {
   batchName: string;
   startDate: string;
@@ -69,7 +68,9 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
 
       setMenuStyle({
         position: "absolute",
-        top: dropUp ? rect.top + window.scrollY - menuHeight - 4 : rect.bottom + window.scrollY + 4,
+        top: dropUp
+          ? rect.top + window.scrollY - menuHeight - 4
+          : rect.bottom + window.scrollY + 4,
         left: rect.right - 176 + window.scrollX,
         zIndex: 9999,
         minWidth: 176,
@@ -130,17 +131,48 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
               onClick={() => setDropdownOpen((v) => !v)}
               type="button"
             >
-              <MoreVertical  className="w-6 h-6 text-gray-700" />
+              <MoreVertical className="w-6 h-6 text-gray-700" />
             </button>
 
             {dropdownOpen &&
               createPortal(
-                <div ref={dropdownRef} style={menuStyle} className="flex flex-col">
+                <div
+                  ref={dropdownRef}
+                  style={menuStyle}
+                  className="flex flex-col"
+                >
                   {[
-                    { label: "Upload Trainee Data", action: () => navigate("/upload-trainee-data") },
-                    { label: "Upload Curriculum", action: () => notifications.show({ title: "Curriculum", message: "Uploading Curriculum", color: "blue" }) },
-                    { label: "Upload Project", action: () => notifications.show({ title: "Project", message: "Uploading Project", color: "blue" }) },
-                    { label: "Upload Results", action: () => notifications.show({ title: "Results", message: "Uploading Results", color: "blue" }) },
+                    {
+                      label: "Upload Trainee Data",
+                      action: () => navigate("/upload-trainee-data"),
+                    },
+                    {
+                      label: "Upload Curriculum",
+                      action: () =>
+                        notifications.show({
+                          title: "Curriculum",
+                          message: "Uploading Curriculum",
+                          color: "blue",
+                        }),
+                    },
+                    {
+                      label: "Upload Project",
+                      action: () =>
+                        notifications.show({
+                          title: "Project",
+                          message: "Uploading Project",
+                          color: "blue",
+                        }),
+                    },
+                    {
+                      label: "Upload Results",
+                      action: () =>
+                        notifications.show({
+                          title: "Results",
+                          message: "Uploading Results",
+                          color: "blue",
+                        }),
+                    },
                   ].map((item, idx) => (
                     <button
                       key={idx}
@@ -154,7 +186,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
                     </button>
                   ))}
                 </div>,
-                document.body
+                document.body,
               )}
           </div>
         </div>
@@ -165,7 +197,10 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
             <DetailItem label="End Date" value={endDate} />
             <DetailItem label="Batch Type" value={batchType} />
             <DetailItem label="Total Trainees" value={totalTrainees} />
-            <DetailItem label="Total Training Hours" value={`${totalTrainingHours} hrs`} />
+            <DetailItem
+              label="Total Training Hours"
+              value={`${totalTrainingHours} hrs`}
+            />
             <DetailItem label="Tech Stack" value={techStack} />
           </div>
         </CardContent>

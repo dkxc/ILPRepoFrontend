@@ -41,7 +41,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 ProjectCard.displayName = "ProjectCard";

@@ -63,7 +63,7 @@ export default function Batches() {
   // 🧠 Auto-update batch status
   const determineStatus = (
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Batch["status"] => {
     if (!startDate || !endDate) return "Not Started";
     const today = new Date();
@@ -80,7 +80,7 @@ export default function Batches() {
         prev.map((b) => ({
           ...b,
           status: determineStatus(b.startDate, b.endDate),
-        }))
+        })),
       );
     };
 
@@ -276,7 +276,7 @@ export default function Batches() {
 //     try {
 //       setLoading(true);
 //       const data = await batchService.getAllBatches();
-      
+
 //       const mappedBatches: Batch[] = data.map((b: BatchDto) => ({
 //         id: b.id,
 //         name: b.name,
@@ -363,7 +363,7 @@ export default function Batches() {
 //       };
 
 //       const createdBatch = await batchService.createBatch(newBatchDto);
-      
+
 //       const newBatch: Batch = {
 //         id: createdBatch.id,
 //         name: createdBatch.name,
@@ -377,7 +377,7 @@ export default function Batches() {
 
 //       setBatches((prev) => [...prev, newBatch]);
 //       setIsModalOpen(false);
-      
+
 //       notifications.show({
 //         title: "Success",
 //         message: "Batch created successfully",

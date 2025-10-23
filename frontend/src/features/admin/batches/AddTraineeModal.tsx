@@ -55,7 +55,9 @@ const Field = ({
   error?: string;
 }) => (
   <div>
-    <label className="block text-sm font-medium text-[#565E6C] mb-1">{label}</label>
+    <label className="block text-sm font-medium text-[#565E6C] mb-1">
+      {label}
+    </label>
     <input
       type={type}
       value={value}
@@ -166,11 +168,18 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 40, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 25, duration: 0.4 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 25,
+              duration: 0.4,
+            }}
           >
             {/* Header with dropdown and close button */}
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-[#565E6C]">{uploadType ? uploadType : title}</h2>
+              <h2 className="text-xl font-semibold text-[#565E6C]">
+                {uploadType ? uploadType : title}
+              </h2>
 
               <div className="flex items-center gap-2">
                 <select
@@ -187,7 +196,10 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
                   <option value="DU Details">DU Details</option>
                 </select>
 
-                <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
+                <button
+                  onClick={handleClose}
+                  className="text-gray-500 hover:text-gray-700"
+                >
                   <X size={20} />
                 </button>
               </div>

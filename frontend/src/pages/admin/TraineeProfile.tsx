@@ -179,7 +179,7 @@ function TraineeProfile() {
       | "official"
       | "status",
     title: string,
-    data: any
+    data: any,
   ) => {
     setModalState({ opened: true, type, title, initialData: data });
   };
@@ -230,7 +230,7 @@ function TraineeProfile() {
                   openModal(
                     "status",
                     isActive ? "Mark Inactive" : "Mark Active",
-                    {}
+                    {},
                   )
                 }
                 className={`flex items-center px-3 py-1 rounded-full transition duration-200 ${

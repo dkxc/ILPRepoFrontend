@@ -167,7 +167,7 @@ export default function DataTable<T extends Record<string, any>>({
 
   if (enableFilter && !enableMultipleFilters && filterValue && filterColumn) {
     filteredData = filteredData.filter(
-      (row) => row[filterColumn] === filterValue
+      (row) => row[filterColumn] === filterValue,
     );
   }
 
@@ -209,7 +209,7 @@ export default function DataTable<T extends Record<string, any>>({
   const paginatedData = enablePagination
     ? filteredData.slice(
         (activePage - 1) * currentPageSize,
-        activePage * currentPageSize
+        activePage * currentPageSize,
       )
     : filteredData;
 

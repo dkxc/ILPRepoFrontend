@@ -80,8 +80,20 @@ const EditModal: React.FC<EditModalProps> = ({
         { label: "Blood Group", field: "bloodGroup" },
         { label: "Aadhaar ID", field: "adhaarId" },
       ],
-      [{ label: "Health Conditions", field: "healthConditions", textarea: true }],
-      [{ label: "Personal Interests", field: "personalInterests", textarea: true }],
+      [
+        {
+          label: "Health Conditions",
+          field: "healthConditions",
+          textarea: true,
+        },
+      ],
+      [
+        {
+          label: "Personal Interests",
+          field: "personalInterests",
+          textarea: true,
+        },
+      ],
     ],
 
     official: [
@@ -113,7 +125,13 @@ const EditModal: React.FC<EditModalProps> = ({
     address: [
       [{ label: "Current Address", field: "currentAddress", textarea: true }],
       [{ label: "Contact Number", field: "contactNumber", type: "tel" }],
-      [{ label: "Permanent Address", field: "permanentAddress", textarea: true }],
+      [
+        {
+          label: "Permanent Address",
+          field: "permanentAddress",
+          textarea: true,
+        },
+      ],
     ],
   };
 

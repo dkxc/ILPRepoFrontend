@@ -8,7 +8,11 @@ interface DeleteConfirmModalProps {
   onConfirm: () => void;
 }
 
-export const openDeleteModal = ({ itemName, itemType, onConfirm }: DeleteConfirmModalProps) => {
+export const openDeleteModal = ({
+  itemName,
+  itemType,
+  onConfirm,
+}: DeleteConfirmModalProps) => {
   modals.openConfirmModal({
     title: `Delete ${itemType}`,
     centered: true,

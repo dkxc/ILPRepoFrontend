@@ -20,7 +20,9 @@ const Field = ({
   error,
 }: any) => (
   <div>
-    <label className="block text-sm font-medium text-[#565E6C] mb-1">{label}</label>
+    <label className="block text-sm font-medium text-[#565E6C] mb-1">
+      {label}
+    </label>
     <input
       type={type}
       value={value}
@@ -57,7 +59,8 @@ const EditDetailsModal: React.FC<EditDetailsModalProps> = ({
   // Outside click closes modal
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) onClose();
+      if (modalRef.current && !modalRef.current.contains(e.target as Node))
+        onClose();
     };
     if (isOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -93,7 +96,9 @@ const EditDetailsModal: React.FC<EditDetailsModalProps> = ({
         className="bg-white rounded-[4px] p-6 w-full max-w-md mx-4 text-[14px]"
       >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-[#565E6C]">{title || "Edit Details"}</h2>
+          <h2 className="text-xl font-semibold text-[#565E6C]">
+            {title || "Edit Details"}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
