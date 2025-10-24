@@ -8,7 +8,7 @@ interface Props {
 
 export default function TotalTrainingHoursCard({ totalHours }: Props) {
   return (
-    <Card className="border bg-white p-6">
+    <Card className="bg-white p-6">
       <CardHeader className="mb-4">Total Training Hours</CardHeader>
       <CardContent>
         <div className="flex items-center justify-between">

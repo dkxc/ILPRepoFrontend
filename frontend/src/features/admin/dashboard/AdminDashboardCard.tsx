@@ -2,7 +2,6 @@ import React from "react";
 
 type Props = {
   title: string;
-  subtitle?: string;
   value?: React.ReactNode;
   selected?: boolean;
   onClick?: () => void;
@@ -11,7 +10,6 @@ type Props = {
 
 const AdminDashboardCard: React.FC<Props> = ({
   title,
-  subtitle,
   value,
   selected = false,
   onClick,
@@ -26,15 +24,18 @@ const AdminDashboardCard: React.FC<Props> = ({
           : "border-transparent bg-[var(--color-card)] hover:shadow-sm"
       }`}
     >
-      <div className="shrink-0 w-12 h-12 rounded-md flex items-center justify-center bg-[var(--color-brand-50)]">
-        {icon}
-      </div>
+      {icon && (
+        <div className="shrink-0 w-12 h-12 rounded-md flex items-center justify-center]">
+          {icon}
+        </div>
+      )}
+      
 
       <div className="flex-1">
-        <div className="text-sm text-[var(--color-menuitem-text)] font-medium">
+        <div className="text-large text-[var(--color-menuitem-text)] font-medium">
           {title}
         </div>
-        {subtitle && <div className="text-xs text-gray-500">{subtitle}</div>}
+        {/* {subtitle && <div className="text-xs text-gray-500">{subtitle}</div>} */}
       </div>
 
       {value && (

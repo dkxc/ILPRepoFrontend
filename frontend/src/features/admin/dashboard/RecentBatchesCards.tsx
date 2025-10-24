@@ -18,7 +18,7 @@ export const SmallBatchCard: React.FC<{
       className={`min-w-[220px] text-left rounded-md p-4 transition-shadow border ${
         selected
           ? "border-[var(--color-brand-600)] bg-[var(--color-brand-50)] shadow-sm"
-          : "border-gray-200 bg-[var(--color-card)] hover:shadow-sm"
+      : "border-gray-200 bg-[var(--color-card)] hover:shadow-sm"
       }`}
     >
       <div className="text-sm font-medium text-[var(--color-text-base)]">
@@ -28,7 +28,15 @@ export const SmallBatchCard: React.FC<{
         <div className="text-xs text-gray-500">{batch.subtitle}</div>
       )}
       {batch.status && (
-        <div className="mt-3 inline-block text-xs px-3 py-1 rounded-full bg-[var(--color-inactive-badge)]">
+        <div
+          className={`mt-3 inline-block text-xs px-3 py-1 rounded-full ${
+        batch.status.toLowerCase() === "ongoing"
+          ? "bg-bg-success/40 text-[var(--color-text-base)]"
+          : batch.status.toLowerCase() === "completed"
+          ? "bg-[var(--color-brand-50)] text-[var(--color-brand-600)]"
+          : "bg-gray-100 text-gray-700"
+          }`}
+        >
           {batch.status}
         </div>
       )}
@@ -54,8 +62,8 @@ export const SquareInfoCard: React.FC<{
   subtitle?: string | number;
 }> = ({ icon, title, subtitle }) => {
   return (
-    <div className="border rounded-md p-4 h-full bg-[var(--color-card)]">
-      <div className="flex items-start gap-3">
+    <div className="rounded-md p-4 h-full bg-[var(--color-card)]">
+      <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-md flex items-center justify-center text-[var(--color-brand-600)] bg-[var(--color-brand-50)]">
           {icon}
         </div>
