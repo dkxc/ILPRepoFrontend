@@ -37,7 +37,7 @@
 
   /* Other colors */
   --color-text-error: var(--color-red-700);
-  --color-bg-error: var(--color-red-500);
+  --color-bg-error: var(--color-red-600);
   --color-bg-success: var(--color-green-500);
   --color-bg-warning: var(--color-yellow-500);
 
