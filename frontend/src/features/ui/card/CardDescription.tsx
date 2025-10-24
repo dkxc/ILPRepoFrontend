@@ -1,4 +1,3 @@
-import { Slot } from "@radix-ui/react-slot";
 import { cn } from "../../../lib/utils";
 
 export interface CardDescriptionProps
@@ -12,7 +11,7 @@ function CardDescription({
   ref,
   ...props
 }: CardDescriptionProps & { ref?: React.Ref<HTMLParagraphElement> }) {
-  const Comp = asChild ? Slot : "p";
+  const Comp = asChild ? "div" : "p";
   return (
     <Comp
       className={cn("text-sm font-medium", className)}

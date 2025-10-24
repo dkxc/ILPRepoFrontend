@@ -1,17 +1,22 @@
 import { type Project } from "../types/Project.types";
 import * as Card from "../../ui/card";
+import Badge from "../../ui/badge/Badge";
 import Button from "../../ui/Button";
+import Skeleton from "../../ui/Skeleton";
 
 import { cn } from "../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
 import { getPieDataFromPercent } from "../../../lib/graphs/utils";
+
 import { Pencil, Radio, UploadCloud } from "lucide-react";
 import { useState } from "react";
+
 import DocumentSubmissionModal from "../../ui/DocumentUpload";
-import Badge from "../../ui/badge/Badge";
+import { createPortal } from "react-dom";
+import { type UseQueryResult } from "@tanstack/react-query";
 
 export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  project: Project;
+  query: UseQueryResult<Project>;
 }
 
 const getProgressBadgeVariant = (
@@ -27,12 +32,59 @@ const getProgressBadgeVariant = (
 };
 
 function ProjectCard({
-  project,
+  query,
   className,
   ref,
   ...props
 }: ProjectCardProps & { ref?: React.Ref<HTMLDivElement> }) {
+  const { data: project, status } = query;
   const [showStepper, setShowStepper] = useState(false);
+
+  if (status === "pending") {
+    return (
+      <Card.Card className={cn("flex justify-between gap-1", className)}>
+        <div className="flex justify-between w-full p-6">
+          <div className="flex-1 space-y-4">
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <div className="space-y-2 pt-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Skeleton className="h-9 w-36" />
+              <Skeleton className="h-9 w-28" />
+            </div>
+          </div>
+          <div className="w-48 flex items-center justify-center">
+            <Skeleton className="h-36 w-36 rounded-full" />
+          </div>
+        </div>
+      </Card.Card>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <Card.Card
+        className={cn(
+          "flex flex-col h-full items-center justify-center",
+          className,
+        )}
+      >
+        <Card.CardHeader>
+          <Card.CardTitle>Something went wrong.</Card.CardTitle>
+          <Card.CardDescription>
+            Could not load project data.
+          </Card.CardDescription>
+        </Card.CardHeader>
+      </Card.Card>
+    );
+  }
+
+  if (!project) return null;
+
   return (
     <>
       <Card.Card
@@ -148,11 +200,15 @@ function ProjectCard({
           </div>
         </div>
       </Card.Card>
-      <DocumentSubmissionModal
-        isOpen={showStepper}
-        onClose={() => setShowStepper(false)}
-        onSubmit={() => setShowStepper(false)}
-      />
+      {showStepper &&
+        createPortal(
+          <DocumentSubmissionModal
+            isOpen={showStepper}
+            onClose={() => setShowStepper(false)}
+            onSubmit={() => setShowStepper(false)}
+          />,
+          document.body,
+        )}
     </>
   );
 }

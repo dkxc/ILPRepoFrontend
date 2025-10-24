@@ -6,10 +6,17 @@ export type TraineeDocumentType =
   | "doc"
   | "other";
 
-export type TraineeDocument = {
+export type TraineeDocumentBase = {
   id: number;
   title: string;
   type: TraineeDocumentType;
-  uploadDate: Date;
   url: string;
+};
+
+export type TraineeDocument = TraineeDocumentBase & {
+  uploadDate: Date;
+};
+
+export type ApiTraineeDocument = TraineeDocumentBase & {
+  uploadDate: string;
 };
