@@ -727,8 +727,9 @@ const HolidayConflictModal = ({
           </h3>
         </div>
         <p className="text-slate-600 mb-6">
-          This day has {eventCount} session{eventCount > 1 ? "s" : ""} scheduled. 
-          What would you like to do with {eventCount > 1 ? "them" : "it"}?
+          This day has {eventCount} session{eventCount > 1 ? "s" : ""}{" "}
+          scheduled. What would you like to do with{" "}
+          {eventCount > 1 ? "them" : "it"}?
         </p>
         <div className="space-y-3">
           <button
@@ -1049,21 +1050,30 @@ const MonthPicker = ({
   onSelect: (month: number, year: number) => void;
 }) => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  
+
   if (!isOpen) return null;
 
   const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-slate-800">Select Month</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600"
+          >
             <X size={20} />
           </button>
         </div>
-        
+
         {/* Year Selector */}
         <div className="mb-4 max-h-32 overflow-y-auto border rounded-lg">
           {years.map((year) => (
@@ -1071,7 +1081,9 @@ const MonthPicker = ({
               key={year}
               onClick={() => setSelectedYear(year)}
               className={`w-full px-4 py-2 text-left hover:bg-slate-50 transition-colors ${
-                selectedYear === year ? "bg-blue-50 text-blue-600 font-semibold" : "text-slate-700"
+                selectedYear === year
+                  ? "bg-blue-50 text-blue-600 font-semibold"
+                  : "text-slate-700"
               }`}
             >
               {year}
@@ -1113,7 +1125,9 @@ function TraineeCurriculumCalendar() {
   const [holidays, setHolidays] = useState<number[]>([]);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
-  const [conflictingEvents, setConflictingEvents] = useState<CurriculumEvent[]>([]);
+  const [conflictingEvents, setConflictingEvents] = useState<CurriculumEvent[]>(
+    [],
+  );
   const [showMonthPicker, setShowMonthPicker] = useState(false);
 
   const today = new Date();
@@ -1209,7 +1223,7 @@ function TraineeCurriculumCalendar() {
     if (!selectedDay) return;
 
     const dayEvents = getDayEvents(selectedDay.day);
-    
+
     // If already a holiday, just toggle it off
     if (holidays.includes(selectedDay.day)) {
       setHolidays((prev) => prev.filter((d) => d !== selectedDay.day));
@@ -1230,7 +1244,7 @@ function TraineeCurriculumCalendar() {
 
   const handleDeleteConflictingEvents = () => {
     if (!selectedDay) return;
-    
+
     // Delete all events on this day
     setEvents((prev) =>
       prev.filter(
@@ -1239,15 +1253,15 @@ function TraineeCurriculumCalendar() {
             e.start.getDate() === selectedDay.day &&
             e.start.getMonth() === currentMonth &&
             e.start.getFullYear() === currentYear
-          )
-      )
+          ),
+      ),
     );
-    
+
     // Mark as holiday
     setHolidays((prev) => [...prev, selectedDay.day]);
     setIsHoliday(true);
     setSelectedDay({ day: selectedDay.day, events: [] });
-    
+
     setShowConflictModal(false);
     setConflictingEvents([]);
   };
@@ -1275,14 +1289,14 @@ function TraineeCurriculumCalendar() {
             newDate.getMonth(),
             newDate.getDate(),
             startHours,
-            startMinutes
+            startMinutes,
           ),
           end: new Date(
             newDate.getFullYear(),
             newDate.getMonth(),
             newDate.getDate(),
             endHours,
-            endMinutes
+            endMinutes,
           ),
         };
       }
@@ -1290,12 +1304,12 @@ function TraineeCurriculumCalendar() {
     });
 
     setEvents(updatedEvents);
-    
+
     // Mark original day as holiday
     setHolidays((prev) => [...prev, selectedDay.day]);
     setIsHoliday(true);
     setSelectedDay({ day: selectedDay.day, events: [] });
-    
+
     setShowRescheduleModal(false);
     setShowConflictModal(false);
     setConflictingEvents([]);
@@ -1341,7 +1355,7 @@ function TraineeCurriculumCalendar() {
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <h2 
+              <h2
                 onClick={() => setShowMonthPicker(true)}
                 className="text-xl font-semibold text-slate-800 min-w-[200px] text-center cursor-pointer hover:bg-slate-50 px-4 py-2 rounded-lg transition-colors"
               >

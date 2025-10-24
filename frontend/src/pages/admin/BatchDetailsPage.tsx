@@ -695,18 +695,12 @@ export default function BatchDetailsPage() {
           onDocumentChange={(docs: any) => console.log("Updated Docs:", docs)}
           onLinksChange={(links: any) => console.log("Updated Links:", links)}
         />
-         
       </div>
       <div className="mt-4">
         <ResultsAccordion batchId={""} />
       </div>
 
       {/* Results Accordion */}
-     
-       
-      
-       
-     
     </div>
   );
 }

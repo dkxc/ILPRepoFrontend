@@ -104,28 +104,28 @@ function Results() {
 
         {/* Overall Score Card */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 flex-wrap">
-        <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
-          <div className="flex items-center justify-between">
-            <span className="text-base font-medium text-gray-700">
-              Overall Score
-            </span>
-            <span className="text-4xl font-bold text-brand-600">
-              {resultData.overallScore}%
-            </span>
-          </div>
-        </Card.Card>
+          <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-700">
+                Overall Score
+              </span>
+              <span className="text-4xl font-bold text-brand-600">
+                {resultData.overallScore}%
+              </span>
+            </div>
+          </Card.Card>
 
-         <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
-          <div className="flex items-center justify-between">
-            <span className="text-base font-medium text-gray-700">
-             Business Orientation Score
-            </span>
-            <span className="text-4xl font-bold text-brand-600">
-              {resultData.boScore}%
-            </span>
-          </div>
-        </Card.Card>
-  </div>
+          <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-700">
+                Business Orientation Score
+              </span>
+              <span className="text-4xl font-bold text-brand-600">
+                {resultData.boScore}%
+              </span>
+            </div>
+          </Card.Card>
+        </div>
         {/* Phase-wise Feedback Section */}
         <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">

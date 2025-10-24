@@ -107,20 +107,22 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
           </h1>
 
           {/* Buttons section */}
-          
+
           <div className="flex items-center gap-2 relative">
-              <button
-        className="p-2  rounded-lg hover:bg-gray-200 focus:outline-none"
-        onClick={() => navigate("/curriculumAdmin")} 
-        type="button"
-      >
-        <Calendar className="w-5 h-5 text-blue-600" />
-          <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 whitespace-nowrap 
+            <button
+              className="p-2  rounded-lg hover:bg-gray-200 focus:outline-none"
+              onClick={() => navigate("/curriculumAdmin")}
+              type="button"
+            >
+              <Calendar className="w-5 h-5 text-blue-600" />
+              <span
+                className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 whitespace-nowrap 
           bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 
-          transition-opacity duration-200 pointer-events-none">
-          View Curriculum
-        </span>
-      </button>
+          transition-opacity duration-200 pointer-events-none"
+              >
+                View Curriculum
+              </span>
+            </button>
             <Button
               variant="default"
               className="!bg-white hover:!bg-gray-100 !text-blue-600 border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
