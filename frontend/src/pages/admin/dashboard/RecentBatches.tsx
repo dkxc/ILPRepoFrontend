@@ -16,7 +16,6 @@ type RecentBatchesProps = {
 
 import { SmallBatchCard } from "../../../features/admin/dashboard/RecentBatchesCards";
 
-
 const sampleBatches: Batch[] = [
   {
     id: "1",
@@ -97,7 +96,9 @@ export default function RecentBatches({
             <div className="h-full flex flex-col">
               {/* Header with title and day count */}
               <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium text-[var(--color-text-base)] mb-4">Batch Details</h4>
+                <h4 className="font-medium text-[var(--color-text-base)] mb-4">
+                  Batch Details
+                </h4>
                 <div className="px-3 py-1.5 rounded-full bg-blue-50 text-sm text-blue-600">
                   Day {47}
                 </div>
@@ -107,32 +108,52 @@ export default function RecentBatches({
               <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                 {/* Trainees */}
                 <div>
-                  <div className="text-sm font-medium text-gray-600 mb-1">No. of Trainees</div>
-                  <div className="text-lg font-semibold text-[var(--color-text-base)]">{selected.trainees || 36}</div>
+                  <div className="text-sm font-medium text-gray-600 mb-1">
+                    No. of Trainees
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--color-text-base)]">
+                    {selected.trainees || 36}
+                  </div>
                 </div>
 
                 {/* Training Hours */}
                 <div>
-                  <div className="text-sm font-medium text-gray-600 mb-1">Training Hours</div>
-                  <div className="text-lg font-semibold text-[var(--color-text-base)]">{selected.trainingHours || 240}</div>
+                  <div className="text-sm font-medium text-gray-600 mb-1">
+                    Training Hours
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--color-text-base)]">
+                    {selected.trainingHours || 240}
+                  </div>
                 </div>
 
                 {/* Start Date */}
                 <div>
-                  <div className="text-sm font-medium text-gray-600 mb-1">Start Date</div>
-                  <div className="text-lg font-semibold text-[var(--color-text-base)]">{selected.startDate || "20/09/25"}</div>
+                  <div className="text-sm font-medium text-gray-600 mb-1">
+                    Start Date
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--color-text-base)]">
+                    {selected.startDate || "20/09/25"}
+                  </div>
                 </div>
 
                 {/* End Date */}
                 <div>
-                  <div className="text-sm font-medium text-gray-600 mb-1">End Date</div>
-                  <div className="text-lg font-semibold text-[var(--color-text-base)]">{selected.endDate || "20/11/25"}</div>
+                  <div className="text-sm font-medium text-gray-600 mb-1">
+                    End Date
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--color-text-base)]">
+                    {selected.endDate || "20/11/25"}
+                  </div>
                 </div>
 
                 {/* Tech Stack */}
                 <div className="col-span-2 flex items-center">
-                  <div className="text-sm font-medium text-gray-600">Tech Stack:</div>
-                  <div className="ml-2 px-2.5 py-1 rounded bg-blue-50 text-sm font-medium text-blue-600">React</div>
+                  <div className="text-sm font-medium text-gray-600">
+                    Tech Stack:
+                  </div>
+                  <div className="ml-2 px-2.5 py-1 rounded bg-blue-50 text-sm font-medium text-blue-600">
+                    React
+                  </div>
                 </div>
               </div>
             </div>
