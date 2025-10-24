@@ -5,7 +5,6 @@ import {
   ChartLine,
   ChartNoAxesCombined,
   FolderGit2,
-  GitMerge,
   House,
   LogOut,
   Moon,
@@ -14,6 +13,7 @@ import {
   Settings,
   CheckCircle,
   XCircle,
+  UsersRound,
 } from "lucide-react";
 
 import Header from "./features/ui/header/Header";
@@ -38,7 +38,7 @@ const navItems = [
 
 const adminNavItems = [
   { to: "/admindash", label: "Home", icon: House, end: true },
-  { to: "/batches", label: "Batches", icon: GitMerge },
+  { to: "/batches", label: "Batches", icon: UsersRound },
   { to: "/projects", label: "Projects", icon: FolderGit2 },
   { to: "/curriculumAdmin", label: "Curriculum", icon: ChartLine },
 ];
