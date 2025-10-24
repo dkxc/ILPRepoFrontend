@@ -75,7 +75,7 @@ function DocumentsCard({
         <div className="p-5 pt-0">
           {documents.map((doc) => (
             <NavLink
-              key={doc.url}
+              key={doc.id}
               to={doc.url}
               target="_blank"
               rel="noopener noreferrer"
