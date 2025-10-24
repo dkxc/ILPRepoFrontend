@@ -157,7 +157,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
                     },
                     {
                       label: "Upload Results",
-                     action: () => navigate("/upload-results"),
+                      action: () => navigate("/upload-results"),
                     },
                   ].map((item, idx) => (
                     <button

@@ -49,10 +49,12 @@ export default function CurriculumUpload({
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [previewData, setPreviewData] = useState<CurriculumData[]>([]);
-  const [uploadedDocuments, setUploadedDocuments] = useState<UploadedDocument[]>([]);
+  const [uploadedDocuments, setUploadedDocuments] = useState<
+    UploadedDocument[]
+  >([]);
   const [editingDocId, setEditingDocId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState<string>("");
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -78,12 +80,12 @@ export default function CurriculumUpload({
       const workbook = XLSX.read(data, { type: "array" });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      
+
       const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
         defval: "",
         raw: false,
       });
-      
+
       // Map to curriculum structure
       const parsedCurriculum: CurriculumData[] = jsonData.map((row) => ({
         day: row["Day"] || row["Session Day"] || "",
@@ -93,7 +95,7 @@ export default function CurriculumUpload({
         sessionMode: row["Session Mode"] || row["Sessions Mode"] || "",
         duration: row["Duration (HH:MM)"] || row["Duration"] || "",
       }));
-      
+
       setPreviewData(parsedCurriculum);
     } catch (error) {
       console.error("Error reading Excel file:", error);
@@ -165,11 +167,11 @@ export default function CurriculumUpload({
     };
 
     setUploadedDocuments([...uploadedDocuments, newDocument]);
-    
+
     if (onUpload) {
       onUpload(newCurriculum);
     }
-    
+
     alert("Curriculum saved successfully!");
     if (showNotification) {
       showNotification("Curriculum saved successfully!", "success");
@@ -195,23 +197,25 @@ export default function CurriculumUpload({
         "Session Day": "Day 01",
         "Session Name": "JS:TS",
         "Topic Coverage": "JS Basics:TS Basics",
-        "Trainer": "Ashlin",
+        Trainer: "Ashlin",
         "Sessions Mode": "Offline",
         "Duration (HH:MM)": "8:00",
       },
       {
         "Session Day": "Day 02",
         "Session Name": "Angular-Introduction",
-        "Topic Coverage": "Introduction to Angular, Angular File & Folder Structure, Classes, Interfaces, Types and Decorators in TS, data binding - oneway, two way, control flow",
-        "Trainer": "Ashlin",
+        "Topic Coverage":
+          "Introduction to Angular, Angular File & Folder Structure, Classes, Interfaces, Types and Decorators in TS, data binding - oneway, two way, control flow",
+        Trainer: "Ashlin",
         "Sessions Mode": "Offline",
         "Duration (HH:MM)": "8:00",
       },
       {
         "Session Day": "Day 03",
         "Session Name": "Pipes",
-        "Topic Coverage": "Component Communication/Directives in Angular/Pipes in Angular",
-        "Trainer": "Ashlin",
+        "Topic Coverage":
+          "Component Communication/Directives in Angular/Pipes in Angular",
+        Trainer: "Ashlin",
         "Sessions Mode": "Offline",
         "Duration (HH:MM)": "8:00",
       },
@@ -223,7 +227,7 @@ export default function CurriculumUpload({
   };
 
   const handleDeleteDocument = (id: number) => {
-    setUploadedDocuments(uploadedDocuments.filter(doc => doc.id !== id));
+    setUploadedDocuments(uploadedDocuments.filter((doc) => doc.id !== id));
     alert("Document deleted successfully!");
     if (showNotification) {
       showNotification("Document deleted successfully", "success");
@@ -240,9 +244,11 @@ export default function CurriculumUpload({
       alert("Document name cannot be empty");
       return;
     }
-    setUploadedDocuments(uploadedDocuments.map(doc => 
-      doc.id === id ? { ...doc, documentName: editingName } : doc
-    ));
+    setUploadedDocuments(
+      uploadedDocuments.map((doc) =>
+        doc.id === id ? { ...doc, documentName: editingName } : doc,
+      ),
+    );
     setEditingDocId(null);
     setEditingName("");
     alert("Document name updated successfully!");
@@ -259,10 +265,10 @@ export default function CurriculumUpload({
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
     }).format(date);
   };
 
@@ -272,11 +278,10 @@ export default function CurriculumUpload({
         <h1 className="text-[#565E6C] text-xl sm:text-2xl font-bold pb-4 font-primary">
           Upload Curriculum - {batchName}
         </h1>
-        
+
         <div className="flex mr-4 md:mr-10 bg-white p-4 md:p-8">
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto w-full px-2 sm:px-4">
-              
               {/* Document Type Dropdown */}
               <div className="mb-6 relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -289,16 +294,25 @@ export default function CurriculumUpload({
                   }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-md text-left flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
                 >
-                  <span className={selectedDocType ? "text-gray-900" : "text-gray-500"}>
+                  <span
+                    className={
+                      selectedDocType ? "text-gray-900" : "text-gray-500"
+                    }
+                  >
                     {selectedDocType || "Select a technology..."}
                   </span>
                   <svg
-                    className={`w-5 h-5 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-gray-500 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
                 {isDropdownOpen && (
@@ -495,7 +509,10 @@ export default function CurriculumUpload({
 
         {/* Preview Section */}
         {uploadedFile && previewData.length > 0 && (
-          <div ref={previewRef} className="mt-10 mr-4 md:mr-10 sm:mt-8 px-2 sm:px-0">
+          <div
+            ref={previewRef}
+            className="mt-10 mr-4 md:mr-10 sm:mt-8 px-2 sm:px-0"
+          >
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="bg-[#F8F9FA] px-6 py-4 border-b border-gray-200">
                 <h2 className="text-[#565E6C] text-lg font-semibold">
@@ -506,23 +523,47 @@ export default function CurriculumUpload({
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-[#F8F9FA]">
                     <tr>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Day</th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Session Name</th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Topics Covered</th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Trainer</th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Session Mode</th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Duration</th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                        Day
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                        Session Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                        Topics Covered
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                        Trainer
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                        Session Mode
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                        Duration
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {previewData.slice(0, 10).map((row, idx) => (
                       <tr key={idx} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm text-gray-900">{row.day}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{row.sessionName}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900 max-w-md">{row.topicsCovered}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{row.trainer}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{row.sessionMode}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{row.duration}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {row.day}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {row.sessionName}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 max-w-md">
+                          {row.topicsCovered}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {row.trainer}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {row.sessionMode}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {row.duration}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -548,14 +589,23 @@ export default function CurriculumUpload({
               </div>
               <div className="divide-y divide-gray-200">
                 {uploadedDocuments.map((doc) => (
-                  <div key={doc.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
+                  <div
+                    key={doc.id}
+                    className="px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+                  >
                     <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">Technology</p>
-                        <p className="text-sm text-gray-900">{doc.documentType}</p>
+                        <p className="text-sm font-medium text-gray-500 mb-1">
+                          Technology
+                        </p>
+                        <p className="text-sm text-gray-900">
+                          {doc.documentType}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">Course Name</p>
+                        <p className="text-sm font-medium text-gray-500 mb-1">
+                          Course Name
+                        </p>
                         {editingDocId === doc.id ? (
                           <input
                             type="text"
@@ -563,7 +613,7 @@ export default function CurriculumUpload({
                             onChange={(e) => setEditingName(e.target.value)}
                             className="text-sm px-2 py-1 border border-gray-300 rounded w-full"
                             onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
+                              if (e.key === "Enter") {
                                 handleSaveEditedName(doc.id);
                               }
                             }}
@@ -575,12 +625,20 @@ export default function CurriculumUpload({
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">Uploaded Date</p>
-                        <p className="text-sm text-gray-900">{formatDate(doc.uploadedDate)}</p>
+                        <p className="text-sm font-medium text-gray-500 mb-1">
+                          Uploaded Date
+                        </p>
+                        <p className="text-sm text-gray-900">
+                          {formatDate(doc.uploadedDate)}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">File Name</p>
-                        <p className="text-sm text-gray-900 truncate">{doc.fileName}</p>
+                        <p className="text-sm font-medium text-gray-500 mb-1">
+                          File Name
+                        </p>
+                        <p className="text-sm text-gray-900 truncate">
+                          {doc.fileName}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
@@ -591,8 +649,18 @@ export default function CurriculumUpload({
                             className="p-2 text-green-600 hover:bg-green-50 rounded"
                             title="Save"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
                             </svg>
                           </button>
                           <button
@@ -603,20 +671,45 @@ export default function CurriculumUpload({
                             className="p-2 text-gray-600 hover:bg-gray-100 rounded"
                             title="Cancel"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
                             </svg>
                           </button>
                         </>
                       ) : (
                         <>
                           <button
-                            onClick={() => handleEditDocumentName(doc.id, doc.documentName || doc.documentType)}
+                            onClick={() =>
+                              handleEditDocumentName(
+                                doc.id,
+                                doc.documentName || doc.documentType,
+                              )
+                            }
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded"
                             title="Edit Name"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
                             </svg>
                           </button>
                           <button
@@ -624,8 +717,18 @@ export default function CurriculumUpload({
                             className="p-2 text-green-600 hover:bg-green-50 rounded"
                             title="Download"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                              />
                             </svg>
                           </button>
                           <button
@@ -633,8 +736,18 @@ export default function CurriculumUpload({
                             className="p-2 text-red-600 hover:bg-red-50 rounded"
                             title="Delete"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
                             </svg>
                           </button>
                         </>

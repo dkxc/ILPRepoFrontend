@@ -698,8 +698,7 @@ export default function BatchDetailsPage() {
       </div>
 
       {/* Results Accordion */}
-            <ResultsAccordion batchId={""}/>
-
+      <ResultsAccordion batchId={""} />
     </div>
   );
 }

@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { Edit2, Trash2, Download, Eye, Upload, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Edit2,
+  Trash2,
+  Download,
+  Eye,
+  Upload,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useNavigate } from "react-router";
-
 
 interface Assessment {
   id: number;
@@ -22,7 +29,6 @@ interface ResultsAccordionProps {
   onUploadClick?: () => void;
   defaultOpen?: boolean;
 }
-
 
 export default function ResultsAccordion({
   batchId,
@@ -64,8 +70,12 @@ export default function ResultsAccordion({
     },
   ]);
 
-  const [showDeleteModal, setShowDeleteModal] = useState<Assessment | null>(null);
-  const [showPreviewModal, setShowPreviewModal] = useState<Assessment | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<Assessment | null>(
+    null,
+  );
+  const [showPreviewModal, setShowPreviewModal] = useState<Assessment | null>(
+    null,
+  );
   const [editingDocId, setEditingDocId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState<string>("");
   const [notification, setNotification] = useState<{
@@ -81,7 +91,10 @@ export default function ResultsAccordion({
   const handleDeleteAssessment = (assessment: Assessment) => {
     setAssessments(assessments.filter((a) => a.id !== assessment.id));
     setShowDeleteModal(null);
-    showNotification(`${assessment.fileName} was deleted successfully`, "success");
+    showNotification(
+      `${assessment.fileName} was deleted successfully`,
+      "success",
+    );
   };
 
   const handleDownloadDocument = (assessment: Assessment) => {
@@ -105,8 +118,8 @@ export default function ResultsAccordion({
     }
     setAssessments(
       assessments.map((doc) =>
-        doc.id === id ? { ...doc, documentName: editingName } : doc
-      )
+        doc.id === id ? { ...doc, documentName: editingName } : doc,
+      ),
     );
     setEditingDocId(null);
     setEditingName("");
@@ -185,8 +198,18 @@ export default function ResultsAccordion({
                 onClick={() => setShowPreviewModal(null)}
                 className="p-2 hover:bg-gray-100 rounded-md transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -221,10 +244,11 @@ export default function ResultsAccordion({
                 Assessments - {batchTitle}
               </h2>
               <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                {assessments.length} assessment{assessments.length !== 1 ? "s" : ""}
+                {assessments.length} assessment
+                {assessments.length !== 1 ? "s" : ""}
               </span>
             </div>
-           
+
             <div className="flex items-center gap-3">
               <button
                 onClick={(e) => {
@@ -281,7 +305,9 @@ export default function ResultsAccordion({
                                   <input
                                     type="text"
                                     value={editingName}
-                                    onChange={(e) => setEditingName(e.target.value)}
+                                    onChange={(e) =>
+                                      setEditingName(e.target.value)
+                                    }
                                     className="text-sm px-2 py-1 border border-gray-300 rounded w-full"
                                     onKeyPress={(e) => {
                                       if (e.key === "Enter") {
@@ -317,7 +343,9 @@ export default function ResultsAccordion({
                             {editingDocId === assessment.id ? (
                               <>
                                 <button
-                                  onClick={() => handleSaveEditedName(assessment.id)}
+                                  onClick={() =>
+                                    handleSaveEditedName(assessment.id)
+                                  }
                                   className="p-2 text-green-600 hover:bg-green-50 rounded"
                                   title="Save"
                                 >
@@ -361,7 +389,9 @@ export default function ResultsAccordion({
                             ) : (
                               <>
                                 <button
-                                  onClick={() => handlePreviewDocument(assessment)}
+                                  onClick={() =>
+                                    handlePreviewDocument(assessment)
+                                  }
                                   className="p-2 text-purple-600 hover:bg-purple-50 rounded"
                                   title="Preview"
                                 >
@@ -371,7 +401,7 @@ export default function ResultsAccordion({
                                   onClick={() =>
                                     handleEditDocumentName(
                                       assessment.id,
-                                      getDisplayName(assessment)
+                                      getDisplayName(assessment),
                                     )
                                   }
                                   className="p-2 text-blue-600 hover:bg-blue-50 rounded"
@@ -380,7 +410,9 @@ export default function ResultsAccordion({
                                   <Edit2 size={18} />
                                 </button>
                                 <button
-                                  onClick={() => handleDownloadDocument(assessment)}
+                                  onClick={() =>
+                                    handleDownloadDocument(assessment)
+                                  }
                                   className="p-2 text-green-600 hover:bg-green-50 rounded"
                                   title="Download"
                                 >
