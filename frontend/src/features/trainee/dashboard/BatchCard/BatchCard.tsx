@@ -1,10 +1,10 @@
-import { type Batch, type BatchStatus } from "../types/Batch.types";
-import * as Card from "../../ui/card";
+import { type Batch, type BatchStatus } from "../../types/Batch.types";
+import * as Card from "../../../ui/card";
 
 import { CalendarMinus, CalendarPlus } from "lucide-react";
-import { cn } from "../../../lib/utils";
-import Badge from "../../ui/badge/Badge";
-import Skeleton from "../../ui/Skeleton";
+import { cn } from "../../../../lib/utils";
+import Badge from "../../../ui/badge/Badge";
+import Skeleton from "../../../ui/Skeleton";
 import { type UseQueryResult } from "@tanstack/react-query";
 
 const getStatusBadgeVariant = (status: BatchStatus) => {
