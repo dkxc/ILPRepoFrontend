@@ -34,7 +34,6 @@ const adminNavItems = [
   { to: "/admindash", label: "Home", icon: House, end: true },
   { to: "/batches", label: "Batches", icon: GitMerge },
   { to: "/projects", label: "Projects", icon: FolderGit2 },
-  { to: "/documents", label: "Documents", icon: ChartNoAxesCombined },
   { to: "/curriculumAdmin", label: "Curriculum", icon: ChartLine },
 ];
 

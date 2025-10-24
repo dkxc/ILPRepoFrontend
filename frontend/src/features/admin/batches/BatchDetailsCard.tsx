@@ -149,12 +149,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
                     },
                     {
                       label: "Upload Curriculum",
-                      action: () =>
-                        notifications.show({
-                          title: "Curriculum",
-                          message: "Uploading Curriculum",
-                          color: "blue",
-                        }),
+                      action: () => navigate("/upload-curriculum"),
                     },
                     {
                       label: "Upload Project",
@@ -162,12 +157,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
                     },
                     {
                       label: "Upload Results",
-                      action: () =>
-                        notifications.show({
-                          title: "Results",
-                          message: "Uploading Results",
-                          color: "blue",
-                        }),
+                     action: () => navigate("/upload-results"),
                     },
                   ].map((item, idx) => (
                     <button

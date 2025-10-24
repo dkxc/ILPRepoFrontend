@@ -18,6 +18,7 @@ import {
   Pencil,
 } from "lucide-react";
 import DocumentUpload from "../../features/admin/batches/DocumentAccordion";
+import ResultsAccordion from "./ResultsAccordion";
 
 interface Trainee {
   id: number;
@@ -695,6 +696,10 @@ export default function BatchDetailsPage() {
           onLinksChange={(links: any) => console.log("Updated Links:", links)}
         />
       </div>
+
+      {/* Results Accordion */}
+            <ResultsAccordion batchId={""}/>
+
     </div>
   );
 }
