@@ -2,7 +2,7 @@ import { useState } from "react";
 import { User, Briefcase, Phone, MapPin } from "lucide-react";
 import InfoCard from "../../features/ui/TraineeProfile/InfoCard";
 import EditModal from "../../features/ui/TraineeProfile/EditModel";
- 
+
 function TraineeProfile() {
   // Modal state
   const [modalState, setModalState] = useState({
@@ -17,7 +17,7 @@ function TraineeProfile() {
     title: "",
     initialData: {} as any,
   });
- 
+
   // State for all data
   const [personalInfoData, setPersonalInfoData] = useState({
     fullName: "Arjun Sharma",
@@ -26,7 +26,7 @@ function TraineeProfile() {
     healthConditions: "None",
     personalInterests: "Cricket, Photography, Reading",
   });
- 
+
   const [officialInfoData, setOfficialInfoData] = useState({
     batch: "ILP 2025-26 Batch-1",
     techStack: "React, Node.js, MongoDB",
@@ -36,55 +36,135 @@ function TraineeProfile() {
     duAllocation: "Banking DU",
     location: "Bangalore",
   });
- 
+
   const [contactInfoData, setContactInfoData] = useState({
     phoneNumber: "9876543210",
     email: "arjun.sharma@example.com",
   });
- 
+
   const [emergencyContactData, setEmergencyContactData] = useState({
     contactNumber: "9876543211",
     relationship: "Father",
   });
- 
+
   const [addressInfoData, setAddressInfoData] = useState({
     currentAddress: "123 MG Road, Bangalore, Karnataka 560001",
     contactNumber: "9876543210",
     permanentAddress: "45 Park Avenue, Chennai, Tamil Nadu 600001",
   });
- 
+
   // Card data formatting
   const personalInfo = [
-    { label: "Full Name", value: personalInfoData.fullName, gridCols: "single" as const },
-    { label: "Blood Group", value: personalInfoData.bloodGroup, gridCols: "single" as const },
-    { label: "Aadhaar ID", value: personalInfoData.adhaarId, gridCols: "single" as const },
-    { label: "Health Conditions", value: personalInfoData.healthConditions, gridCols: "single" as const },
-    { label: "Personal Interests", value: personalInfoData.personalInterests, gridCols: "double" as const },
+    {
+      label: "Full Name",
+      value: personalInfoData.fullName,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Blood Group",
+      value: personalInfoData.bloodGroup,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Aadhaar ID",
+      value: personalInfoData.adhaarId,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Health Conditions",
+      value: personalInfoData.healthConditions,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Personal Interests",
+      value: personalInfoData.personalInterests,
+      gridCols: "double" as const,
+    },
   ];
- 
+
   const officialInfo = [
-    { label: "Batch", value: officialInfoData.batch, gridCols: "double" as const },
-    { label: "Tech Stack", value: officialInfoData.techStack, gridCols: "single" as const },
-    { label: "Projects Involved", value: officialInfoData.projectsInvolved, gridCols: "single" as const },
-    { label: "Buddy", value: officialInfoData.buddy, gridCols: "single" as const },
-    { label: "OJT Mentor", value: officialInfoData.ojtMentor, gridCols: "single" as const },
-    { label: "DU Allocation", value: officialInfoData.duAllocation, gridCols: "single" as const },
-    { label: "Location", value: officialInfoData.location, gridCols: "single" as const },
+    {
+      label: "Batch",
+      value: officialInfoData.batch,
+      gridCols: "double" as const,
+    },
+    {
+      label: "Tech Stack",
+      value: officialInfoData.techStack,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Projects Involved",
+      value: officialInfoData.projectsInvolved,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Buddy",
+      value: officialInfoData.buddy,
+      gridCols: "single" as const,
+    },
+    {
+      label: "OJT Mentor",
+      value: officialInfoData.ojtMentor,
+      gridCols: "single" as const,
+    },
+    {
+      label: "DU Allocation",
+      value: officialInfoData.duAllocation,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Location",
+      value: officialInfoData.location,
+      gridCols: "single" as const,
+    },
   ];
- 
+
   const contactAndEmergencyInfo = [
-    { type: "phone" as const, label: "Phone Number", value: contactInfoData.phoneNumber, gridCols: "single" as const },
-    { type: "email" as const, label: "Email", value: contactInfoData.email, gridCols: "single" as const },
-    { type: "phone" as const, label: "Emergency Contact Number", value: emergencyContactData.contactNumber, gridCols: "single" as const },
-    { type: "text" as const, label: "Relationship", value: emergencyContactData.relationship, gridCols: "single" as const },
+    {
+      type: "phone" as const,
+      label: "Phone Number",
+      value: contactInfoData.phoneNumber,
+      gridCols: "single" as const,
+    },
+    {
+      type: "email" as const,
+      label: "Email",
+      value: contactInfoData.email,
+      gridCols: "single" as const,
+    },
+    {
+      type: "phone" as const,
+      label: "Emergency Contact Number",
+      value: emergencyContactData.contactNumber,
+      gridCols: "single" as const,
+    },
+    {
+      type: "text" as const,
+      label: "Relationship",
+      value: emergencyContactData.relationship,
+      gridCols: "single" as const,
+    },
   ];
- 
+
   const addressInfo = [
-    { label: "Current Address", value: addressInfoData.currentAddress, gridCols: "single" as const },
-    { label: "Contact Number", value: addressInfoData.contactNumber, gridCols: "single" as const },
-    { label: "Permanent Address", value: addressInfoData.permanentAddress, gridCols: "double" as const },
+    {
+      label: "Current Address",
+      value: addressInfoData.currentAddress,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Contact Number",
+      value: addressInfoData.contactNumber,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Permanent Address",
+      value: addressInfoData.permanentAddress,
+      gridCols: "double" as const,
+    },
   ];
- 
+
   // Modal handlers
   const openModal = (
     type: "personal" | "contact" | "emergency" | "address" | "official",
@@ -93,10 +173,10 @@ function TraineeProfile() {
   ) => {
     setModalState({ opened: true, type, title, initialData: data });
   };
- 
+
   const closeModal = () =>
     setModalState({ opened: false, type: null, title: "", initialData: {} });
- 
+
   const handleSave = (data: any) => {
     switch (modalState.type) {
       case "personal":
@@ -116,7 +196,7 @@ function TraineeProfile() {
         break;
     }
   };
- 
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       {/* Header */}
@@ -132,7 +212,7 @@ function TraineeProfile() {
             <h1 className="text-xl font-bold text-[#565E6C]">
               {personalInfoData.fullName}
             </h1>
- 
+
             {/* ✅ Static Active Badge */}
             <div className="flex items-center mt-1">
               <div className="flex items-center px-3 py-1 rounded-full bg-green-100">
@@ -144,7 +224,7 @@ function TraineeProfile() {
             </div>
           </div>
         </div>
- 
+
         {/* View Results Button */}
         <button
           onClick={() => console.log("View Results clicked")} // Replace with navigation logic
@@ -153,7 +233,7 @@ function TraineeProfile() {
           View Results
         </button>
       </div>
- 
+
       {/* === Row 1 === */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <InfoCard
@@ -168,7 +248,7 @@ function TraineeProfile() {
             openModal("personal", "Edit Personal Information", personalInfoData)
           }
         />
- 
+
         <InfoCard
           title={
             <div className="flex items-center space-x-2">
@@ -182,7 +262,7 @@ function TraineeProfile() {
           }
         />
       </div>
- 
+
       {/* === Row 2 === */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InfoCard
@@ -200,7 +280,7 @@ function TraineeProfile() {
             })
           }
         />
- 
+
         <InfoCard
           title={
             <div className="flex items-center space-x-2">
@@ -214,7 +294,7 @@ function TraineeProfile() {
           }
         />
       </div>
- 
+
       {/* === Modal Section === */}
       {modalState.opened && modalState.type && (
         <EditModal
@@ -229,7 +309,5 @@ function TraineeProfile() {
     </div>
   );
 }
- 
+
 export default TraineeProfile;
- 
- 

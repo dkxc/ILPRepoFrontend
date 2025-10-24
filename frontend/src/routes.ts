@@ -19,7 +19,7 @@ export default [
     route("traineeSettings", "./pages/trainee/TraineeSettings.tsx"),
     route("curriculum", "./pages/trainee/Curriculum.tsx"),
     route("profile", "./pages/trainee/TraineeProfile.tsx"),
-    
+
     route("projects", "./pages/admin/Projects.tsx"),
     route("projectsDetailsAdmin/:id", "./pages/admin/ProjectDetailsAdmin.tsx"),
     route("adminSettings", "./pages/admin/AdminSettings.tsx"),
