@@ -77,7 +77,7 @@ function BatchCard({
     >
       <Card.CardHeader className="pb-4">
         <Card.CardTitle>{batch.title}</Card.CardTitle>
-        <Card.CardDescription className="flex flex-col gap-2">
+        <Card.CardDescription asChild className="flex flex-col gap-2">
           <div>{batch.type}</div>
           <div>
             <Badge variant={getStatusBadgeVariant(batch.status)}>
