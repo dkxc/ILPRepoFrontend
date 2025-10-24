@@ -26,6 +26,18 @@ const sampleBatches = [
     subtitle: "Full Stack",
     status: "Completed",
   },
+  {
+    id: "5",
+    title: "ILP 2025 -26 Batch 8",
+    subtitle: "Full Stack",
+    status: "Completed",
+  },
+  {
+    id: "6",
+    title: "ILP 2025 -26 Batch 9",
+    subtitle: "Full Stack",
+    status: "Completed",
+  },
 ];
 
 type DashboardProjectsProps = {
@@ -52,7 +64,7 @@ export default function DashboardProjects({
 
   return (
     <>
-      <div className="bg-[var(--color-card)] p-6 rounded-md">
+      <div className="bg-[var(--color-card)] p-3 rounded-md">
         <div className="mb-4">
           <h3 className="text-lg font-semibold">All Batches</h3>
         </div>
