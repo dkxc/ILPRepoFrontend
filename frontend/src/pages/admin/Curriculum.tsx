@@ -591,6 +591,7 @@ import {
   Trash2,
   Save,
   X,
+  AlertTriangle,
 } from "lucide-react";
 
 // Types
@@ -699,6 +700,129 @@ const initialEvents: CurriculumEvent[] = [
     description: "Introduction to TypeScript",
   },
 ];
+
+// Holiday Conflict Modal Component
+const HolidayConflictModal = ({
+  isOpen,
+  onClose,
+  onDelete,
+  onReschedule,
+  eventCount,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onDelete: () => void;
+  onReschedule: () => void;
+  eventCount: number;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <AlertTriangle className="w-6 h-6 text-amber-500" />
+          <h3 className="text-lg font-semibold text-slate-800">
+            Sessions Conflict Detected
+          </h3>
+        </div>
+        <p className="text-slate-600 mb-6">
+          This day has {eventCount} session{eventCount > 1 ? "s" : ""} scheduled. 
+          What would you like to do with {eventCount > 1 ? "them" : "it"}?
+        </p>
+        <div className="space-y-3">
+          <button
+            onClick={onReschedule}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <CalendarX size={18} />
+            Reschedule to Another Date
+          </button>
+          <button
+            onClick={onDelete}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <Trash2 size={18} />
+            Delete Permanently
+          </button>
+          <button
+            onClick={onClose}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            <X size={18} />
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Reschedule Modal Component
+const RescheduleModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  currentYear,
+  currentMonth,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (newDate: Date) => void;
+  currentYear: number;
+  currentMonth: number;
+}) => {
+  const [selectedDate, setSelectedDate] = useState("");
+
+  if (!isOpen) return null;
+
+  const handleConfirm = () => {
+    if (selectedDate) {
+      onConfirm(new Date(selectedDate));
+      setSelectedDate("");
+    }
+  };
+
+  const minDate = new Date().toISOString().split("T")[0];
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">
+          Select New Date for Sessions
+        </h3>
+        <p className="text-slate-600 mb-4">
+          Choose the date to reschedule all sessions from this day:
+        </p>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          // min={minDate}
+          className="w-full px-4 py-2 border border-slate-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <div className="flex gap-3">
+          <button
+            onClick={handleConfirm}
+            disabled={!selectedDate}
+            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            Confirm Reschedule
+          </button>
+          <button
+            onClick={() => {
+              setSelectedDate("");
+              onClose();
+            }}
+            className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // EventSidebar Component
 const EventSidebar = ({
@@ -910,6 +1034,75 @@ const EventSidebar = ({
   );
 };
 
+// Month Picker Component
+const MonthPicker = ({
+  isOpen,
+  onClose,
+  currentMonth,
+  currentYear,
+  onSelect,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  currentMonth: number;
+  currentYear: number;
+  onSelect: (month: number, year: number) => void;
+}) => {
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  
+  if (!isOpen) return null;
+
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-slate-800">Select Month</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+            <X size={20} />
+          </button>
+        </div>
+        
+        {/* Year Selector */}
+        <div className="mb-4 max-h-32 overflow-y-auto border rounded-lg">
+          {years.map((year) => (
+            <button
+              key={year}
+              onClick={() => setSelectedYear(year)}
+              className={`w-full px-4 py-2 text-left hover:bg-slate-50 transition-colors ${
+                selectedYear === year ? "bg-blue-50 text-blue-600 font-semibold" : "text-slate-700"
+              }`}
+            >
+              {year}
+            </button>
+          ))}
+        </div>
+
+        {/* Month Grid */}
+        <div className="grid grid-cols-3 gap-2">
+          {monthNames.map((month, index) => (
+            <button
+              key={month}
+              onClick={() => {
+                onSelect(index, selectedYear);
+                onClose();
+              }}
+              className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                index === currentMonth && selectedYear === currentYear
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              {month.substring(0, 3)}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main Calendar Component
 function TraineeCurriculumCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -918,6 +1111,10 @@ function TraineeCurriculumCalendar() {
   const [isHoliday, setIsHoliday] = useState(false);
   const [events, setEvents] = useState<CurriculumEvent[]>(initialEvents);
   const [holidays, setHolidays] = useState<number[]>([]);
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [conflictingEvents, setConflictingEvents] = useState<CurriculumEvent[]>([]);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
 
   const today = new Date();
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
@@ -954,15 +1151,20 @@ function TraineeCurriculumCalendar() {
     setSelectedDay(null);
   };
 
+  const handleMonthSelect = (month: number, year: number) => {
+    setCurrentMonth(month);
+    setCurrentYear(year);
+    setSelectedDay(null);
+  };
+
   const handleDayClick = (day: number) => {
     const dayEvents = getDayEvents(day);
     setSelectedDay({ day, events: dayEvents });
-    setIsHoliday(false);
+    setIsHoliday(holidays.includes(day));
   };
 
   const handleAddEvent = () => {
     if (!selectedDay) return;
-
     const newEvent: CurriculumEvent = {
       id: String(Date.now()),
       title: "New Session",
@@ -972,9 +1174,7 @@ function TraineeCurriculumCalendar() {
       instructor: "Trainer",
       description: "Session details go here",
     };
-
     setEvents((prev) => [...prev, newEvent]);
-
     setSelectedDay({
       day: selectedDay.day,
       events: [...selectedDay.events, newEvent],
@@ -985,7 +1185,6 @@ function TraineeCurriculumCalendar() {
     setEvents((prev) =>
       prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
     );
-
     if (selectedDay) {
       setSelectedDay({
         day: selectedDay.day,
@@ -998,13 +1197,108 @@ function TraineeCurriculumCalendar() {
 
   const handleDeleteEvent = (id: string) => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
-
     if (selectedDay) {
       setSelectedDay({
         day: selectedDay.day,
         events: selectedDay.events.filter((e) => e.id !== id),
       });
     }
+  };
+
+  const handleToggleHoliday = () => {
+    if (!selectedDay) return;
+
+    const dayEvents = getDayEvents(selectedDay.day);
+    
+    // If already a holiday, just toggle it off
+    if (holidays.includes(selectedDay.day)) {
+      setHolidays((prev) => prev.filter((d) => d !== selectedDay.day));
+      setIsHoliday(false);
+      return;
+    }
+
+    // If there are events on this day, show conflict modal
+    if (dayEvents.length > 0) {
+      setConflictingEvents(dayEvents);
+      setShowConflictModal(true);
+    } else {
+      // No events, just mark as holiday
+      setHolidays((prev) => [...prev, selectedDay.day]);
+      setIsHoliday(true);
+    }
+  };
+
+  const handleDeleteConflictingEvents = () => {
+    if (!selectedDay) return;
+    
+    // Delete all events on this day
+    setEvents((prev) =>
+      prev.filter(
+        (e) =>
+          !(
+            e.start.getDate() === selectedDay.day &&
+            e.start.getMonth() === currentMonth &&
+            e.start.getFullYear() === currentYear
+          )
+      )
+    );
+    
+    // Mark as holiday
+    setHolidays((prev) => [...prev, selectedDay.day]);
+    setIsHoliday(true);
+    setSelectedDay({ day: selectedDay.day, events: [] });
+    
+    setShowConflictModal(false);
+    setConflictingEvents([]);
+  };
+
+  const handleRescheduleEvents = (newDate: Date) => {
+    if (!selectedDay) return;
+
+    const updatedEvents = events.map((event) => {
+      // Check if this event is on the selected day
+      if (
+        event.start.getDate() === selectedDay.day &&
+        event.start.getMonth() === currentMonth &&
+        event.start.getFullYear() === currentYear
+      ) {
+        // Calculate time difference to preserve start and end times
+        const startHours = event.start.getHours();
+        const startMinutes = event.start.getMinutes();
+        const endHours = event.end.getHours();
+        const endMinutes = event.end.getMinutes();
+
+        return {
+          ...event,
+          start: new Date(
+            newDate.getFullYear(),
+            newDate.getMonth(),
+            newDate.getDate(),
+            startHours,
+            startMinutes
+          ),
+          end: new Date(
+            newDate.getFullYear(),
+            newDate.getMonth(),
+            newDate.getDate(),
+            endHours,
+            endMinutes
+          ),
+        };
+      }
+      return event;
+    });
+
+    setEvents(updatedEvents);
+    
+    // Mark original day as holiday
+    setHolidays((prev) => [...prev, selectedDay.day]);
+    setIsHoliday(true);
+    setSelectedDay({ day: selectedDay.day, events: [] });
+    
+    setShowRescheduleModal(false);
+    setShowConflictModal(false);
+    setConflictingEvents([]);
   };
 
   const isToday = (day: number) => {
@@ -1017,7 +1311,6 @@ function TraineeCurriculumCalendar() {
 
   const calendarDays: (number | null)[] = [];
   const totalCells = Math.ceil((daysInMonth + firstDayOfMonth) / 7) * 7;
-
   for (let i = 0; i < totalCells; i++) {
     const day = i - firstDayOfMonth + 1;
     if (day > 0 && day <= daysInMonth) {
@@ -1026,15 +1319,6 @@ function TraineeCurriculumCalendar() {
       calendarDays.push(null);
     }
   }
-
-  const handleToggleHoliday = () => {
-    if (!selectedDay) return;
-    setHolidays((prev) =>
-      prev.includes(selectedDay.day)
-        ? prev.filter((d) => d !== selectedDay.day)
-        : [...prev, selectedDay.day],
-    );
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
@@ -1057,7 +1341,10 @@ function TraineeCurriculumCalendar() {
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <h2 className="text-xl font-semibold text-slate-800 min-w-[200px] text-center">
+              <h2 
+                onClick={() => setShowMonthPicker(true)}
+                className="text-xl font-semibold text-slate-800 min-w-[200px] text-center cursor-pointer hover:bg-slate-50 px-4 py-2 rounded-lg transition-colors"
+              >
                 {monthNames[currentMonth]} {currentYear}
               </h2>
               <button
@@ -1083,7 +1370,6 @@ function TraineeCurriculumCalendar() {
                 </div>
               ))}
             </div>
-
             <div className="grid grid-cols-7 gap-2 overflow-y-auto">
               {calendarDays.map((day, index) => {
                 if (!day) {
@@ -1151,6 +1437,40 @@ function TraineeCurriculumCalendar() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <MonthPicker
+        isOpen={showMonthPicker}
+        onClose={() => setShowMonthPicker(false)}
+        currentMonth={currentMonth}
+        currentYear={currentYear}
+        onSelect={handleMonthSelect}
+      />
+
+      <HolidayConflictModal
+        isOpen={showConflictModal}
+        onClose={() => {
+          setShowConflictModal(false);
+          setConflictingEvents([]);
+        }}
+        onDelete={handleDeleteConflictingEvents}
+        onReschedule={() => {
+          setShowConflictModal(false);
+          setShowRescheduleModal(true);
+        }}
+        eventCount={conflictingEvents.length}
+      />
+
+      <RescheduleModal
+        isOpen={showRescheduleModal}
+        onClose={() => {
+          setShowRescheduleModal(false);
+          setConflictingEvents([]);
+        }}
+        onConfirm={handleRescheduleEvents}
+        currentYear={currentYear}
+        currentMonth={currentMonth}
+      />
     </div>
   );
 }

@@ -335,7 +335,7 @@ export default function BatchDetailsPage() {
   };
 
   return (
-    <div className="p-4 bg-gray-50 flex-grow">
+    <div className="p-4 bg-gray-50 flex-grow mb-">
       {/* Batch Details Card */}
       <div className="mb-4 flex justify-center relative">
         <BatchDetailsCard
@@ -675,7 +675,7 @@ export default function BatchDetailsPage() {
       )}
 
       {/* Document & Link Requirements Accordion */}
-      <div className="mt-6">
+      <div className="mt-4">
         <DocumentUpload
           batchTitle="Document and Link Requirements"
           initialDocuments={[
@@ -695,10 +695,18 @@ export default function BatchDetailsPage() {
           onDocumentChange={(docs: any) => console.log("Updated Docs:", docs)}
           onLinksChange={(links: any) => console.log("Updated Links:", links)}
         />
+         
+      </div>
+      <div className="mt-4">
+        <ResultsAccordion batchId={""} />
       </div>
 
       {/* Results Accordion */}
-      <ResultsAccordion batchId={""} />
+     
+       
+      
+       
+     
     </div>
   );
 }

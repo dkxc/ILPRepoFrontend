@@ -23,6 +23,9 @@ export interface PhaseData {
 export interface ResultFeedback {
   overallScore: number;
   phases: PhaseData[];
+  boScore?: number;
+  boFeedback?: Feedback;
+  
 }
 
 export interface AllResultsData {

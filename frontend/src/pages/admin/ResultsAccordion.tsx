@@ -232,7 +232,7 @@ export default function ResultsAccordion({
       )}
 
       {/* Main Content */}
-      <div className="mt-4 sm:mt-6 md:mt-10 ml-4 sm:ml-6 md:ml-1">
+  <div className="mt-0 sm:mt-2 md:mt-4">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           {/* Accordion Header */}
           <div
