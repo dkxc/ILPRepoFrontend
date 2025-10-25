@@ -19,6 +19,7 @@ export default defineConfig({
         "**/src/mocks/**",
         "**/*.types.ts",
         "**/*.config.ts",
+        '**/index.ts',
       ],
     },
   },
