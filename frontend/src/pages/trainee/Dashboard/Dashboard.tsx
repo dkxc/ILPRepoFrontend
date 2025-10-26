@@ -27,7 +27,7 @@ const ScoreCard = lazy(
   () => import("../../../features/trainee/dashboard/ScoresCard"),
 );
 const WelcomeHeader = lazy(
-  () => import("../../../features/trainee/dashboard/WelcomeHeader"),
+  () => import("../../../features/trainee/dashboard/components/WelcomeHeader"),
 );
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
