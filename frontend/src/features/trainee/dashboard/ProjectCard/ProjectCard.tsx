@@ -2,7 +2,7 @@ import { type Project } from "../../types/Project.types";
 import * as Card from "../../../ui/card";
 import Badge from "../../../ui/badge/Badge";
 import Button from "../../../ui/Button";
-import Skeleton from "../../../ui/Skeleton";
+import Skeleton from "@ui/skeleton";
 
 import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
