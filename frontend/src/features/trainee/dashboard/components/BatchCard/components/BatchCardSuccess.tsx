@@ -1,10 +1,10 @@
 import React from "react";
-import { type Batch } from "../../../types/Batch.types";
+import { type Batch } from "../../../../types/Batch.types";
 import { getStatusBadgeVariant } from "../utils/Batch.utils";
-import * as Card from "../../../../ui/card";
-import Badge from "../../../../ui/badge/Badge";
+import * as Card from "../../../../../ui/card";
+import Badge from "../../../../../ui/badge/Badge";
 import { CalendarMinus, CalendarPlus } from "lucide-react";
-import { cn } from "../../../../../lib/utils";
+import { cn } from "@lib/utils";
 
 export interface BatchCardSuccessProps
   extends React.HTMLAttributes<HTMLDivElement> {

@@ -1,4 +1,4 @@
-import type { BatchStatus } from "../../../types/Batch.types";
+import type { BatchStatus } from "../../../../types/Batch.types";
 
 export const getStatusBadgeVariant = (status: BatchStatus) => {
   if (status === "Ongoing") return "success";

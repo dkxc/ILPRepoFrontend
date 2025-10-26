@@ -12,7 +12,7 @@ import useLocalStorage from "../../../hooks/useLocalStorage";
 import { useDashboardData } from "../../../features/trainee/dashboard/hooks/useDashboardQueries";
 
 const BatchCard = lazy(
-  () => import("../../../features/trainee/dashboard/BatchCard"),
+  () => import("../../../features/trainee/dashboard/components/BatchCard"),
 );
 const DocumentsCard = lazy(
   () => import("../../../features/trainee/dashboard/DocumentsCard"),

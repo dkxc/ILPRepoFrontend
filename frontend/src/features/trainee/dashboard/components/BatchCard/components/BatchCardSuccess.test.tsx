@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { BatchCardSuccess } from "./BatchCardSuccess";
-import { type Batch } from "../../../types/Batch.types";
+import { type Batch } from "../../../../types/Batch.types";
 import { expect, it } from "vitest";
 
 const mockBatch: Batch = {

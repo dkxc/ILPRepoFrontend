@@ -1,14 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { type Batch } from "../../types/Batch.types";
 import { type UseQueryResult } from "@tanstack/react-query";
+
+import { type Batch } from "../../../types/Batch.types";
 import BatchCard from "./BatchCard";
 
 vi.mock("./components/BatchCardLoading", () => ({
   BatchCardLoading: () => <div>Loading</div>,
 }));
-vi.mock("./components/BatchCardError", () => ({
-  BatchCardError: () => <div>Error</div>,
+vi.mock("@ui/card/GenericErrorCard", () => ({
+  GenericErrorCard: () => <div>Error</div>,
 }));
 vi.mock("./components/BatchCardSuccess", () => ({
   BatchCardSuccess: () => <div>Success</div>,

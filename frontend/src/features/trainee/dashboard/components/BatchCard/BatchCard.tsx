@@ -1,6 +1,8 @@
-import { type Batch } from "../../types/Batch.types";
+import { type Batch } from "../../../types/Batch.types";
 import { type UseQueryResult } from "@tanstack/react-query";
-import { BatchCardError } from "./components/BatchCardError";
+
+import { GenericErrorCard } from "@ui/card/GenericErrorCard";
+
 import { BatchCardLoading } from "./components/BatchCardLoading";
 import { BatchCardSuccess } from "./components/BatchCardSuccess";
 
@@ -17,7 +19,13 @@ function BatchCard({ query, className, ref, ...props }: BatchCardProps) {
   }
 
   if (status === "error") {
-    return <BatchCardError className={className} {...props} />;
+    return (
+      <GenericErrorCard
+        message="Could not load batch data."
+        className={className}
+        {...props}
+      />
+    );
   }
 
   if (!batch) {
