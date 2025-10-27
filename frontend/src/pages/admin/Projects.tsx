@@ -879,7 +879,7 @@ export default function Projects() {
   };
 
   const handleRowClick = (row: Project) => {
-    navigate(`/admin/projectsDetailsAdmin/${row.id}`);
+    navigate(`/projectsDetailsAdmin/${row.id}`);
   };
 
   const getTabIcon = (tab: string) => {
