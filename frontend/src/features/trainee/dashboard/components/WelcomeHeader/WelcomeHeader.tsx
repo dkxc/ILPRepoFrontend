@@ -22,6 +22,7 @@ function WelcomeHeader({
     <WelcomeHeaderSuccess
       firstName={firstName}
       className={className}
+      ref={ref}
       {...props}
     />
   );

@@ -8,7 +8,7 @@ import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
 import { getPieDataFromPercent } from "../../../../lib/graphs/utils";
 
-import { Pencil, Radio, UploadCloud } from "lucide-react";
+import { FileText, Pencil, Radio } from "lucide-react";
 import { useState } from "react";
 
 import EditProjectDetailsModal from "../../../ui/ProjectDetails/EditProjectDetailsModal";
@@ -143,7 +143,7 @@ function ProjectCard({
         {...props}
       >
         <div className="flex justify-between w-full">
-          <div className="self-center-safe">
+          <div className="flex flex-col justify-between">
             <Card.CardHeader>
               <Card.CardTitle>{project.title}</Card.CardTitle>
               <Card.CardDescription>
@@ -181,7 +181,7 @@ function ProjectCard({
                 className="px-4 text-xs"
                 onClick={() => setShowStepper(true)}
               >
-                <UploadCloud /> Documents
+                <FileText /> Documents
               </Button>
               <Button
                 size="sm"
