@@ -39,7 +39,7 @@ export default function ResultsAccordion({
   defaultOpen = false,
 }: ResultsAccordionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  
+
   // Sample data - replace with actual data from props or API
   const [assessments, setAssessments] = useState<Assessment[]>([
     {
@@ -177,9 +177,7 @@ export default function ResultsAccordion({
             placeholder="Enter document name"
           />
         ) : (
-          <span className="text-sm text-gray-900">
-            {getDisplayName(row)}
-          </span>
+          <span className="text-sm text-gray-900">{getDisplayName(row)}</span>
         ),
     },
     {
@@ -199,7 +197,10 @@ export default function ResultsAccordion({
       sortable: true,
       width: "20%",
       render: (value) => (
-        <span className="text-sm text-gray-900 truncate" title={value as string}>
+        <span
+          className="text-sm text-gray-900 truncate"
+          title={value as string}
+        >
           {value as string}
         </span>
       ),
@@ -403,26 +404,25 @@ export default function ResultsAccordion({
               </span>
             </div>
             <div className="flex items-center gap-3">
-  {isOpen && (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onUploadClick?.();
-        navigate("/upload-results");
-      }}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors text-sm"
-    >
-      <Upload size={16} />
-      Upload Assessment
-    </button>
-  )}
-  {isOpen ? (
-    <ChevronUp className="w-5 h-5 text-gray-500" />
-  ) : (
-    <ChevronDown className="w-5 h-5 text-gray-500" />
-  )}
-</div>
-
+              {isOpen && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUploadClick?.();
+                    navigate("/upload-results");
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors text-sm"
+                >
+                  <Upload size={16} />
+                  Upload Assessment
+                </button>
+              )}
+              {isOpen ? (
+                <ChevronUp className="w-5 h-5 text-gray-500" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              )}
+            </div>
           </div>
 
           {/* Accordion Content */}
