@@ -5,9 +5,34 @@ import ProjectLinks from "../../features/ui/ProjectDetails/ProjectLinks";
 import ProjectDocuments from "../../features/ui/ProjectDetails/DocumentUpload";
 import TeamList from "../../features/ui/ProjectDetails/TeamList";
 import SubmissionRate from "../../features/ui/ProjectDetails/Completionrate";
+import type { TeamMember } from "../../features/ui/ProjectDetails/TeamList";
 
 function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
+
+  // Team members data
+  const teamMembers: TeamMember[] = [
+    {
+      id: 1,
+      name: "Alice Johnson",
+      role: "Developer",
+      mail: "alice@example.com",
+    },
+    { id: 2, name: "Bob Smith", role: "Designer", mail: "bob@example.com" },
+    { id: 3, name: "Charlie Lee", role: "Tester", mail: "charlie@example.com" },
+    {
+      id: 4,
+      name: "Diana Prince",
+      role: "Developer",
+      mail: "diana@example.com",
+    },
+    {
+      id: 5,
+      name: "Eve Adams",
+      role: "Project Manager",
+      mail: "eve@example.com",
+    },
+  ];
 
   // You can fetch project data based on the ID here
   // For now, using the existing hardcoded data
@@ -15,7 +40,7 @@ function ProjectDetails() {
     id: 1,
     projectName: `Project ${id}`,
     name: "ILP 2024-25 BATCH 1",
-    trainees: 7,
+    trainees: teamMembers.length,
     status: "Ongoing",
     techStack: ["React", ".NET", "TypeScript", "PostgreSQL", "Node.js"],
     repositoryUrl: "https://github.com/dkxc/ILPRepo",
@@ -50,13 +75,17 @@ function ProjectDetails() {
             />
           </div>
           <div style={{ width: "70%" }} className="flex-shrink-0">
-            <ProjectDocuments canUpload={true} canNotify={true} />
+            <ProjectDocuments
+              canUpload={true}
+              canNotify={true}
+              teamMembers={teamMembers}
+            />
           </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-7/10 flex items-stretch">
-            <TeamList />
+            <TeamList data={teamMembers} canDelete={true} />
           </div>
           <div className="w-full md:w-3/10 flex items-stretch">
             <SubmissionRate />

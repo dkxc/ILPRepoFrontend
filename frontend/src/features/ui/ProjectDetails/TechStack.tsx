@@ -58,7 +58,7 @@ function TechStack({ id, techStack, canEdit = false }: TechStackProps) {
         style={{ minHeight: "80px", maxHeight: "110px" }}
       >
         <div className="flex items-center justify-between mb-3">
-          <span className="font-bold flex items-center gap-2 text-gray-700 text-sm">
+          <span className="font-bold flex items-center gap-2 text-[#565E6C] text-base">
             <ChartBarStacked className="h-4 w-4" style={{ color: "#7B7575" }} />
             Tech Stack
           </span>

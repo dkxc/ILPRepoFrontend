@@ -22,6 +22,9 @@ function ProjectLinks({
   const [currentFigma, setCurrentFigma] = useState(figmaUrl);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [linkEditType, setLinkEditType] = useState<"repository" | "figma">(
+    "repository",
+  );
 
   async function handleSaveEdit() {
     setSaving(true);
@@ -72,7 +75,7 @@ function ProjectLinks({
   return (
     <div className="bg-white px-4 py-4 rounded-lg border border-[#F8F9FA] flex flex-col h-full shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <span className="font-bold flex items-center gap-2 text-gray-700 text-base">
+        <span className="font-bold flex items-center gap-2 text-[#565E6C] text-base">
           <Link2 className="h-5 w-5" style={{ color: "#7B7575" }} />
           Project Links
         </span>
@@ -133,24 +136,36 @@ function ProjectLinks({
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Edit Project Links</h2>
             <div className="mb-4">
-              <label className="block font-semibold mb-1">Repository URL</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand"
-                value={editRepo}
-                onChange={(e) => setEditRepo(e.target.value)}
-                placeholder="https://github.com/..."
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block font-semibold mb-1">Figma URL</label>
-              <input
-                type="text"
-                className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand"
-                value={editFigma}
-                onChange={(e) => setEditFigma(e.target.value)}
-                placeholder="https://figma.com/..."
-              />
+              <label className="block font-semibold mb-1">
+                Select Link to Edit
+              </label>
+              <select
+                className="border border-gray-300 rounded px-3 py-2 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-brand"
+                value={linkEditType}
+                onChange={(e) =>
+                  setLinkEditType(e.target.value as "repository" | "figma")
+                }
+              >
+                <option value="repository">Repository URL</option>
+                <option value="figma">Figma URL</option>
+              </select>
+              {linkEditType === "repository" ? (
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand"
+                  value={editRepo}
+                  onChange={(e) => setEditRepo(e.target.value)}
+                  placeholder="https://github.com/..."
+                />
+              ) : (
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand"
+                  value={editFigma}
+                  onChange={(e) => setEditFigma(e.target.value)}
+                  placeholder="https://figma.com/..."
+                />
+              )}
             </div>
             {saveError && (
               <div className="text-red-500 text-sm mb-2">{saveError}</div>

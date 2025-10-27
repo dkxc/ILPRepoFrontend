@@ -18,7 +18,9 @@ function SubmissionRate({
 
   return (
     <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full">
-      {showTitle && <h3 className="text-base font-bold mb-3">{title}</h3>}
+      {showTitle && (
+        <h3 className="text-base font-bold mb-3 text-[#565E6C]">{title}</h3>
+      )}
       <div className="w-full h-[280px] flex flex-col items-center">
         <div className="w-full max-w-[250px] h-[250px]">
           <ResponsivePie

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Upload, Download, Filter } from "lucide-react";
+import { X, Upload, Download, Filter, Trash2 } from "lucide-react";
 
 interface UploadedDocument {
   id: number;
@@ -30,7 +30,9 @@ const DocumentSubmissionModal = ({
   const itemsPerPage = 5;
 
   // Mock uploaded documents - 9 total
-  const [uploadedDocuments] = useState<UploadedDocument[]>([
+  const [uploadedDocuments, setUploadedDocuments] = useState<
+    UploadedDocument[]
+  >([
     {
       id: 1,
       filename: "BRD_Document_v1.pdf",
@@ -133,6 +135,10 @@ const DocumentSubmissionModal = ({
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFileSelect(file);
+  };
+
+  const handleDeleteDocument = (docId: number) => {
+    setUploadedDocuments((prev) => prev.filter((doc) => doc.id !== docId));
   };
 
   const handleUpload = () => {
@@ -249,10 +255,19 @@ const DocumentSubmissionModal = ({
                             {doc.uploadDate}
                           </td>
                           <td className="px-4 py-3 text-center">
-                            <button className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors">
-                              <Download className="w-3.5 h-3.5" />
-                              Download
-                            </button>
+                            <div className="flex items-center justify-center gap-2">
+                              <button className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors">
+                                <Download className="w-3.5 h-3.5" />
+                                Download
+                              </button>
+                              <button
+                                onClick={() => handleDeleteDocument(doc.id)}
+                                className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600 hover:text-gray-700"
+                                title="Delete document"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
