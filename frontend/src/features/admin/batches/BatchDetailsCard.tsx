@@ -136,7 +136,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
               className="!bg-gray-200 hover:!bg-gray-300 text-gray-700 font-medium px-2 py-1 rounded-lg shadow-sm h-7 w-auto flex items-center justify-center"
               onClick={onEdit}
             >
-              <Pencil size={16} />
+              <Pencil size={16} className="text-blue-600 hover:!bg-gray-100" />
             </Button>
 
             {/* 3-dot dropdown button */}

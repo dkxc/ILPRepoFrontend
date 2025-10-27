@@ -9,6 +9,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import type { ColumnDef } from "../../features/ui/Table";
+import DataTable from "../../features/ui/Table";
 
 interface Assessment {
   id: number;
@@ -37,6 +39,7 @@ export default function ResultsAccordion({
   defaultOpen = false,
 }: ResultsAccordionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
   // Sample data - replace with actual data from props or API
   const [assessments, setAssessments] = useState<Assessment[]>([
     {
@@ -143,6 +146,158 @@ export default function ResultsAccordion({
 
   const navigate = useNavigate();
 
+  // Table column definitions
+  const resultColumns: ColumnDef<Assessment>[] = [
+    {
+      key: "documentType",
+      header: "Document Type",
+      sortable: true,
+      width: "20%",
+      render: (value) => (
+        <span className="text-sm text-gray-900">{value as string}</span>
+      ),
+    },
+    {
+      key: "documentName",
+      header: "Document Name",
+      sortable: true,
+      width: "25%",
+      render: (_, row) =>
+        editingDocId === row.id ? (
+          <input
+            type="text"
+            value={editingName}
+            onChange={(e) => setEditingName(e.target.value)}
+            className="text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                handleSaveEditedName(row.id);
+              }
+            }}
+            placeholder="Enter document name"
+          />
+        ) : (
+          <span className="text-sm text-gray-900">{getDisplayName(row)}</span>
+        ),
+    },
+    {
+      key: "uploadedDate",
+      header: "Uploaded Date",
+      sortable: true,
+      width: "20%",
+      render: (value) => (
+        <span className="text-sm text-gray-900">
+          {formatDate(value as Date)}
+        </span>
+      ),
+    },
+    {
+      key: "fileName",
+      header: "File Name",
+      sortable: true,
+      width: "20%",
+      render: (value) => (
+        <span
+          className="text-sm text-gray-900 truncate"
+          title={value as string}
+        >
+          {value as string}
+        </span>
+      ),
+    },
+    {
+      key: "action",
+      header: "Action",
+      align: "center" as const,
+      width: "15%",
+      render: (_, row) =>
+        editingDocId === row.id ? (
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => handleSaveEditedName(row.id)}
+              className="p-2 text-green-600 hover:bg-green-50 rounded"
+              title="Save"
+              type="button"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={() => {
+                setEditingDocId(null);
+                setEditingName("");
+              }}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded"
+              title="Cancel"
+              type="button"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => handlePreviewDocument(row)}
+              className="p-2 text-purple-600 hover:bg-purple-50 rounded"
+              title="Preview"
+              type="button"
+            >
+              <Eye size={18} />
+            </button>
+            <button
+              onClick={() =>
+                handleEditDocumentName(row.id, getDisplayName(row))
+              }
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+              title="Edit Name"
+              type="button"
+            >
+              <Edit2 size={18} />
+            </button>
+            <button
+              onClick={() => handleDownloadDocument(row)}
+              className="p-2 text-green-600 hover:bg-green-50 rounded"
+              title="Download"
+              type="button"
+            >
+              <Download size={18} />
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(row)}
+              className="p-2 text-red-600 hover:bg-red-50 rounded"
+              title="Delete"
+              type="button"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        ),
+    },
+  ];
+
   return (
     <div>
       {/* Notification Toast */}
@@ -248,19 +403,20 @@ export default function ResultsAccordion({
                 {assessments.length !== 1 ? "s" : ""}
               </span>
             </div>
-
             <div className="flex items-center gap-3">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUploadClick?.();
-                  navigate("/upload-results");
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors text-sm"
-              >
-                <Upload size={16} />
-                Upload Assessment
-              </button>
+              {isOpen && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUploadClick?.();
+                    navigate("/upload-results");
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors text-sm"
+                >
+                  <Upload size={16} />
+                  Upload Assessment
+                </button>
+              )}
               {isOpen ? (
                 <ChevronUp className="w-5 h-5 text-gray-500" />
               ) : (
@@ -274,164 +430,30 @@ export default function ResultsAccordion({
             <div className="border-t border-gray-200">
               {/* Assessments List */}
               {assessments.length > 0 ? (
-                <div>
-                  <div className="bg-[#F8F9FA] px-6 py-3 border-b border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-700">
-                      Uploaded Documents
-                    </h3>
-                  </div>
-                  <div className="divide-y divide-gray-200">
-                    {assessments.map((assessment) => (
-                      <div
-                        key={assessment.id}
-                        className="px-6 py-4 hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-4">
-                            <div>
-                              <p className="text-sm font-medium text-gray-500 mb-1">
-                                Document Type
-                              </p>
-                              <p className="text-sm text-gray-900">
-                                {assessment.documentType}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-500 mb-1">
-                                Document Name
-                              </p>
-                              {editingDocId === assessment.id ? (
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="text"
-                                    value={editingName}
-                                    onChange={(e) =>
-                                      setEditingName(e.target.value)
-                                    }
-                                    className="text-sm px-2 py-1 border border-gray-300 rounded w-full"
-                                    onKeyPress={(e) => {
-                                      if (e.key === "Enter") {
-                                        handleSaveEditedName(assessment.id);
-                                      }
-                                    }}
-                                  />
-                                </div>
-                              ) : (
-                                <p className="text-sm text-gray-900">
-                                  {getDisplayName(assessment)}
-                                </p>
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-500 mb-1">
-                                Uploaded Date
-                              </p>
-                              <p className="text-sm text-gray-900">
-                                {formatDate(assessment.uploadedDate)}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-500 mb-1">
-                                File Name
-                              </p>
-                              <p className="text-sm text-gray-900 truncate">
-                                {assessment.fileName}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 ml-4">
-                            {editingDocId === assessment.id ? (
-                              <>
-                                <button
-                                  onClick={() =>
-                                    handleSaveEditedName(assessment.id)
-                                  }
-                                  className="p-2 text-green-600 hover:bg-green-50 rounded"
-                                  title="Save"
-                                >
-                                  <svg
-                                    className="w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setEditingDocId(null);
-                                    setEditingName("");
-                                  }}
-                                  className="p-2 text-gray-600 hover:bg-gray-100 rounded"
-                                  title="Cancel"
-                                >
-                                  <svg
-                                    className="w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M6 18L18 6M6 6l12 12"
-                                    />
-                                  </svg>
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() =>
-                                    handlePreviewDocument(assessment)
-                                  }
-                                  className="p-2 text-purple-600 hover:bg-purple-50 rounded"
-                                  title="Preview"
-                                >
-                                  <Eye size={18} />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleEditDocumentName(
-                                      assessment.id,
-                                      getDisplayName(assessment),
-                                    )
-                                  }
-                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                                  title="Edit Name"
-                                >
-                                  <Edit2 size={18} />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDownloadDocument(assessment)
-                                  }
-                                  className="p-2 text-green-600 hover:bg-green-50 rounded"
-                                  title="Download"
-                                >
-                                  <Download size={18} />
-                                </button>
-                                <button
-                                  onClick={() => setShowDeleteModal(assessment)}
-                                  className="p-2 text-red-600 hover:bg-red-50 rounded"
-                                  title="Delete"
-                                >
-                                  <Trash2 size={18} />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <div className="p-4">
+                  <DataTable
+                    columns={resultColumns}
+                    data={assessments}
+                    showHeaderSection={true}
+                    headerTitle="Uploaded Documents"
+                    enableSearch={true}
+                    enablePagination={true}
+                    pageSize={5}
+                    pageSizeOptions={[5, 10, 25]}
+                    highlightOnHover={true}
+                    withBorder={true}
+                    rowStyle={{
+                      fontSize: "16px",
+                      height: "56px",
+                      lineHeight: "1",
+                    }}
+                    headerStyle={{
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      height: "40px",
+                      background: "#F8F9FA",
+                    }}
+                  />
                 </div>
               ) : (
                 <div className="p-12 text-center">
