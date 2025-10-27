@@ -118,7 +118,9 @@ function EditModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
+
+
       <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">{title}</h2>
         <form onSubmit={handleSubmit}>
@@ -879,7 +881,7 @@ export default function Projects() {
   };
 
   const handleRowClick = (row: Project) => {
-    navigate(`/projectsDetailsAdmin/${row.id}`);
+    navigate(`/admin/projectsDetailsAdmin/${row.id}`);
   };
 
   const getTabIcon = (tab: string) => {
@@ -1167,7 +1169,7 @@ export default function Projects() {
 
   return (
     <>
-      <div className="flex items-center justify-between mt-10 bg">
+      <div className="p-4 bg-gray-50 flex-grow mb-">
         <h1
           className="text-2xl font-bold ml-10 text-[#565E6C] font-primary"
           style={{ color: "#565E6C" }}
@@ -1333,6 +1335,7 @@ export default function Projects() {
 
       {/* Edit Modal */}
       {currentEditData && (
+        
         <EditModal
           isOpen={isEditModalOpen}
           onClose={() => {
