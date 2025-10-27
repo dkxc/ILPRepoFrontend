@@ -6,7 +6,7 @@ import DocumentItem from "./DocumentItem";
 import { NavLink } from "react-router";
 
 import { type UseQueryResult } from "@tanstack/react-query";
-import Skeleton from "../../../ui/Skeleton";
+import Skeleton from "@ui/skeleton";
 
 export interface DocumentsCardProps
   extends React.HTMLAttributes<HTMLDivElement> {

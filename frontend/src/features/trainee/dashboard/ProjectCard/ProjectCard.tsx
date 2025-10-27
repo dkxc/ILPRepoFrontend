@@ -1,18 +1,18 @@
-import { type Project } from "../types/Project.types";
-import * as Card from "../../ui/card";
-import Badge from "../../ui/badge/Badge";
-import Button from "../../ui/Button";
-import Skeleton from "../../ui/Skeleton";
+import { type Project } from "../../types/Project.types";
+import * as Card from "../../../ui/card";
+import Badge from "../../../ui/badge/Badge";
+import Button from "../../../ui/Button";
+import Skeleton from "@ui/skeleton";
 
-import { cn } from "../../../lib/utils";
+import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
-import { getPieDataFromPercent } from "../../../lib/graphs/utils";
+import { getPieDataFromPercent } from "../../../../lib/graphs/utils";
 
 import { Pencil, Radio, UploadCloud } from "lucide-react";
 import { useState } from "react";
 
-import EditProjectDetailsModal from "../../ui/ProjectDetails/EditProjectDetailsModal";
-import DocumentSubmissionModal from "../../ui/DocumentUpload";
+import EditProjectDetailsModal from "../../../ui/ProjectDetails/EditProjectDetailsModal";
+import DocumentSubmissionModal from "../../../ui/DocumentUpload";
 import { createPortal } from "react-dom";
 import { type UseQueryResult } from "@tanstack/react-query";
 

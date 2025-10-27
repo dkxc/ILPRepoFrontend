@@ -9,6 +9,7 @@ import * as Card from "../../features/ui/card";
 
 const resultData: ResultFeedback = {
   overallScore: 82,
+  boScore: 79,
   phases: [
     {
       phaseName: "Tech Fundamentals",
@@ -99,22 +100,34 @@ function Results() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Results</h1>
+        {/* <h1 className="text-2xl font-semibold text-gray-900 mb-6">Results</h1> */}
 
         {/* Overall Score Card */}
-        <Card.Card className="bg-white p-4 border border-gray-200 mb-4">
-          <div className="flex items-center justify-between">
-            <span className="text-base font-medium text-gray-700">
-              Overall Score
-            </span>
-            <span className="text-4xl font-bold text-brand-600">
-              {resultData.overallScore}%
-            </span>
-          </div>
-        </Card.Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 flex-wrap">
+          <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-700">
+                Overall Score
+              </span>
+              <span className="text-4xl font-bold text-brand-600">
+                {resultData.overallScore}%
+              </span>
+            </div>
+          </Card.Card>
 
+          <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-700">
+                Business Orientation Score
+              </span>
+              <span className="text-4xl font-bold text-brand-600">
+                {resultData.boScore}%
+              </span>
+            </div>
+          </Card.Card>
+        </div>
         {/* Phase-wise Feedback Section */}
-        <Card.Card className="bg-white p-4 border border-gray-200 mb-6">
+        <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Phase-wise Feedback
           </h2>
