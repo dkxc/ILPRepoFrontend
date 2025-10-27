@@ -1,4 +1,3 @@
-import React from "react";
 import { type Batch } from "../../../../types/Batch.types";
 import { getStatusBadgeVariant } from "../utils/Batch.utils";
 import * as Card from "../../../../../ui/card";
