@@ -29,7 +29,6 @@ const AdminDashboardCard: React.FC<Props> = ({
           {icon}
         </div>
       )}
-      
 
       <div className="flex-1">
         <div className="text-large text-[var(--color-menuitem-text)] font-medium">

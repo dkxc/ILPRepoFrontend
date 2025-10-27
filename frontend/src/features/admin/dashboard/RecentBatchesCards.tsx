@@ -18,7 +18,7 @@ export const SmallBatchCard: React.FC<{
       className={`min-w-[220px] text-left rounded-md p-4 transition-shadow border ${
         selected
           ? "border-[var(--color-brand-600)] bg-[var(--color-brand-50)] shadow-sm"
-      : "border-gray-200 bg-[var(--color-card)] hover:shadow-sm"
+          : "border-gray-200 bg-[var(--color-card)] hover:shadow-sm"
       }`}
     >
       <div className="text-sm font-medium text-[var(--color-text-base)]">
@@ -30,11 +30,11 @@ export const SmallBatchCard: React.FC<{
       {batch.status && (
         <div
           className={`mt-3 inline-block text-xs px-3 py-1 rounded-full ${
-        batch.status.toLowerCase() === "ongoing"
-          ? "bg-bg-success/40 text-[var(--color-text-base)]"
-          : batch.status.toLowerCase() === "completed"
-          ? "bg-[var(--color-brand-50)] text-[var(--color-brand-600)]"
-          : "bg-gray-100 text-gray-700"
+            batch.status.toLowerCase() === "ongoing"
+              ? "bg-bg-success/40 text-[var(--color-text-base)]"
+              : batch.status.toLowerCase() === "completed"
+                ? "bg-purple-100 text-purple-700"
+                : "bg-gray-100 text-gray-700"
           }`}
         >
           {batch.status}

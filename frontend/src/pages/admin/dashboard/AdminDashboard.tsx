@@ -12,7 +12,7 @@ const topCards = [
     id: "batches",
     title: "All Batches",
     value: <span className="text-2xl">1</span>,
-    icon: <img src={batchIcon} alt="Batches"/>,
+    icon: <img src={batchIcon} alt="Batches" />,
   },
   {
     id: "projects",
@@ -24,7 +24,7 @@ const topCards = [
     id: "hours",
     title: "Total Training Hours",
     value: <span className="text-2xl">48</span>,
-    icon: <img src={clockIcon} alt="Hours"/>,
+    icon: <img src={clockIcon} alt="Hours" />,
   },
 ];
 

@@ -15,7 +15,7 @@ type RecentBatchesProps = {
 };
 
 import { SmallBatchCard } from "../../../features/admin/dashboard/RecentBatchesCards";
-import batchIcon from "../../../assets/icons/icon.svg";
+import batchIcon from "../../../assets/profiles/Profile2.jpg";
 
 // Simple donut component using SVG stroke-dasharray
 const Donut: React.FC<{ percent: number; size?: number }> = ({
@@ -116,15 +116,27 @@ export default function RecentBatches({
       <div className="bg-[var(--color-card)] p-3 rounded-md">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold">All Batches</h3>
-          <select
-            className="border-gray-200 rounded px-3 py-1 text-sm"
-            defaultValue="All Batch Types"
-          >
-            <option>All Batch Types</option>
-            <option>Full Stack</option>
-            <option>Frontend</option>
-            <option>Backend</option>
-          </select>
+          <div className="flex gap-3">
+            <label className="text-sm p-1">Batch Status</label>
+            <select
+              className="bg-gray-50 rounded px-3 py-1 text-sm border-none focus:ring-0"
+              defaultValue="All Batch Status"
+            >
+              <option>All</option>
+              <option>Ongoing</option>
+              <option>Completed</option>
+            </select>
+            <label className="text-sm p-1">Batch Type</label>
+            <select
+              className="bg-gray-50 rounded px-3 py-1 text-sm border-none focus:ring-0"
+              defaultValue="All Batch Types"
+            >
+              <option>All</option>
+              <option>SDE</option>
+              <option>SDET</option>
+              <option>BA</option>
+            </select>
+          </div>
         </div>
         <div className="flex gap-4 overflow-x-auto py-1">
           {sampleBatches.map((b) => (
@@ -146,11 +158,11 @@ export default function RecentBatches({
       {/* Batch Details area - three equal cards side-by-side */}
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-4">
-          <div className="rounded-md p-6 bg-[var(--color-card)] h-full">
+          <div className="rounded-md p-4 bg-[var(--color-card)] h-full">
             <div className="h-full flex flex-col">
               {/* Header with title and icon circle */}
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium text-[var(--color-text-base)]">
+              <div className="flex items-center justify-between mb-6">
+                <h4 className="text-lg font-medium text-[var(--color-text-base)]">
                   Batch Details
                 </h4>
                 <div className="px-3 py-1.5 rounded-md bg-blue-50 text-sm text-blue-600 font-medium">
@@ -159,7 +171,7 @@ export default function RecentBatches({
               </div>
 
               {/* Stats grid - more compact without icons */}
-              <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                 {/* Trainees */}
                 <div>
                   <div className="text-sm font-medium text-gray-600 mb-1">
@@ -201,15 +213,23 @@ export default function RecentBatches({
                 </div>
 
                 {/* Tech Stack */}
-                <div className="col-span-2 flex items-center">
+                <div className="flex items-center space-x-4 col-span-2">
                   <div className="text-sm font-medium text-gray-600">
-                    Tech Stack:
+                    Tech Stacks
                   </div>
-                  <div className="ml-2 px-2.5 py-1 rounded bg-blue-50 text-sm font-medium text-blue-600">
-                    React
-                  </div>
-                  <div className="ml-2 px-2.5 py-1 rounded bg-blue-50 text-sm font-medium text-blue-600">
-                    Angular
+                  <div className="flex flex-wrap gap-1">
+                    <div className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                      React
+                    </div>
+                    <div className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                      Angular
+                    </div>
+                    <div className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                      .Net
+                    </div>
+                    <div className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                      Python
+                    </div>
                   </div>
                 </div>
               </div>
@@ -219,7 +239,7 @@ export default function RecentBatches({
 
         <div className="col-span-4">
           <div className="rounded-md p-4 bg-[var(--color-card)] h-full max-h-[320px] overflow-y-auto">
-            <h4 className="font-medium text-[var(--color-text-base)] mb-4">
+            <h4 className="text-lg font-medium text-[var(--color-text-base)] mb-6">
               Projects
             </h4>
             <ul className="space-y-3">
@@ -269,28 +289,50 @@ export default function RecentBatches({
                   <Donut percent={98} size={40} />
                 </div>
               </li>
+              <li className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium">Project Name</div>
+                  <div className="text-xs text-gray-500">
+                    Team Lead: Theteamlead
+                  </div>
+                </div>
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <Donut percent={98} size={40} />
+                </div>
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="col-span-4">
           <div className="rounded-md p-4 bg-[var(--color-card)] h-full max-h-[320px] overflow-y-auto">
-            <h4 className="font-medium text-[var(--color-text-base)] mb-4">
+            <h4 className="text-lg font-medium text-[var(--color-text-base)] mb-6">
               Top Trainees
             </h4>
-              <div className="space-y-4">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="pr-4 flex-1">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-medium">Merlin</div>
-                    <div className="text-sm text-gray-600">72%</div>
                   </div>
-                  <div className="mt-2 w-full max-w-[160px] h-2 bg-gray-200 rounded">
-                    <div className="h-2 bg-yellow-400 rounded" style={{ width: '72%' }} />
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-gray-200 rounded">
+                      <div
+                        className="h-2 bg-yellow-400 rounded"
+                        style={{ width: "72%" }}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-600 min-w-[40px]">
+                      72%
+                    </span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                  <img src={batchIcon} alt="avatar" className="w-10 h-10 object-cover" />
+                  <img
+                    src={batchIcon}
+                    alt="avatar"
+                    className="w-10 h-10 object-cover"
+                  />
                 </div>
               </div>
 
@@ -298,28 +340,75 @@ export default function RecentBatches({
                 <div className="pr-4 flex-1">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-medium">John Doe</div>
-                    <div className="text-sm text-gray-600">88%</div>
                   </div>
-                  <div className="mt-2 w-full max-w-[160px] h-2 bg-gray-200 rounded">
-                    <div className="h-2 bg-yellow-400 rounded" style={{ width: '88%' }} />
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-gray-200 rounded">
+                      <div
+                        className="h-2 bg-yellow-400 rounded"
+                        style={{ width: "88%" }}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-600 min-w-[40px]">
+                      88%
+                    </span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                  <img src={batchIcon} alt="avatar" className="w-10 h-10 object-cover" />
+                  <img
+                    src={batchIcon}
+                    alt="avatar"
+                    className="w-10 h-10 object-cover"
+                  />
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="pr-4 flex-1">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-medium">John Doe</div>
-                    <div className="text-sm text-gray-600">98%</div>
                   </div>
-                  <div className="mt-2 w-full max-w-[160px] h-2 bg-gray-200 rounded">
-                    <div className="h-2 bg-yellow-400 rounded" style={{ width: '98%' }} />
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-gray-200 rounded">
+                      <div
+                        className="h-2 bg-yellow-400 rounded"
+                        style={{ width: "98%" }}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-600 min-w-[40px]">
+                      98%
+                    </span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                  <img src={batchIcon} alt="avatar" className="w-10 h-10 object-cover" />
+                  <img
+                    src={batchIcon}
+                    alt="avatar"
+                    className="w-10 h-10 object-cover"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="pr-4 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Merlin</div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-gray-200 rounded">
+                      <div
+                        className="h-2 bg-yellow-400 rounded"
+                        style={{ width: "72%" }}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-600 min-w-[40px]">
+                      72%
+                    </span>
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                  <img
+                    src={batchIcon}
+                    alt="avatar"
+                    className="w-10 h-10 object-cover"
+                  />
                 </div>
               </div>
             </div>
