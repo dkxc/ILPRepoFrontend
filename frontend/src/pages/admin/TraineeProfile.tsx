@@ -2,6 +2,7 @@ import { useState } from "react";
 import { User, Briefcase, Phone, MapPin } from "lucide-react";
 import InfoCard from "../../features/ui/TraineeProfile/InfoCard";
 import EditModal from "../../features/ui/TraineeProfile/EditModel";
+import { useNavigate } from "react-router";
 
 function TraineeProfile() {
   // Modal state
@@ -13,14 +14,10 @@ function TraineeProfile() {
       | "emergency"
       | "address"
       | "official"
-      | "status"
       | null,
     title: "",
     initialData: {} as any,
   });
-
-  // Trainee active/inactive status
-  const [isActive, setIsActive] = useState(true);
 
   // State for all data
   const [personalInfoData, setPersonalInfoData] = useState({
@@ -171,13 +168,7 @@ function TraineeProfile() {
 
   // Modal handlers
   const openModal = (
-    type:
-      | "personal"
-      | "contact"
-      | "emergency"
-      | "address"
-      | "official"
-      | "status",
+    type: "personal" | "contact" | "emergency" | "address" | "official",
     title: string,
     data: any,
   ) => {
@@ -206,6 +197,7 @@ function TraineeProfile() {
         break;
     }
   };
+  const navigate = useNavigate();
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -223,42 +215,21 @@ function TraineeProfile() {
               {personalInfoData.fullName}
             </h1>
 
-            {/* ✅ Clickable Badge */}
+            {/* ✅ Static Active Badge */}
             <div className="flex items-center mt-1">
-              <button
-                onClick={() =>
-                  openModal(
-                    "status",
-                    isActive ? "Mark Inactive" : "Mark Active",
-                    {},
-                  )
-                }
-                className={`flex items-center px-3 py-1 rounded-full transition duration-200 ${
-                  isActive
-                    ? "bg-green-100 hover:bg-green-200"
-                    : "bg-gray-200 hover:bg-gray-300"
-                }`}
-              >
-                <div
-                  className={`w-2 h-2 rounded-full mr-2 ${
-                    isActive ? "bg-green-400" : "bg-gray-500"
-                  }`}
-                ></div>
-                <span
-                  className={`text-xs font-medium ${
-                    isActive ? "text-green-700" : "text-gray-700"
-                  }`}
-                >
-                  {isActive ? "Active" : "Inactive"}
+              <div className="flex items-center px-3 py-1 rounded-full bg-green-100">
+                <div className="w-2 h-2 rounded-full mr-2 bg-green-400"></div>
+                <span className="text-xs font-medium text-green-700">
+                  Active
                 </span>
-              </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* View Results Button */}
         <button
-          onClick={() => console.log("View Results clicked")} // Replace with navigation logic
+          onClick={() => navigate("/results")} // Replace with navigation logic
           className="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
         >
           View Results
@@ -327,55 +298,16 @@ function TraineeProfile() {
       </div>
 
       {/* === Modal Section === */}
-      {modalState.opened &&
-        modalState.type &&
-        (modalState.type === "status" ? (
-          // ✅ Status Confirmation Modal
-          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-            <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
-              <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                {isActive
-                  ? "Mark trainee as Inactive?"
-                  : "Mark trainee as Active?"}
-              </h2>
-              <p className="text-sm text-gray-600 mb-6">
-                {isActive
-                  ? "This will mark the trainee as inactive. They will no longer appear in the active trainees list."
-                  : "This will mark the trainee as active again."}
-              </p>
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={closeModal}
-                  className="px-3 py-1 text-sm bg-gray-200 rounded-lg hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    setIsActive(!isActive);
-                    closeModal();
-                  }}
-                  className={`px-3 py-1 text-sm rounded-lg text-white ${
-                    isActive
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-green-500 hover:bg-green-600"
-                  }`}
-                >
-                  {isActive ? "Mark Inactive" : "Mark Active"}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <EditModal
-            opened={modalState.opened}
-            onClose={closeModal}
-            onSave={handleSave}
-            title={modalState.title}
-            type={modalState.type}
-            initialData={modalState.initialData}
-          />
-        ))}
+      {modalState.opened && modalState.type && (
+        <EditModal
+          opened={modalState.opened}
+          onClose={closeModal}
+          onSave={handleSave}
+          title={modalState.title}
+          type={modalState.type}
+          initialData={modalState.initialData}
+        />
+      )}
     </div>
   );
 }

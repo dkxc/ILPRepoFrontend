@@ -5,19 +5,26 @@ import {
   ChartLine,
   ChartNoAxesCombined,
   FolderGit2,
-  GitMerge,
   House,
   LogOut,
   Moon,
   Sun,
   UserRoundCog,
+  Settings,
+  CheckCircle,
+  XCircle,
+  UsersRound,
 } from "lucide-react";
+
 import Header from "./features/ui/header/Header";
 import experionLogo from "./assets/experionlogo.svg";
 import HeaderBar from "./features/ui/header/HeaderBar";
 import HeaderItem from "./features/ui/header/HeaderItem";
 import SearchBar from "./features/ui/header/search/SearchBar";
+
 import { useState } from "react";
+import { Toaster } from "sonner";
+
 import { cn } from "./lib/utils";
 import { ProfileIconWithDropDown } from "./features/ui/header/profile/ProfileIconWithDropDown";
 import { useTheme } from "./hooks/useTheme";
@@ -26,18 +33,23 @@ const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
   { to: "/ilpprojects", label: "ILP Projects", icon: FolderGit2 },
   { to: "/results", label: "Results", icon: ChartNoAxesCombined },
+  { to: "/curriculum", label: "Curriculum", icon: ChartLine },
 ];
 
 const adminNavItems = [
   { to: "/admindash", label: "Home", icon: House, end: true },
-  { to: "/batches", label: "Batches", icon: GitMerge },
+  { to: "/batches", label: "Batches", icon: UsersRound },
   { to: "/projects", label: "Projects", icon: FolderGit2 },
-  { to: "/documents", label: "Documents", icon: ChartNoAxesCombined },
-  { to: "/adminres", label: "Reports", icon: ChartLine },
 ];
 
 const dropDownItems = [
   { to: "/profile", label: "My Profile", icon: UserRoundCog },
+  { to: "/traineeSettings", label: "Settings", icon: Settings },
+  { to: "/signout", label: "Sign Out", icon: LogOut },
+];
+const adminDropDownItems = [
+  { to: "/profile", label: "My Profile", icon: UserRoundCog },
+  { to: "/adminSettings", label: "Settings", icon: Settings },
   { to: "/signout", label: "Sign Out", icon: LogOut },
 ];
 
@@ -63,6 +75,20 @@ function App() {
 
   return (
     <>
+      <Toaster
+        position="bottom-right"
+        theme={isDarkMode ? "dark" : "light"}
+        toastOptions={{
+          style: {
+            background: "var(--color-card)",
+            color: "var(--color-text-base)",
+          },
+        }}
+        icons={{
+          success: <CheckCircle style={{ color: "var(--color-bg-success)" }} />,
+          error: <XCircle style={{ color: "var(--color-bg-error)" }} />,
+        }}
+      />
       <div className="flex flex-col h-screen font-secondary text-text-base overflow-hidden">
         <Header
           className={cn("bg-menucolor", headerHeight)}
@@ -93,7 +119,9 @@ function App() {
               )}
             </HeaderItem>
             <ProfileIconWithDropDown>
-              <SideBar navItems={dropDownItems} />
+              <SideBar
+                navItems={isAdmin ? adminDropDownItems : dropDownItems}
+              />
             </ProfileIconWithDropDown>
           </HeaderBar>
         </Header>

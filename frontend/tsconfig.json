@@ -1,5 +1,14 @@
 {
   "files": [],
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@assets/*": ["assets/"],
+      "@lib/*": ["lib/*"],
+      "@ui/*": ["ui/*"]
+    },
+    "types": ["@testing-library/jest-dom"]
+  },
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

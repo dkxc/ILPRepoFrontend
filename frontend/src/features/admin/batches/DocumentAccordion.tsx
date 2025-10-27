@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
-  Plus,
   Upload,
   Trash2,
   Download,
@@ -18,8 +17,6 @@ import { notifications } from "@mantine/notifications";
 import type { ColumnDef } from "../../ui/Table";
 import Button from "../../ui/Button";
 import DataTable from "../../ui/Table";
-// import DataTable, { type ColumnDef } from "../../features/ui/Table";
-// import Button from "../../features/ui/Button";
 
 // DropdownMenu for action column
 function DropdownMenu({
@@ -27,12 +24,16 @@ function DropdownMenu({
   setEditingRowId,
   setEditDraft,
   handleDeleteRow,
+  handleToggleMultiple,
+  handleToggleBroadcast,
   notifications,
 }: {
   row: DocumentRow;
   setEditingRowId: (id: number) => void;
   setEditDraft: (draft: { documentName: string; deadline: string }) => void;
   handleDeleteRow: (id: number) => void;
+  handleToggleMultiple: (id: number) => void;
+  handleToggleBroadcast: (id: number) => void;
   notifications: typeof import("@mantine/notifications").notifications;
 }) {
   const [open, setOpen] = useState(false);
@@ -122,30 +123,34 @@ function DropdownMenu({
             <button
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-800 text-sm"
               onClick={() => {
+                handleToggleMultiple(row.id);
                 notifications.show({
                   title: "Multiple Upload",
-                  message: "Multiple files upload triggered",
+                  message: `Multiple upload ${row.isMultiple ? "disabled" : "enabled"} for ${row.documentName}`,
                   color: "blue",
                 });
                 setOpen(false);
               }}
               type="button"
             >
-              <Layers className="w-4 h-4" /> Multiple
+              <Layers className="w-4 h-4" />{" "}
+              {row.isMultiple ? "Disable" : "Enable"} Multiple
             </button>
             <button
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-800 text-sm"
               onClick={() => {
+                handleToggleBroadcast(row.id);
                 notifications.show({
                   title: "Broadcast",
-                  message: "File broadcasted to all batchmates",
+                  message: `Broadcast ${row.isBroadcast ? "disabled" : "enabled"} for ${row.documentName}`,
                   color: "teal",
                 });
                 setOpen(false);
               }}
               type="button"
             >
-              <Send className="w-4 h-4" /> Broadcast
+              <Send className="w-4 h-4" />{" "}
+              {row.isBroadcast ? "Disable" : "Enable"} Broadcast
             </button>
           </div>,
           document.body,
@@ -160,11 +165,14 @@ interface DocumentRow {
   documentName: string;
   deadline: string;
   templateFile: File | null;
+  isMultiple?: boolean;
+  isBroadcast?: boolean;
 }
 
 interface LinkRow {
   id: number;
   linkName: string;
+  urlPrefix: string;
 }
 
 interface DocumentUploadProps {
@@ -184,12 +192,11 @@ export default function DocumentUpload({
     { id: 3, documentName: "Sprint Tracker", deadline: "", templateFile: null },
   ],
   initialLinks = [
-    { id: 1, linkName: "GitHub Repo" },
-    { id: 2, linkName: "Deployment Link" },
+    { id: 1, linkName: "GitHub Repo", urlPrefix: "https://github.com/" },
+    { id: 2, linkName: "Deployment Link", urlPrefix: "https://" },
   ],
   onDocumentChange,
   onLinksChange,
-  defaultOpen = false,
 }: DocumentUploadProps) {
   const [documentRows, setDocumentRows] =
     useState<DocumentRow[]>(initialDocuments);
@@ -203,7 +210,13 @@ export default function DocumentUpload({
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
   const [linkEditDraft, setLinkEditDraft] = useState<{
     linkName: string;
+    urlPrefix: string;
   } | null>(null);
+
+  const [accordionOpen, setAccordionOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"documents" | "links">(
+    "documents",
+  );
 
   const updateLinks = (newLinks: LinkRow[]) => {
     setLinkRows(newLinks);
@@ -214,6 +227,7 @@ export default function DocumentUpload({
     const newLink: LinkRow = {
       id: Date.now(),
       linkName: `Link ${linkRows.length + 1}`,
+      urlPrefix: "https://",
     };
     updateLinks([...linkRows, newLink]);
   };
@@ -234,12 +248,41 @@ export default function DocumentUpload({
     );
   };
 
-  // Columns
+  const handleUrlPrefixChange = (newPrefix: string) => {
+    setLinkEditDraft((draft) =>
+      draft ? { ...draft, urlPrefix: newPrefix } : draft,
+    );
+  };
+
+  const handleSaveLinkEdit = () => {
+    if (editingLinkId && linkEditDraft) {
+      const updatedLinks = linkRows.map((link) => {
+        if (link.id === editingLinkId) {
+          return {
+            ...link,
+            linkName: linkEditDraft.linkName,
+            urlPrefix: linkEditDraft.urlPrefix ?? link.urlPrefix,
+          };
+        }
+        return link;
+      });
+      updateLinks(updatedLinks);
+      setEditingLinkId(null);
+      setLinkEditDraft(null);
+      notifications.show({
+        title: "Saved",
+        message: "Link updated successfully",
+        color: "green",
+      });
+    }
+  };
+
+  // Columns for Links
   const linkColumns: ColumnDef<LinkRow>[] = [
     {
       key: "linkName",
-      header: "Link Name",
-      width: "85%",
+      header: "Name",
+      width: "40%",
       render: (_v, row) =>
         editingLinkId === row.id ? (
           <input
@@ -254,25 +297,73 @@ export default function DocumentUpload({
         ),
     },
     {
+      key: "urlPrefix",
+      header: "URL Prefix",
+      width: "45%",
+      render: (_v, row) => {
+        console.log(
+          "Rendering urlPrefix for row:",
+          row,
+          "value:",
+          row.urlPrefix,
+        );
+        return editingLinkId === row.id ? (
+          <input
+            type="text"
+            value={linkEditDraft?.urlPrefix ?? row.urlPrefix}
+            onChange={(e) => handleUrlPrefixChange(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+            placeholder="e.g., https://github.com/"
+          />
+        ) : (
+          <span className="text-gray-600 font-mono text-sm">
+            {row.urlPrefix}
+          </span>
+        );
+      },
+    },
+    {
       key: "action",
       header: "Action",
       align: "center",
       width: "15%",
-      render: (_v, row) => (
-        <div className="flex gap-2 justify-center">
-          <>
+      render: (_v, row) =>
+        editingLinkId === row.id ? (
+          <div className="flex gap-2 justify-center">
+            <button
+              className="px-3 py-1 text-sm text-green-600 hover:text-green-700 font-medium hover:bg-green-50 rounded transition-colors"
+              onClick={handleSaveLinkEdit}
+              type="button"
+            >
+              Save
+            </button>
+            <button
+              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded transition-colors"
+              onClick={() => {
+                setEditingLinkId(null);
+                setLinkEditDraft(null);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2 justify-center">
             <button
               type="button"
               className="p-2 rounded hover:bg-gray-200"
               onClick={() => {
                 setEditingLinkId(row.id);
-                setLinkEditDraft({ linkName: row.linkName });
+                setLinkEditDraft({
+                  linkName: row.linkName,
+                  urlPrefix: row.urlPrefix,
+                });
               }}
               title="Edit"
             >
               <SquarePen className="w-5 h-5 text-gray-700" />
             </button>
-
             <button
               type="button"
               className="p-2 rounded hover:bg-gray-200"
@@ -281,16 +372,10 @@ export default function DocumentUpload({
             >
               <Trash2 className="w-5 h-5 text-red-600" />
             </button>
-          </>
-        </div>
-      ),
+          </div>
+        ),
     },
   ];
-
-  const [accordionOpen, setAccordionOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState<"documents" | "links">(
-    "documents",
-  );
 
   const updateDocuments = (newDocuments: DocumentRow[]) => {
     setDocumentRows(newDocuments);
@@ -312,7 +397,6 @@ export default function DocumentUpload({
       doc.id === id ? { ...doc, templateFile: file } : doc,
     );
     updateDocuments(updatedDocs);
-
     notifications.show({
       title: "Template Uploaded",
       message: `Template uploaded for ${documentRows.find((d) => d.id === id)?.documentName}`,
@@ -326,7 +410,6 @@ export default function DocumentUpload({
       d.id === id ? { ...d, templateFile: null } : d,
     );
     updateDocuments(updatedDocs);
-
     notifications.show({
       title: "Template Removed",
       message: `Template removed for ${doc?.documentName}`,
@@ -349,7 +432,6 @@ export default function DocumentUpload({
   const handleDeleteRow = (id: number) => {
     const updatedDocs = documentRows.filter((doc) => doc.id !== id);
     updateDocuments(updatedDocs);
-
     notifications.show({
       title: "Deleted",
       message: "Document record deleted",
@@ -357,10 +439,46 @@ export default function DocumentUpload({
     });
   };
 
+  const handleToggleMultiple = (id: number) => {
+    const updatedDocs = documentRows.map((doc) =>
+      doc.id === id ? { ...doc, isMultiple: !doc.isMultiple } : doc,
+    );
+    updateDocuments(updatedDocs);
+  };
+
+  const handleToggleBroadcast = (id: number) => {
+    const updatedDocs = documentRows.map((doc) =>
+      doc.id === id ? { ...doc, isBroadcast: !doc.isBroadcast } : doc,
+    );
+    updateDocuments(updatedDocs);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingRowId && editDraft) {
+      const updatedDocs = documentRows.map((doc) =>
+        doc.id === editingRowId
+          ? {
+              ...doc,
+              documentName: editDraft.documentName,
+              deadline: editDraft.deadline,
+            }
+          : doc,
+      );
+      updateDocuments(updatedDocs);
+      setEditingRowId(null);
+      setEditDraft(null);
+      notifications.show({
+        title: "Saved",
+        message: "Document updated successfully",
+        color: "green",
+      });
+    }
+  };
+
   const documentColumns: ColumnDef<DocumentRow>[] = [
     {
       key: "documentName",
-      header: "Document Name",
+      header: "Name",
       sortable: true,
       width: "25%",
       render: (_, row) =>
@@ -373,7 +491,19 @@ export default function DocumentUpload({
             placeholder="Enter document name"
           />
         ) : (
-          <span>{row.documentName}</span>
+          <div className="flex items-center gap-2">
+            <span>{row.documentName}</span>
+            {row.isMultiple && (
+              <span title="Multiple upload enabled">
+                <Layers className="w-4 h-4 text-blue-600" />
+              </span>
+            )}
+            {row.isBroadcast && (
+              <span title="Broadcast enabled">
+                <Send className="w-4 h-4 text-teal-600" />
+              </span>
+            )}
+          </div>
         ),
     },
     {
@@ -395,7 +525,7 @@ export default function DocumentUpload({
     },
     {
       key: "templateFile",
-      header: "Template Upload",
+      header: "Template",
       align: "center",
       width: "30%",
       render: (value, row) => (
@@ -416,7 +546,7 @@ export default function DocumentUpload({
                 }}
               >
                 <Trash2 size={16} />
-                Delete Template
+                Delete
               </button>
             </>
           ) : (
@@ -441,7 +571,7 @@ export default function DocumentUpload({
                   }}
                 >
                   <Upload size={16} />
-                  Upload Template
+                  Upload
                 </button>
               </label>
             </>
@@ -454,129 +584,183 @@ export default function DocumentUpload({
       header: "Action",
       align: "center",
       width: "15%",
-      render: (_value, row) => (
-        <DropdownMenu
-          row={row}
-          setEditingRowId={setEditingRowId}
-          setEditDraft={setEditDraft}
-          handleDeleteRow={handleDeleteRow}
-          notifications={notifications}
-        />
-      ),
+      render: (_value, row) =>
+        editingRowId === row.id ? (
+          <div className="flex gap-2 justify-center">
+            <button
+              className="px-3 py-1 text-sm text-green-600 hover:text-green-700 font-medium hover:bg-green-50 rounded transition-colors"
+              onClick={handleSaveEdit}
+              type="button"
+            >
+              Save
+            </button>
+            <button
+              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded transition-colors"
+              onClick={() => {
+                setEditingRowId(null);
+                setEditDraft(null);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <DropdownMenu
+            row={row}
+            setEditingRowId={setEditingRowId}
+            setEditDraft={setEditDraft}
+            handleDeleteRow={handleDeleteRow}
+            handleToggleMultiple={handleToggleMultiple}
+            handleToggleBroadcast={handleToggleBroadcast}
+            notifications={notifications}
+          />
+        ),
     },
   ];
 
   return (
-    <div className="p-1">
-      <div className="bg-white shadow-md rounded-sm p-1 space-y-0">
+    <div className="p-0">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         {/* Accordion Header with Add Button */}
-        <div className="flex items-center justify-between mb-4">
-          <button
-            className="flex items-center gap-2 text-xl font-semibold focus:outline-none select-none"
-            onClick={() => setAccordionOpen((v) => !v)}
-            aria-expanded={accordionOpen}
-            aria-controls="document-accordion-content"
-            type="button"
-          >
-            {accordionOpen ? (
-              <ChevronDown className="w-6 h-6" />
-            ) : (
-              <ChevronUp className="w-6 h-6" />
-            )}
-            {batchTitle}
-          </button>
-
-          {/* Add Button aligned to right */}
-          {accordionOpen && (
-            <Button
-              variant="default"
-              className="!bg-white hover:!bg-gray-100 !text-blue-600 border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
-              onClick={
-                activeTab === "documents" ? handleAddDocument : handleAddLink
-              }
-            >
-              + Add {activeTab === "documents" ? "Document" : "Link"}
-            </Button>
-          )}
-        </div>
-
-        {/* Tabs below header - Full-width Phase Tabs Styling with Lucide icons */}
-        {accordionOpen && (
-          <div className="mb-2 w-full">
-            <div className="flex w-full gap-3 bg-gray-50 rounded-lg">
-              {["documents", "links"].map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab as "documents" | "links")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                    activeTab === tab
-                      ? "bg-blue-50 text-blue-600 my-1"
-                      : "text-gray-600 hover:bg-gray-100 my-1"
-                  }`}
-                >
-                  {tab === "documents" ? (
-                    <FileText className="w-4 h-4" />
-                  ) : (
-                    <Link className="w-4 h-4" />
-                  )}
-                  <span className="capitalize">{tab}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Accordion Content with Tabs */}
         <div
-          id="document-accordion-content"
-          className={`${accordionOpen ? "block" : "hidden"} space-y-6`}
+          className={`flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${
+            accordionOpen ? "p-4 pb-0" : "p-4"
+          }`}
+          onClick={() => setAccordionOpen((v) => !v)}
         >
-          {activeTab === "documents" && (
-            <>
-              <DataTable
-                columns={documentColumns}
-                data={documentRows}
-                showHeaderSection={true}
-                headerTitle="Documents"
-                enableSearch={true}
-                enablePagination={true}
-                pageSize={5}
-                pageSizeOptions={[5, 10, 25]}
-                highlightOnHover={true}
-                withBorder={true}
-                rowStyle={{ fontSize: "16px", height: "56px", lineHeight: "1" }}
-                headerStyle={{
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  height: "40px",
-                  background: "#F8F9FA",
+          <div className="flex items-center gap-3">
+            <button
+              className="flex items-center gap-2 text-lg font-semibold text-[#565E6C] focus:outline-none select-none"
+              onClick={(e) => {
+                e.stopPropagation();
+                setAccordionOpen((v) => !v);
+              }}
+              aria-expanded={accordionOpen}
+              aria-controls="document-accordion-content"
+              type="button"
+            >
+              {batchTitle}
+            </button>
+            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              {documentRows.length + linkRows.length} item
+              {documentRows.length + linkRows.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Add Button aligned to right */}
+            {accordionOpen && (
+              <Button
+                variant="default"
+                className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-4 py-2 rounded-md shadow-sm h-auto text-sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  activeTab === "documents"
+                    ? handleAddDocument()
+                    : handleAddLink();
                 }}
-              />
-            </>
+              >
+                + Add {activeTab === "documents" ? "Document" : "Link"}
+              </Button>
+            )}
+            {accordionOpen ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+        </div>
+        <div className={accordionOpen ? "px-4 pb-4" : ""}>
+          {/* Tabs below header - with spacing */}
+          {accordionOpen && (
+            <div className="my-4 w-full">
+              <div className="flex w-full gap-3 bg-gray-50 rounded-lg">
+                {["documents", "links"].map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab as "documents" | "links")}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                      activeTab === tab
+                        ? "bg-blue-50 text-blue-600 my-1"
+                        : "text-gray-600 hover:bg-gray-100 my-1"
+                    }`}
+                  >
+                    {tab === "documents" ? (
+                      <FileText className="w-4 h-4" />
+                    ) : (
+                      <Link className="w-4 h-4" />
+                    )}
+                    <span className="capitalize">{tab}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
-          {activeTab === "links" && (
-            <>
-              <DataTable
-                columns={linkColumns}
-                data={linkRows}
-                showHeaderSection={true}
-                headerTitle="Links"
-                enableSearch={true}
-                enablePagination={true}
-                pageSize={5}
-                pageSizeOptions={[5, 10, 25]}
-                highlightOnHover={true}
-                withBorder={true}
-                rowStyle={{ fontSize: "16px", height: "56px", lineHeight: "1" }}
-                headerStyle={{
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  height: "40px",
-                  background: "#F8F9FA",
-                }}
-              />
-            </>
+          {/* Accordion Content with Tabs */}
+          {accordionOpen && (
+            <div
+              id="document-accordion-content"
+              className="space-y-6 border-t border-gray-200 pt-4"
+            >
+              {activeTab === "documents" && (
+                <>
+                  <DataTable
+                    columns={documentColumns}
+                    data={documentRows}
+                    showHeaderSection={true}
+                    headerTitle="Documents"
+                    enableSearch={true}
+                    enablePagination={true}
+                    pageSize={5}
+                    pageSizeOptions={[5, 10, 25]}
+                    highlightOnHover={true}
+                    withBorder={true}
+                    rowStyle={{
+                      fontSize: "16px",
+                      height: "56px",
+                      lineHeight: "1",
+                    }}
+                    headerStyle={{
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      height: "40px",
+                      background: "#F8F9FA",
+                    }}
+                  />
+                </>
+              )}
+              {activeTab === "links" && (
+                <>
+                  {/* Debug: Log link data */}
+                  {console.log("LinkRows data:", linkRows)}
+                  {console.log("LinkColumns:", linkColumns)}
+                  <DataTable
+                    columns={linkColumns}
+                    data={linkRows}
+                    showHeaderSection={true}
+                    headerTitle="Links"
+                    enableSearch={true}
+                    enablePagination={true}
+                    pageSize={5}
+                    pageSizeOptions={[5, 10, 25]}
+                    highlightOnHover={true}
+                    withBorder={true}
+                    rowStyle={{
+                      fontSize: "16px",
+                      height: "56px",
+                      lineHeight: "1",
+                    }}
+                    headerStyle={{
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      height: "40px",
+                      background: "#F8F9FA",
+                    }}
+                  />
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>

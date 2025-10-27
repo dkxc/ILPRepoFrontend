@@ -138,5 +138,10 @@
     "builtin": true
   },
   "globals": {},
-  "ignorePatterns": ["**/build/**, **/dist/**", "**/node_modules/**"]
+  "ignorePatterns": [
+    "**/build/**, **/dist/**",
+    "**/coverage/**",
+    "**/node_modules/**",
+    "**/public/**"
+  ]
 }
