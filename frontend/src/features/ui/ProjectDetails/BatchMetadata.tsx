@@ -1,361 +1,62 @@
-import { useState } from "react";
-import Button from "../Button";
-import {
-  SquarePen,
-  Plus,
-  X,
-  Copy,
-  FolderPen,
-  Users,
-  ChartBarStacked,
-  Link2,
-  MoreHorizontal,
-  ChevronDown,
-} from "lucide-react";
+import { FolderPen, Users } from "lucide-react";
 
 interface BatchMetadataProps {
-  id?: number;
   name: string;
   projectName: string;
   trainees: number;
-  techStack: string[];
-  repositoryUrl: string;
-  figmaUrl: string;
-  canEdit?: boolean;
   status?: string;
   progress?: number;
 }
 
 function BatchMetadata({
-  id,
   name,
   projectName,
   trainees,
-  techStack,
-  repositoryUrl,
-  figmaUrl,
-  canEdit = false,
   status,
   progress,
 }: BatchMetadataProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTechStackArr, setEditTechStackArr] = useState<string[]>(techStack);
-  const [editTechStackInput, setEditTechStackInput] = useState("");
-  const [editRepo, setEditRepo] = useState(repositoryUrl);
-  const [editFigma, setEditFigma] = useState(figmaUrl);
-  const [currentTechStack, setCurrentTechStack] = useState<string[]>(techStack);
-  const [currentRepo, setCurrentRepo] = useState(repositoryUrl);
-  const [currentFigma, setCurrentFigma] = useState(figmaUrl);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  const [showAllTechStack, setShowAllTechStack] = useState(false);
-
-  async function handleSaveEdit() {
-    setSaving(true);
-    setSaveError(null);
-    try {
-      const response = await fetch(
-        "https://localhost:7153/api/ProjectDetails/edit",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id,
-            gitHubLink: editRepo,
-            figmaLink: editFigma,
-            stack: editTechStackArr.join(","),
-          }),
-        },
-      );
-      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-      // Optionally handle response
-      setCurrentTechStack(editTechStackArr);
-      setCurrentRepo(editRepo);
-      setCurrentFigma(editFigma);
-      setIsEditing(false);
-    } catch (err: any) {
-      setSaveError(err?.message || "Failed to save changes");
-    } finally {
-      setSaving(false);
-    }
-  }
-
   return (
-    <>
-      <div className="px-2 mt-5 mb-6 flex items-center gap-3">
-        <h1
-          className="text-3xl font-extrabold tracking-tight"
-          style={{ color: "#565E6C" }}
-        >
-          {projectName || "ILP Project"}
-        </h1>
-        <span className="px-4 py-1 rounded-full bg-brand text-white text-sm font-semibold shadow-sm select-none border border-blue-200">
-          {status || "Ongoing"}
-        </span>
+    <div className="bg-white px-4 md:px-8 py-6 rounded-lg border border-[#F8F9FA] mb-6 w-full shadow-sm">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-4 w-full">
+        <div className="flex items-center gap-4 min-w-[300px] flex-1">
+          <h1 className="text-2xl font-extrabold tracking-tight text-gray-700 whitespace-nowrap">
+            {projectName || "ILP Project"}
+          </h1>
+          <span className="px-3 py-1 rounded-full bg-brand text-white text-xs font-semibold shadow-sm select-none border border-blue-200 whitespace-nowrap">
+            {status || "Ongoing"}
+          </span>
+        </div>
+        <div className="flex items-center gap-4 min-w-[250px]">
+          <FolderPen
+            className="h-5 w-5 flex-shrink-0"
+            style={{ color: "#7B7575" }}
+          />
+          <span className="font-bold text-gray-700 whitespace-nowrap">
+            Batch:
+          </span>
+          <span className="text-gray-800 text-base font-medium truncate">
+            {name}
+          </span>
+        </div>
+        <div className="flex items-center gap-4 min-w-[180px]">
+          <Users
+            className="h-5 w-5 flex-shrink-0"
+            style={{ color: "#7B7575" }}
+          />
+          <span className="font-bold text-gray-700 whitespace-nowrap">
+            Trainees:
+          </span>
+          <span className="text-gray-800 text-base font-medium">
+            {trainees}
+          </span>
+        </div>
         {typeof progress === "number" && (
           <span className="ml-2 text-sm font-semibold text-green-700">
             Progress: {progress}%
           </span>
         )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 bg-white px-2 sm:px-4 md:px-8 py-4 gap-y-4 gap-x-2 rounded-t-lg">
-        <div className="flex flex-col items-start px-2 py-2">
-          <span className="font-bold mb-2 flex items-center gap-2">
-            <FolderPen className="h-5 w-5" style={{ color: "#7B7575" }} />
-            Batch
-          </span>
-          <span className="text-white-800">{name}</span>
-        </div>
-        <div className="flex flex-col items-start px-2 py-2">
-          <span className="font-bold mb-2 flex items-center gap-2">
-            <Users className="h-5 w-5" style={{ color: "#7B7575" }} />
-            No of Trainees
-          </span>
-          <span className="text-gray-800">{trainees}</span>
-        </div>
-        <div className="flex flex-col items-start px-2 py-2">
-          <span className="font-bold mb-2 flex items-center gap-2">
-            <ChartBarStacked className="h-5 w-5" style={{ color: "#7B7575" }} />
-            Tech Stack
-          </span>
-          <div
-            className="flex flex-wrap gap-2 relative items-center"
-            style={{ minHeight: 40 }}
-          >
-            {currentTechStack.length === 0 ? (
-              <span className="text-gray-400 italic">Stack not given</span>
-            ) : (
-              <>
-                <div
-                  className="flex items-center"
-                  style={{ flexWrap: "nowrap", gap: 8, position: "relative" }}
-                >
-                  {currentTechStack.slice(0, 2).map((stack, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 rounded-full text-sm font-medium bg-brand text-white border border-blue-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                      style={{ boxShadow: "0 1px 4px rgba(37,99,235,0.08)" }}
-                    >
-                      {stack}
-                    </span>
-                  ))}
-                  {currentTechStack.length > 2 && (
-                    <div
-                      style={{ position: "relative", display: "inline-block" }}
-                    >
-                      <button
-                        className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 border border-gray-300 shadow-sm"
-                        style={{
-                          position: "absolute",
-                          right: -10,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                        }}
-                        onClick={() => setShowAllTechStack((v) => !v)}
-                        type="button"
-                        title={`Show ${currentTechStack.length - 2} more`}
-                      >
-                        <MoreHorizontal size={18} />
-                        <ChevronDown size={16} style={{ marginLeft: -4 }} />
-                      </button>
-                      {showAllTechStack && (
-                        <div
-                          className="absolute left-0 mt-2 z-10 bg-white border border-gray-300 rounded shadow-lg min-w-max p-2 flex flex-col gap-1"
-                          style={{ minWidth: 120 }}
-                        >
-                          {currentTechStack.slice(2).map((stack, idx) => (
-                            <span
-                              key={idx}
-                              className="px-3 py-1 rounded-full text-sm font-medium bg-brand text-white border border-blue-200 shadow-sm cursor-pointer"
-                              style={{
-                                boxShadow: "0 1px 4px rgba(37,99,235,0.08)",
-                              }}
-                            >
-                              {stack}
-                            </span>
-                          ))}
-                          <button
-                            className="mt-1 px-2 py-1 rounded text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
-                            onClick={() => setShowAllTechStack(false)}
-                            type="button"
-                          >
-                            Close
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-        {/* Links placeholder */}
-        <div className="flex flex-col items-start px-2 py-2">
-          <span className="font-bold mb-2 flex items-center gap-2">
-            <Link2 className="h-5 w-5" style={{ color: "#7B7575" }} />
-            Links
-          </span>
-          <span className="flex gap-4 items-center">
-            <span className="flex items-center gap-2">
-              <a
-                href={currentRepo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Repository
-              </a>
-              <Button
-                variant="default"
-                size="icon"
-                title="Copy Repository Link"
-                type="button"
-                className="bg-gray-100 hover:bg-gray-200 rounded-full p-1 text-white"
-                onClick={() => navigator.clipboard.writeText(currentRepo)}
-              >
-                <Copy className="h-4 w-4 text-gray-700" />
-              </Button>
-            </span>
-            <span className="flex items-center gap-2">
-              <a
-                href={currentFigma}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Figma
-              </a>
-              <Button
-                variant="default"
-                size="icon"
-                title="Copy Figma Link"
-                type="button"
-                className="bg-gray-100 hover:bg-gray-200 rounded-full p-1 text-white"
-                onClick={() => navigator.clipboard.writeText(currentFigma)}
-              >
-                <Copy className="h-4 w-4 text-gray-700" />
-              </Button>
-            </span>
-          </span>
-        </div>
-        {/* Edit placeholder */}
-        {canEdit && (
-          <div className="col-span-1 md:col-span-1 flex w-full md:w-40 justify-center md:justify-end items-center px-2 py-2 mt-4 md:mt-0 md:ml-6">
-            <Button
-              variant="default"
-              size="default"
-              className="bg-brand rounded-lg px-4 py-2 flex items-center justify-center w-full md:w-auto text-white border border-brand/30 hover:bg-brand/90 transition-colors"
-              title="Edit"
-              onClick={() => setIsEditing(true)}
-            >
-              <SquarePen className="h-6 w-6 text-white mr-2" />
-              Edit
-            </Button>
-          </div>
-        )}
-      </div>
-      {/* Modal for editing */}
-      {canEdit && isEditing && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Edit Project Details</h2>
-            <div className="mb-4">
-              <label className="block font-semibold mb-1">Tech Stack</label>
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  className="border rounded px-2 py-1 w-full"
-                  value={editTechStackInput}
-                  onChange={(e) => setEditTechStackInput(e.target.value)}
-                  placeholder="Add tech stack"
-                />
-                <Button
-                  variant="default"
-                  size="icon"
-                  className="bg-brand text-white rounded-full p-2 flex items-center justify-center"
-                  type="button"
-                  onClick={() => {
-                    const val = editTechStackInput.trim();
-                    if (val && !editTechStackArr.includes(val)) {
-                      setEditTechStackArr([...editTechStackArr, val]);
-                      setEditTechStackInput("");
-                    }
-                  }}
-                >
-                  <Plus className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {editTechStackArr.map((stack, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-brand text-white px-1 py-0 rounded-md text-[0.7rem] font-normal flex items-center border border-brand/30"
-                  >
-                    {stack}
-                    <Button
-                      variant="default"
-                      size="icon"
-                      className="ml-2 hover:text-black text-white"
-                      type="button"
-                      onClick={() =>
-                        setEditTechStackArr(
-                          editTechStackArr.filter((_, i) => i !== idx),
-                        )
-                      }
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block font-semibold mb-1">Repository URL</label>
-              <input
-                type="text"
-                className="border rounded px-2 py-1 w-full"
-                value={editRepo}
-                onChange={(e) => setEditRepo(e.target.value)}
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block font-semibold mb-1">Figma URL</label>
-              <input
-                type="text"
-                className="border rounded px-2 py-1 w-full"
-                value={editFigma}
-                onChange={(e) => setEditFigma(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-center gap-4 mt-6">
-              <Button
-                variant="default"
-                size="sm"
-                className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 text-grey-700"
-                onClick={() => setIsEditing(false)}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                className="px-3 py-1 rounded bg-brand text-white"
-                onClick={handleSaveEdit}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save"}
-              </Button>
-              {saveError && (
-                <div className="text-red-500 text-sm mt-2">{saveError}</div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 }
 
