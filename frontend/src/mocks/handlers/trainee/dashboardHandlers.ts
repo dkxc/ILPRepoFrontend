@@ -1,12 +1,12 @@
 import { delay, http, HttpResponse } from "msw";
 
-const userProfile = {
+export const userProfile = {
   firstName: "Name",
   projectId: 21231,
   batchId: 12345,
 };
 
-const projectData = {
+export const projectData = {
   id: 21231,
   title: "ILP Repo",
   status: "Live",
@@ -26,7 +26,7 @@ const projectData = {
   progress: 60,
 };
 
-const batchData = {
+export const batchData = {
   id: 12345,
   title: "ILP 2025-26 Batch 1",
   type: "Associate Software Developer Training",
@@ -36,7 +36,7 @@ const batchData = {
   status: "Ongoing",
 };
 
-const allDocuments = [
+export const allDocuments = [
   {
     id: 1,
     title: "JS Module Test File",
@@ -67,7 +67,7 @@ const allDocuments = [
   },
 ];
 
-const batchSessions = [
+export const batchSessions = [
   {
     id: 1,
     title: ".NET Fundamentals",
@@ -106,7 +106,7 @@ const batchSessions = [
   },
 ];
 
-const userScores = {
+export const userScores = {
   average: 79.75,
   rank: 19,
   courses: [

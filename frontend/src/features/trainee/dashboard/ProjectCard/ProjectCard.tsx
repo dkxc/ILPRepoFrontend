@@ -1,17 +1,18 @@
-import { type Project } from "../types/Project.types";
-import * as Card from "../../ui/card";
-import Badge from "../../ui/badge/Badge";
-import Button from "../../ui/Button";
-import Skeleton from "../../ui/Skeleton";
+import { type Project } from "../../types/Project.types";
+import * as Card from "../../../ui/card";
+import Badge from "../../../ui/badge/Badge";
+import Button from "../../../ui/Button";
+import Skeleton from "@ui/skeleton";
 
-import { cn } from "../../../lib/utils";
+import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
-import { getPieDataFromPercent } from "../../../lib/graphs/utils";
+import { getPieDataFromPercent } from "../../../../lib/graphs/utils";
 
-import { Pencil, Radio, UploadCloud } from "lucide-react";
+import { FileText, Pencil, Radio } from "lucide-react";
 import { useState } from "react";
 
-import DocumentSubmissionModal from "../../ui/DocumentUpload";
+import EditProjectDetailsModal from "../../../ui/ProjectDetails/EditProjectDetailsModal";
+import DocumentSubmissionModal from "../../../ui/DocumentUpload";
 import { createPortal } from "react-dom";
 import { type UseQueryResult } from "@tanstack/react-query";
 
@@ -39,6 +40,55 @@ function ProjectCard({
 }: ProjectCardProps & { ref?: React.Ref<HTMLDivElement> }) {
   const { data: project, status } = query;
   const [showStepper, setShowStepper] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTechStack, setEditingTechStack] = useState<string[]>([]);
+  const [editingRepoUrl, setEditingRepoUrl] = useState("");
+  const [editingFigmaUrl, setEditingFigmaUrl] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const openEditModal = () => {
+    if (project) {
+      setEditingTechStack([...project.technologies]);
+      setEditingRepoUrl(project.repositoryUrl || "");
+      setEditingFigmaUrl(project.figmaUrl || "");
+      setShowEditModal(true);
+    }
+  };
+
+  const handleSaveEdit = async ({
+    techStack,
+    repositoryUrl,
+    figmaUrl,
+  }: {
+    techStack: string[];
+    repositoryUrl: string;
+    figmaUrl: string;
+  }) => {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const response = await fetch(
+        "https://localhost:7153/api/ProjectDetails/edit-details",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: project?.id,
+            techStack: techStack.join(","),
+            repositoryUrl,
+            figmaUrl,
+          }),
+        },
+      );
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      setShowEditModal(false);
+    } catch (err: any) {
+      setSaveError(err?.message || "Failed to save changes");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (status === "pending") {
     return (
@@ -93,7 +143,7 @@ function ProjectCard({
         {...props}
       >
         <div className="flex justify-between w-full">
-          <div className="self-center-safe">
+          <div className="flex flex-col justify-between">
             <Card.CardHeader>
               <Card.CardTitle>{project.title}</Card.CardTitle>
               <Card.CardDescription>
@@ -131,9 +181,14 @@ function ProjectCard({
                 className="px-4 text-xs"
                 onClick={() => setShowStepper(true)}
               >
-                <UploadCloud /> Upload Documents
+                <FileText /> Documents
               </Button>
-              <Button size="sm" variant="secondary" className="px-4 text-xs">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="px-4 text-xs"
+                onClick={openEditModal}
+              >
                 <Pencil /> Edit Details
               </Button>
             </Card.CardFooter>
@@ -206,6 +261,23 @@ function ProjectCard({
             isOpen={showStepper}
             onClose={() => setShowStepper(false)}
             onSubmit={() => setShowStepper(false)}
+          />,
+          document.body,
+        )}
+      {showEditModal &&
+        createPortal(
+          <EditProjectDetailsModal
+            isOpen={showEditModal}
+            onClose={() => {
+              setShowEditModal(false);
+              setSaveError(null);
+            }}
+            onSave={handleSaveEdit}
+            initialTechStack={editingTechStack}
+            initialRepositoryUrl={editingRepoUrl}
+            initialFigmaUrl={editingFigmaUrl}
+            saving={saving}
+            saveError={saveError}
           />,
           document.body,
         )}

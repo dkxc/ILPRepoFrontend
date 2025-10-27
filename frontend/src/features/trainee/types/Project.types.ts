@@ -8,4 +8,6 @@ export type Project = {
     members: string[];
   };
   progress: number;
+  repositoryUrl?: string;
+  figmaUrl?: string;
 };
