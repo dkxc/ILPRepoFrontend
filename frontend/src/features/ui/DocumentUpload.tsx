@@ -100,36 +100,36 @@ const DocumentSubmissionModal = ({
 
   const documentTypes = ["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"];
 
-    // Mock template URLs (in real app, fetch from API/database)
-    const templateUrls: Record<string, string | null> = {
-      BRD: "/templates/brd_template.docx",
-      UAT: "/templates/uat_template.xlsx",
-      "Sprint Tracker": null, // No template
-      MOM: null, // No template
-      Requirements: "/templates/requirements_template.docx",
-    };
+  // Mock template URLs (in real app, fetch from API/database)
+  const templateUrls: Record<string, string | null> = {
+    BRD: "/templates/brd_template.docx",
+    UAT: "/templates/uat_template.xlsx",
+    "Sprint Tracker": null, // No template
+    MOM: null, // No template
+    Requirements: "/templates/requirements_template.docx",
+  };
 
-    const [templateError, setTemplateError] = useState<string>("");
+  const [templateError, setTemplateError] = useState<string>("");
 
-    const handleDownloadTemplate = () => {
-      setTemplateError("");
-      if (!filterType || filterType === "all") {
-        setTemplateError("Please select a document type first.");
-        return;
-      }
-      const url = templateUrls[filterType];
-      if (url) {
-        // Simulate download
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${filterType}_template`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        setTemplateError("Template not available for this type.");
-      }
-    };
+  const handleDownloadTemplate = () => {
+    setTemplateError("");
+    if (!filterType || filterType === "all") {
+      setTemplateError("Please select a document type first.");
+      return;
+    }
+    const url = templateUrls[filterType];
+    if (url) {
+      // Simulate download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${filterType}_template`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      setTemplateError("Template not available for this type.");
+    }
+  };
 
   const filteredDocuments =
     filterType === "all"
@@ -259,7 +259,9 @@ const DocumentSubmissionModal = ({
                 </div>
               </div>
               {templateError && (
-                <div className="text-red-500 text-sm mb-2 text-right">{templateError}</div>
+                <div className="text-red-500 text-sm mb-2 text-right">
+                  {templateError}
+                </div>
               )}
 
               <div className="flex-1 overflow-auto border border-gray-200 rounded-md">
