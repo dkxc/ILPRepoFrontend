@@ -172,6 +172,7 @@ interface DocumentRow {
 interface LinkRow {
   id: number;
   linkName: string;
+  urlPrefix: string;
 }
 
 interface DocumentUploadProps {
@@ -191,8 +192,8 @@ export default function DocumentUpload({
     { id: 3, documentName: "Sprint Tracker", deadline: "", templateFile: null },
   ],
   initialLinks = [
-    { id: 1, linkName: "GitHub Repo" },
-    { id: 2, linkName: "Deployment Link" },
+    { id: 1, linkName: "GitHub Repo", urlPrefix: "https://github.com/" },
+    { id: 2, linkName: "Deployment Link", urlPrefix: "https://" },
   ],
   onDocumentChange,
   onLinksChange,
@@ -209,6 +210,7 @@ export default function DocumentUpload({
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
   const [linkEditDraft, setLinkEditDraft] = useState<{
     linkName: string;
+    urlPrefix: string;
   } | null>(null);
 
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -225,6 +227,7 @@ export default function DocumentUpload({
     const newLink: LinkRow = {
       id: Date.now(),
       linkName: `Link ${linkRows.length + 1}`,
+      urlPrefix: "https://",
     };
     updateLinks([...linkRows, newLink]);
   };
@@ -245,13 +248,24 @@ export default function DocumentUpload({
     );
   };
 
+  const handleUrlPrefixChange = (newPrefix: string) => {
+    setLinkEditDraft((draft) =>
+      draft ? { ...draft, urlPrefix: newPrefix } : draft,
+    );
+  };
+
   const handleSaveLinkEdit = () => {
     if (editingLinkId && linkEditDraft) {
-      const updatedLinks = linkRows.map((link) =>
-        link.id === editingLinkId
-          ? { ...link, linkName: linkEditDraft.linkName }
-          : link,
-      );
+      const updatedLinks = linkRows.map((link) => {
+        if (link.id === editingLinkId) {
+          return {
+            ...link,
+            linkName: linkEditDraft.linkName,
+            urlPrefix: linkEditDraft.urlPrefix ?? link.urlPrefix,
+          };
+        }
+        return link;
+      });
       updateLinks(updatedLinks);
       setEditingLinkId(null);
       setLinkEditDraft(null);
@@ -263,12 +277,12 @@ export default function DocumentUpload({
     }
   };
 
-  // Columns
+  // Columns for Links
   const linkColumns: ColumnDef<LinkRow>[] = [
     {
       key: "linkName",
-      header: "Link Name",
-      width: "85%",
+      header: "Name",
+      width: "40%",
       render: (_v, row) =>
         editingLinkId === row.id ? (
           <input
@@ -281,6 +295,32 @@ export default function DocumentUpload({
         ) : (
           <span>{row.linkName}</span>
         ),
+    },
+    {
+      key: "urlPrefix",
+      header: "URL Prefix",
+      width: "45%",
+      render: (_v, row) => {
+        console.log(
+          "Rendering urlPrefix for row:",
+          row,
+          "value:",
+          row.urlPrefix,
+        );
+        return editingLinkId === row.id ? (
+          <input
+            type="text"
+            value={linkEditDraft?.urlPrefix ?? row.urlPrefix}
+            onChange={(e) => handleUrlPrefixChange(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+            placeholder="e.g., https://github.com/"
+          />
+        ) : (
+          <span className="text-gray-600 font-mono text-sm">
+            {row.urlPrefix}
+          </span>
+        );
+      },
     },
     {
       key: "action",
@@ -315,7 +355,10 @@ export default function DocumentUpload({
               className="p-2 rounded hover:bg-gray-200"
               onClick={() => {
                 setEditingLinkId(row.id);
-                setLinkEditDraft({ linkName: row.linkName });
+                setLinkEditDraft({
+                  linkName: row.linkName,
+                  urlPrefix: row.urlPrefix,
+                });
               }}
               title="Edit"
             >
@@ -435,7 +478,7 @@ export default function DocumentUpload({
   const documentColumns: ColumnDef<DocumentRow>[] = [
     {
       key: "documentName",
-      header: "Document Name",
+      header: "Name",
       sortable: true,
       width: "25%",
       render: (_, row) =>
@@ -482,7 +525,7 @@ export default function DocumentUpload({
     },
     {
       key: "templateFile",
-      header: "Template Upload",
+      header: "Template",
       align: "center",
       width: "30%",
       render: (value, row) => (
@@ -503,7 +546,7 @@ export default function DocumentUpload({
                 }}
               >
                 <Trash2 size={16} />
-                Delete Template
+                Delete
               </button>
             </>
           ) : (
@@ -528,7 +571,7 @@ export default function DocumentUpload({
                   }}
                 >
                   <Upload size={16} />
-                  Upload Template
+                  Upload
                 </button>
               </label>
             </>
@@ -628,9 +671,9 @@ export default function DocumentUpload({
           </div>
         </div>
         <div className={accordionOpen ? "px-4 pb-4" : ""}>
-          {/* Tabs below header - Full-width Phase Tabs Styling with Lucide icons */}
+          {/* Tabs below header - with spacing */}
           {accordionOpen && (
-            <div className="mb-4 w-full">
+            <div className="my-4 w-full">
               <div className="flex w-full gap-3 bg-gray-50 rounded-lg">
                 {["documents", "links"].map((tab) => (
                   <button
@@ -689,6 +732,9 @@ export default function DocumentUpload({
               )}
               {activeTab === "links" && (
                 <>
+                  {/* Debug: Log link data */}
+                  {console.log("LinkRows data:", linkRows)}
+                  {console.log("LinkColumns:", linkColumns)}
                   <DataTable
                     columns={linkColumns}
                     data={linkRows}
