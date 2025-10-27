@@ -55,34 +55,114 @@ function TraineeProfile() {
 
   // Card data formatting
   const personalInfo = [
-    { label: "Full Name", value: personalInfoData.fullName, gridCols: "single" as const },
-    { label: "Blood Group", value: personalInfoData.bloodGroup, gridCols: "single" as const },
-    { label: "Aadhaar ID", value: personalInfoData.adhaarId, gridCols: "single" as const },
-    { label: "Health Conditions", value: personalInfoData.healthConditions, gridCols: "single" as const },
-    { label: "Personal Interests", value: personalInfoData.personalInterests, gridCols: "double" as const },
+    {
+      label: "Full Name",
+      value: personalInfoData.fullName,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Blood Group",
+      value: personalInfoData.bloodGroup,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Aadhaar ID",
+      value: personalInfoData.adhaarId,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Health Conditions",
+      value: personalInfoData.healthConditions,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Personal Interests",
+      value: personalInfoData.personalInterests,
+      gridCols: "double" as const,
+    },
   ];
 
   const officialInfo = [
-    { label: "Batch", value: officialInfoData.batch, gridCols: "double" as const },
-    { label: "Tech Stack", value: officialInfoData.techStack, gridCols: "single" as const },
-    { label: "Projects Involved", value: officialInfoData.projectsInvolved, gridCols: "single" as const },
-    { label: "Buddy", value: officialInfoData.buddy, gridCols: "single" as const },
-    { label: "OJT Mentor", value: officialInfoData.ojtMentor, gridCols: "single" as const },
-    { label: "DU Allocation", value: officialInfoData.duAllocation, gridCols: "single" as const },
-    { label: "Location", value: officialInfoData.location, gridCols: "single" as const },
+    {
+      label: "Batch",
+      value: officialInfoData.batch,
+      gridCols: "double" as const,
+    },
+    {
+      label: "Tech Stack",
+      value: officialInfoData.techStack,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Projects Involved",
+      value: officialInfoData.projectsInvolved,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Buddy",
+      value: officialInfoData.buddy,
+      gridCols: "single" as const,
+    },
+    {
+      label: "OJT Mentor",
+      value: officialInfoData.ojtMentor,
+      gridCols: "single" as const,
+    },
+    {
+      label: "DU Allocation",
+      value: officialInfoData.duAllocation,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Location",
+      value: officialInfoData.location,
+      gridCols: "single" as const,
+    },
   ];
 
   const contactAndEmergencyInfo = [
-    { type: "phone" as const, label: "Phone Number", value: contactInfoData.phoneNumber, gridCols: "single" as const },
-    { type: "email" as const, label: "Email", value: contactInfoData.email, gridCols: "single" as const },
-    { type: "phone" as const, label: "Emergency Contact Number", value: emergencyContactData.contactNumber, gridCols: "single" as const },
-    { type: "text" as const, label: "Relationship", value: emergencyContactData.relationship, gridCols: "single" as const },
+    {
+      type: "phone" as const,
+      label: "Phone Number",
+      value: contactInfoData.phoneNumber,
+      gridCols: "single" as const,
+    },
+    {
+      type: "email" as const,
+      label: "Email",
+      value: contactInfoData.email,
+      gridCols: "single" as const,
+    },
+    {
+      type: "phone" as const,
+      label: "Emergency Contact Number",
+      value: emergencyContactData.contactNumber,
+      gridCols: "single" as const,
+    },
+    {
+      type: "text" as const,
+      label: "Relationship",
+      value: emergencyContactData.relationship,
+      gridCols: "single" as const,
+    },
   ];
 
   const addressInfo = [
-    { label: "Current Address", value: addressInfoData.currentAddress, gridCols: "single" as const },
-    { label: "Contact Number", value: addressInfoData.contactNumber, gridCols: "single" as const },
-    { label: "Permanent Address", value: addressInfoData.permanentAddress, gridCols: "double" as const },
+    {
+      label: "Current Address",
+      value: addressInfoData.currentAddress,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Contact Number",
+      value: addressInfoData.contactNumber,
+      gridCols: "single" as const,
+    },
+    {
+      label: "Permanent Address",
+      value: addressInfoData.permanentAddress,
+      gridCols: "double" as const,
+    },
   ];
 
   // Modal handlers
