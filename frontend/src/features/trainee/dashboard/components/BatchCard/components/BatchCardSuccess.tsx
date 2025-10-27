@@ -1,4 +1,3 @@
-import React from "react";
 import { type Batch } from "../../../../types/Batch.types";
 import { getStatusBadgeVariant } from "../utils/Batch.utils";
 import * as Card from "../../../../../ui/card";
@@ -27,13 +26,11 @@ export function BatchCardSuccess({
       <Card.CardHeader className="pb-4">
         <Card.CardTitle>{batch.title}</Card.CardTitle>
         <Card.CardDescription asChild className="flex flex-col gap-2">
+          <div>{batch.type}</div>
           <div>
-            <div>{batch.type}</div>
-            <div>
-              <Badge variant={getStatusBadgeVariant(batch.status)}>
-                {batch.status}
-              </Badge>
-            </div>
+            <Badge variant={getStatusBadgeVariant(batch.status)}>
+              {batch.status}
+            </Badge>
           </div>
         </Card.CardDescription>
       </Card.CardHeader>
