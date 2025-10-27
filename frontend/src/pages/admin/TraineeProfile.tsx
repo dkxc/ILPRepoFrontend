@@ -2,6 +2,7 @@ import { useState } from "react";
 import { User, Briefcase, Phone, MapPin } from "lucide-react";
 import InfoCard from "../../features/ui/TraineeProfile/InfoCard";
 import EditModal from "../../features/ui/TraineeProfile/EditModel";
+import { useNavigate } from "react-router";
 
 function TraineeProfile() {
   // Modal state
@@ -196,6 +197,7 @@ function TraineeProfile() {
         break;
     }
   };
+  const navigate = useNavigate();
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -227,7 +229,7 @@ function TraineeProfile() {
 
         {/* View Results Button */}
         <button
-          onClick={() => console.log("View Results clicked")} // Replace with navigation logic
+          onClick={() => navigate("/results")} // Replace with navigation logic
           className="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
         >
           View Results

@@ -1,6 +1,6 @@
 import type { Session } from "../../types/Session.types";
 import * as Card from "../../../ui/card";
-import Skeleton from "../../../ui/Skeleton";
+import Skeleton from "@ui/skeleton";
 
 import { cn } from "../../../../lib/utils";
 import UpcomingSessionCardItem from "./UpcomingSessionCardItem";

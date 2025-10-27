@@ -1,5 +1,5 @@
-import { cn } from "../../../lib/utils";
-import Skeleton from "../../ui/Skeleton";
+import { WelcomeHeaderLoading } from "./components/WelcomeHeaderLoading";
+import { WelcomeHeaderSuccess } from "./components/WelcomeHeaderSuccess";
 
 export interface WelcomeHeaderProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -15,21 +15,16 @@ function WelcomeHeader({
   ...props
 }: WelcomeHeaderProps & { ref?: React.Ref<HTMLDivElement> }) {
   if (isLoading) {
-    return (
-      <div className={cn("px-6 pt-4", className)}>
-        <Skeleton className="h-8 w-64" />
-      </div>
-    );
+    return <WelcomeHeaderLoading className={className} {...props} />;
   }
 
   return (
-    <h1
-      className={cn("px-6 pt-4 font-semibold text-2xl", className)}
+    <WelcomeHeaderSuccess
+      firstName={firstName}
+      className={className}
       ref={ref}
       {...props}
-    >
-      Welcome, {firstName || "User"}
-    </h1>
+    />
   );
 }
 

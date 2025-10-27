@@ -17,8 +17,6 @@ import { notifications } from "@mantine/notifications";
 import type { ColumnDef } from "../../ui/Table";
 import Button from "../../ui/Button";
 import DataTable from "../../ui/Table";
-// import DataTable, { type ColumnDef } from "../../features/ui/Table";
-// import Button from "../../features/ui/Button";
 
 // DropdownMenu for action column
 function DropdownMenu({
@@ -174,6 +172,7 @@ interface DocumentRow {
 interface LinkRow {
   id: number;
   linkName: string;
+  urlPrefix: string;
 }
 
 interface DocumentUploadProps {
@@ -193,8 +192,8 @@ export default function DocumentUpload({
     { id: 3, documentName: "Sprint Tracker", deadline: "", templateFile: null },
   ],
   initialLinks = [
-    { id: 1, linkName: "GitHub Repo" },
-    { id: 2, linkName: "Deployment Link" },
+    { id: 1, linkName: "GitHub Repo", urlPrefix: "https://github.com/" },
+    { id: 2, linkName: "Deployment Link", urlPrefix: "https://" },
   ],
   onDocumentChange,
   onLinksChange,
@@ -211,7 +210,13 @@ export default function DocumentUpload({
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
   const [linkEditDraft, setLinkEditDraft] = useState<{
     linkName: string;
+    urlPrefix: string;
   } | null>(null);
+
+  const [accordionOpen, setAccordionOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"documents" | "links">(
+    "documents",
+  );
 
   const updateLinks = (newLinks: LinkRow[]) => {
     setLinkRows(newLinks);
@@ -222,6 +227,7 @@ export default function DocumentUpload({
     const newLink: LinkRow = {
       id: Date.now(),
       linkName: `Link ${linkRows.length + 1}`,
+      urlPrefix: "https://",
     };
     updateLinks([...linkRows, newLink]);
   };
@@ -242,12 +248,41 @@ export default function DocumentUpload({
     );
   };
 
-  // Columns
+  const handleUrlPrefixChange = (newPrefix: string) => {
+    setLinkEditDraft((draft) =>
+      draft ? { ...draft, urlPrefix: newPrefix } : draft,
+    );
+  };
+
+  const handleSaveLinkEdit = () => {
+    if (editingLinkId && linkEditDraft) {
+      const updatedLinks = linkRows.map((link) => {
+        if (link.id === editingLinkId) {
+          return {
+            ...link,
+            linkName: linkEditDraft.linkName,
+            urlPrefix: linkEditDraft.urlPrefix ?? link.urlPrefix,
+          };
+        }
+        return link;
+      });
+      updateLinks(updatedLinks);
+      setEditingLinkId(null);
+      setLinkEditDraft(null);
+      notifications.show({
+        title: "Saved",
+        message: "Link updated successfully",
+        color: "green",
+      });
+    }
+  };
+
+  // Columns for Links
   const linkColumns: ColumnDef<LinkRow>[] = [
     {
       key: "linkName",
-      header: "Link Name",
-      width: "85%",
+      header: "Name",
+      width: "40%",
       render: (_v, row) =>
         editingLinkId === row.id ? (
           <input
@@ -260,6 +295,32 @@ export default function DocumentUpload({
         ) : (
           <span>{row.linkName}</span>
         ),
+    },
+    {
+      key: "urlPrefix",
+      header: "URL Prefix",
+      width: "45%",
+      render: (_v, row) => {
+        console.log(
+          "Rendering urlPrefix for row:",
+          row,
+          "value:",
+          row.urlPrefix,
+        );
+        return editingLinkId === row.id ? (
+          <input
+            type="text"
+            value={linkEditDraft?.urlPrefix ?? row.urlPrefix}
+            onChange={(e) => handleUrlPrefixChange(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+            placeholder="e.g., https://github.com/"
+          />
+        ) : (
+          <span className="text-gray-600 font-mono text-sm">
+            {row.urlPrefix}
+          </span>
+        );
+      },
     },
     {
       key: "action",
@@ -294,13 +355,15 @@ export default function DocumentUpload({
               className="p-2 rounded hover:bg-gray-200"
               onClick={() => {
                 setEditingLinkId(row.id);
-                setLinkEditDraft({ linkName: row.linkName });
+                setLinkEditDraft({
+                  linkName: row.linkName,
+                  urlPrefix: row.urlPrefix,
+                });
               }}
               title="Edit"
             >
               <SquarePen className="w-5 h-5 text-gray-700" />
             </button>
-
             <button
               type="button"
               className="p-2 rounded hover:bg-gray-200"
@@ -313,11 +376,6 @@ export default function DocumentUpload({
         ),
     },
   ];
-
-  const [accordionOpen, setAccordionOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"documents" | "links">(
-    "documents",
-  );
 
   const updateDocuments = (newDocuments: DocumentRow[]) => {
     setDocumentRows(newDocuments);
@@ -339,7 +397,6 @@ export default function DocumentUpload({
       doc.id === id ? { ...doc, templateFile: file } : doc,
     );
     updateDocuments(updatedDocs);
-
     notifications.show({
       title: "Template Uploaded",
       message: `Template uploaded for ${documentRows.find((d) => d.id === id)?.documentName}`,
@@ -353,7 +410,6 @@ export default function DocumentUpload({
       d.id === id ? { ...d, templateFile: null } : d,
     );
     updateDocuments(updatedDocs);
-
     notifications.show({
       title: "Template Removed",
       message: `Template removed for ${doc?.documentName}`,
@@ -376,7 +432,6 @@ export default function DocumentUpload({
   const handleDeleteRow = (id: number) => {
     const updatedDocs = documentRows.filter((doc) => doc.id !== id);
     updateDocuments(updatedDocs);
-
     notifications.show({
       title: "Deleted",
       message: "Document record deleted",
@@ -420,28 +475,10 @@ export default function DocumentUpload({
     }
   };
 
-  const handleSaveLinkEdit = () => {
-    if (editingLinkId && linkEditDraft) {
-      const updatedLinks = linkRows.map((link) =>
-        link.id === editingLinkId
-          ? { ...link, linkName: linkEditDraft.linkName }
-          : link,
-      );
-      updateLinks(updatedLinks);
-      setEditingLinkId(null);
-      setLinkEditDraft(null);
-      notifications.show({
-        title: "Saved",
-        message: "Link updated successfully",
-        color: "green",
-      });
-    }
-  };
-
   const documentColumns: ColumnDef<DocumentRow>[] = [
     {
       key: "documentName",
-      header: "Document Name",
+      header: "Name",
       sortable: true,
       width: "25%",
       render: (_, row) =>
@@ -488,7 +525,7 @@ export default function DocumentUpload({
     },
     {
       key: "templateFile",
-      header: "Template Upload",
+      header: "Template",
       align: "center",
       width: "30%",
       render: (value, row) => (
@@ -509,7 +546,7 @@ export default function DocumentUpload({
                 }}
               >
                 <Trash2 size={16} />
-                Delete Template
+                Delete
               </button>
             </>
           ) : (
@@ -534,7 +571,7 @@ export default function DocumentUpload({
                   }}
                 >
                   <Upload size={16} />
-                  Upload Template
+                  Upload
                 </button>
               </label>
             </>
@@ -584,42 +621,59 @@ export default function DocumentUpload({
 
   return (
     <div className="p-0">
-      <div className="bg-white border border-[#F8F9FA] rounded-[6px] w-full">
-        <div className="pt-5 px-3">
-          {/* Accordion Header with Add Button */}
-          <div className="flex items-center justify-between mb-4 ml-4">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        {/* Accordion Header with Add Button */}
+        <div
+          className={`flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${
+            accordionOpen ? "p-4 pb-0" : "p-4"
+          }`}
+          onClick={() => setAccordionOpen((v) => !v)}
+        >
+          <div className="flex items-center gap-3">
             <button
-              className="flex items-center gap-2 text-xl font-semibold focus:outline-none select-none"
-              onClick={() => setAccordionOpen((v) => !v)}
+              className="flex items-center gap-2 text-lg font-semibold text-[#565E6C] focus:outline-none select-none"
+              onClick={(e) => {
+                e.stopPropagation();
+                setAccordionOpen((v) => !v);
+              }}
               aria-expanded={accordionOpen}
               aria-controls="document-accordion-content"
               type="button"
             >
-              {accordionOpen ? (
-                <ChevronUp className="w-6 h-6" />
-              ) : (
-                <ChevronDown className="w-6 h-6" />
-              )}
               {batchTitle}
             </button>
-
+            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              {documentRows.length + linkRows.length} item
+              {documentRows.length + linkRows.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
             {/* Add Button aligned to right */}
             {accordionOpen && (
               <Button
                 variant="default"
-                className="!bg-white hover:!bg-gray-100 !text-blue-600 border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
-                onClick={
-                  activeTab === "documents" ? handleAddDocument : handleAddLink
-                }
+                className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-4 py-2 rounded-md shadow-sm h-auto text-sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  activeTab === "documents"
+                    ? handleAddDocument()
+                    : handleAddLink();
+                }}
               >
                 + Add {activeTab === "documents" ? "Document" : "Link"}
               </Button>
             )}
+            {accordionOpen ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
           </div>
-
-          {/* Tabs below header - Full-width Phase Tabs Styling with Lucide icons */}
+        </div>
+        <div className={accordionOpen ? "px-4 pb-4" : ""}>
+          {/* Tabs below header - with spacing */}
           {accordionOpen && (
-            <div className="mb-2 w-full">
+            <div className="my-4 w-full">
               <div className="flex w-full gap-3 bg-gray-50 rounded-lg">
                 {["documents", "links"].map((tab) => (
                   <button
@@ -643,67 +697,71 @@ export default function DocumentUpload({
               </div>
             </div>
           )}
-
           {/* Accordion Content with Tabs */}
-          <div
-            id="document-accordion-content"
-            className={`${accordionOpen ? "block" : "hidden"} space-y-6`}
-          >
-            {activeTab === "documents" && (
-              <>
-                <DataTable
-                  columns={documentColumns}
-                  data={documentRows}
-                  showHeaderSection={true}
-                  headerTitle="Documents"
-                  enableSearch={true}
-                  enablePagination={true}
-                  pageSize={5}
-                  pageSizeOptions={[5, 10, 25]}
-                  highlightOnHover={true}
-                  withBorder={true}
-                  rowStyle={{
-                    fontSize: "16px",
-                    height: "56px",
-                    lineHeight: "1",
-                  }}
-                  headerStyle={{
-                    fontWeight: 500,
-                    fontSize: "16px",
-                    height: "40px",
-                    background: "#F8F9FA",
-                  }}
-                />
-              </>
-            )}
-            {activeTab === "links" && (
-              <>
-                <DataTable
-                  columns={linkColumns}
-                  data={linkRows}
-                  showHeaderSection={true}
-                  headerTitle="Links"
-                  enableSearch={true}
-                  enablePagination={true}
-                  pageSize={5}
-                  pageSizeOptions={[5, 10, 25]}
-                  highlightOnHover={true}
-                  withBorder={true}
-                  rowStyle={{
-                    fontSize: "16px",
-                    height: "56px",
-                    lineHeight: "1",
-                  }}
-                  headerStyle={{
-                    fontWeight: 500,
-                    fontSize: "16px",
-                    height: "40px",
-                    background: "#F8F9FA",
-                  }}
-                />
-              </>
-            )}
-          </div>
+          {accordionOpen && (
+            <div
+              id="document-accordion-content"
+              className="space-y-6 border-t border-gray-200 pt-4"
+            >
+              {activeTab === "documents" && (
+                <>
+                  <DataTable
+                    columns={documentColumns}
+                    data={documentRows}
+                    showHeaderSection={true}
+                    headerTitle="Documents"
+                    enableSearch={true}
+                    enablePagination={true}
+                    pageSize={5}
+                    pageSizeOptions={[5, 10, 25]}
+                    highlightOnHover={true}
+                    withBorder={true}
+                    rowStyle={{
+                      fontSize: "16px",
+                      height: "56px",
+                      lineHeight: "1",
+                    }}
+                    headerStyle={{
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      height: "40px",
+                      background: "#F8F9FA",
+                    }}
+                  />
+                </>
+              )}
+              {activeTab === "links" && (
+                <>
+                  {/* Debug: Log link data */}
+                  {console.log("LinkRows data:", linkRows)}
+                  {console.log("LinkColumns:", linkColumns)}
+                  <DataTable
+                    columns={linkColumns}
+                    data={linkRows}
+                    showHeaderSection={true}
+                    headerTitle="Links"
+                    enableSearch={true}
+                    enablePagination={true}
+                    pageSize={5}
+                    pageSizeOptions={[5, 10, 25]}
+                    highlightOnHover={true}
+                    withBorder={true}
+                    rowStyle={{
+                      fontSize: "16px",
+                      height: "56px",
+                      lineHeight: "1",
+                    }}
+                    headerStyle={{
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      height: "40px",
+                      background: "#F8F9FA",
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

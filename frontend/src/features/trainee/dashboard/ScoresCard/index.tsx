@@ -1,6 +1,6 @@
 import { type Scores } from "../../types/scores/Score.types";
 import * as Card from "../../../ui/card";
-import Skeleton from "../../../ui/Skeleton";
+import Skeleton from "@ui/skeleton";
 
 import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
