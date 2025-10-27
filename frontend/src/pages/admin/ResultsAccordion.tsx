@@ -396,7 +396,7 @@ export default function ResultsAccordion({
           >
             <div className="flex items-center gap-3">
               <h2 className="text-lg font-semibold text-[#565E6C]">
-                Assessments - {batchTitle}
+                Assessments
               </h2>
               <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                 {assessments.length} assessment
