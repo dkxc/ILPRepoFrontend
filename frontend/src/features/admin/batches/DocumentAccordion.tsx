@@ -172,7 +172,7 @@ interface DocumentRow {
 interface LinkRow {
   id: number;
   linkName: string;
-  urlPrefix: string;
+  urlPrefix?: string | undefined;
 }
 
 interface DocumentUploadProps {
