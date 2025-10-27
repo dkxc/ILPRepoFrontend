@@ -11,7 +11,7 @@ export interface BatchCardProps extends React.HTMLAttributes<HTMLDivElement> {
 const BatchCard = forwardRef<HTMLDivElement, BatchCardProps>(
   ({ className, type, value, subtitle, ...props }, ref) => {
     const cardData = {
-      all: {
+      all: {  
         icon: (
           <Users
             className="w-10 h-10"

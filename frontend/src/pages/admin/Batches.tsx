@@ -1,15 +1,11 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
-import { ActionIcon } from "@mantine/core";
-// import { modals } from "@mantine/modals";
-// import { notifications } from "@mantine/notifications";
-import { useNavigate } from "react-router"; // ✅ Correct import for @react-router/dev
+import { useNavigate } from "react-router";
 
 import Button from "../../features/ui/Button";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
 import StatusBadge from "../../features/ui/StatusBadge";
-import { openDeleteModal } from "../../features/ui/DeleteConfirmModal";
 
 // ---------------------- Types ----------------------
 interface Batch {
@@ -27,44 +23,23 @@ export default function Batches() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [batches, setBatches] = useState<Batch[]>([
-    {
-      id: 1,
-      name: "React Basics",
-      type: "Developer Batch",
-      totalTrainees: 12,
-      totalTrainingHours: 40,
-      status: "Ongoing",
-      startDate: "2025-10-01",
-      endDate: "2025-10-20",
-    },
-    {
-      id: 2,
-      name: "Advanced TypeScript",
-      type: "BA Batch",
-      totalTrainees: 8,
-      totalTrainingHours: 32,
-      status: "Not Started",
-      startDate: "2025-11-01",
-      endDate: "2025-11-15",
-    },
-    {
-      id: 3,
-      name: "Node.js Bootcamp",
-      type: "SDET",
-      totalTrainees: 15,
-      totalTrainingHours: 50,
-      status: "Completed",
-      startDate: "2025-09-01",
-      endDate: "2025-09-20",
-    },
-  ]);
+ const [batches, setBatches] = useState<Batch[]>([
+  { id: 1, name: "ILP 2022-23 Batch 1", type: "Developer Batch", totalTrainees: 12, totalTrainingHours: 40, status: "Ongoing", startDate: "2022-07-01", endDate: "2022-07-30" },
+  { id: 2, name: "ILP 2022-23 Batch 2", type: "BA Batch", totalTrainees: 10, totalTrainingHours: 32, status: "Not Started", startDate: "2023-01-05", endDate: "2023-01-25" },
+  { id: 3, name: "ILP 2023-24 Batch 1", type: "SDET", totalTrainees: 15, totalTrainingHours: 45, status: "Completed", startDate: "2023-08-01", endDate: "2023-08-20" },
+  { id: 4, name: "ILP 2023-24 Batch 2", type: "Developer Batch", totalTrainees: 14, totalTrainingHours: 42, status: "Ongoing", startDate: "2023-10-01", endDate: "2023-10-20" },
+  { id: 5, name: "ILP 2023-24 Batch 3", type: "BA Batch", totalTrainees: 8, totalTrainingHours: 30, status: "Not Started", startDate: "2024-01-05", endDate: "2024-01-25" },
+  { id: 6, name: "ILP 2024-25 Batch 1", type: "SDET", totalTrainees: 12, totalTrainingHours: 38, status: "Ongoing", startDate: "2024-07-01", endDate: "2024-07-25" },
+  { id: 7, name: "ILP 2024-25 Batch 2", type: "Developer Batch", totalTrainees: 16, totalTrainingHours: 50, status: "Completed", startDate: "2024-09-01", endDate: "2024-09-20" },
+  { id: 8, name: "ILP 2025-26 Batch 1", type: "BA Batch", totalTrainees: 9, totalTrainingHours: 28, status: "Ongoing", startDate: "2025-10-05", endDate: "2026-07-25" },
+  { id: 9, name: "ILP 2025-26 Batch 2", type: "SDET", totalTrainees: 11, totalTrainingHours: 35, status: "Not Started", startDate: "2025-10-01", endDate: "2026-09-20" },
+  { id: 10, name: "ILP 2025-26 Batch 3", type: "Developer Batch", totalTrainees: 13, totalTrainingHours: 40, status: "Completed", startDate: "2025-10-01", endDate: "2026-05-20" },
+]);
 
-  // 🧠 Auto-update batch status
-  const determineStatus = (
-    startDate?: string,
-    endDate?: string,
-  ): Batch["status"] => {
+
+
+  // Auto-update batch status
+  const determineStatus = (startDate?: string, endDate?: string): Batch["status"] => {
     if (!startDate || !endDate) return "Not Started";
     const today = new Date();
     const start = new Date(startDate);
@@ -77,10 +52,7 @@ export default function Batches() {
   useEffect(() => {
     const updateStatuses = () => {
       setBatches((prev) =>
-        prev.map((b) => ({
-          ...b,
-          status: determineStatus(b.startDate, b.endDate),
-        })),
+        prev.map((b) => ({ ...b, status: determineStatus(b.startDate, b.endDate) }))
       );
     };
 
@@ -89,23 +61,8 @@ export default function Batches() {
     return () => clearInterval(interval);
   }, []);
 
-  // 🗑️ Delete batch
-  const handleDelete = (batch: Batch) => {
-    openDeleteModal({
-      itemName: batch.name,
-      itemType: "Batch",
-      onConfirm: () =>
-        setBatches((prev) => prev.filter((b) => b.id !== batch.id)),
-    });
-  };
-
-  // ➕ Add new batch
-  const handleAddBatch = (data: {
-    batchName: string;
-    batchType: string;
-    startDate: string;
-    endDate: string;
-  }) => {
+  // Add new batch
+  const handleAddBatch = (data: { batchName: string; batchType: string; startDate: string; endDate: string; }) => {
     const newBatch: Batch = {
       id: Date.now(),
       name: data.batchName,
@@ -121,67 +78,26 @@ export default function Batches() {
   };
 
   const columns: ColumnDef<Batch>[] = [
-    { key: "name", header: "Batch Name", sortable: true, width: "22%" },
-    { key: "type", header: "Batch Type", sortable: true, width: "16%" },
-    {
-      key: "totalTrainees",
-      header: "Total Trainees",
-      align: "center",
-      sortable: true,
-      width: "15%",
-    },
-    {
-      key: "totalTrainingHours",
-      header: "Training Hours",
-      align: "center",
-      sortable: true,
-      width: "15%",
-    },
-    {
-      key: "status",
-      header: "Status",
-      align: "center",
-      sortable: true,
-      width: "18%",
-      render: (value) => <StatusBadge status={value as Batch["status"]} />,
-    },
-    {
-      key: "action",
-      header: "Action",
-      align: "center",
-      width: "15%",
-      render: (_, row) => (
-        <ActionIcon
-          variant="subtle"
-          color="gray"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete(row);
-          }}
-        >
-          <Trash2 size={18} />
-        </ActionIcon>
-      ),
-    },
+    { key: "name", header: "Batch Name", sortable: true, width: "30%" },
+    { key: "type", header: "Batch Type", sortable: true, width: "20%" },
+    { key: "totalTrainees", header: "Total Trainees", align: "center", sortable: true, width: "15%" },
+    { key: "totalTrainingHours", header: "Training Hours", align: "center", sortable: true, width: "15%" },
+    { key: "status", header: "Status", align: "center", sortable: true, width: "20%", render: (value) => <StatusBadge status={value as Batch["status"]} /> },
   ];
+
+  // Unique options for filters
+  const batchTypes = Array.from(new Set(batches.map((b) => b.type)));
+  const statuses = Array.from(new Set(batches.map((b) => b.status)));
 
   return (
     <div className="p-4">
-      {/* Header */}
       <div className="flex justify-between items-center">
-        <span className="text-[30px] font-semibold text-[#565E6C]">
-          Batches
-        </span>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          size="sm"
-          className="rounded-[18px]"
-        >
+        <span className="text-[30px] font-semibold text-[#565E6C]">Batches</span>
+        <Button onClick={() => setIsModalOpen(true)} size="sm" className="rounded-[18px]">
           <Plus size={16} /> Create new batch
         </Button>
       </div>
 
-      {/* Table */}
       <div className="pt-8">
         <DataTable
           columns={columns}
@@ -189,9 +105,11 @@ export default function Batches() {
           showHeaderSection={true}
           headerTitle="All Batches"
           headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
-          enableFilter={true}
-          filterColumn="status"
-          filterOptions={["Ongoing", "Completed", "Not Started"]}
+          enableMultipleFilters={true}
+          columnFilters={{
+            type: batchTypes,
+            status: statuses,
+          }}
           enableSearch={true}
           enablePagination={true}
           pageSize={10}
@@ -199,23 +117,12 @@ export default function Batches() {
           striped={false}
           highlightOnHover={true}
           withBorder={true}
-          rowStyle={{
-            fontSize: "16px",
-            height: "56px",
-            lineHeight: "1",
-            cursor: "pointer",
-          }}
-          headerStyle={{
-            fontWeight: 500,
-            fontSize: "16px",
-            height: "40px",
-            background: "#F8F9FA",
-          }}
-          onRowClick={(row) => navigate(`/batches/${row.id}`)} // ✅ navigate
+          rowStyle={{ fontSize: "16px", height: "56px", lineHeight: "1", cursor: "pointer" }}
+          headerStyle={{ fontWeight: 500, fontSize: "16px", height: "40px", background: "#F8F9FA" }}
+          onRowClick={(row) => navigate(`/batches/${row.id}`)}
         />
       </div>
 
-      {/* Create Batch Modal */}
       <BatchDetailsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -225,6 +132,7 @@ export default function Batches() {
     </div>
   );
 }
+
 
 // src/pages/Batches.tsx
 // import { Plus, Trash2 } from "lucide-react";
