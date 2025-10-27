@@ -14,8 +14,11 @@ import { useDashboardData } from "../../../features/trainee/dashboard/hooks/useD
 const BatchCard = lazy(
   () => import("../../../features/trainee/dashboard/components/BatchCard"),
 );
-const DocumentsCard = lazy(
-  () => import("../../../features/trainee/dashboard/DocumentsCard"),
+const PublicDocumentsCard = lazy(
+  () =>
+    import(
+      "../../../features/trainee/dashboard/components/PublicDocumentsCard"
+    ),
 );
 const ProjectCard = lazy(
   () => import("../../../features/trainee/dashboard/ProjectCard"),
@@ -84,7 +87,7 @@ function Dashboard() {
           <BatchCard query={batchQuery} className="h-full" />
         </div>
         <div key="documents">
-          <DocumentsCard query={documentsQuery} className="h-full" />
+          <PublicDocumentsCard query={documentsQuery} className="h-full" />
         </div>
         <div key="scores">
           <ScoreCard query={scoresQuery} className="h-full" />
