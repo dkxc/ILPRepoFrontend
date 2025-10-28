@@ -40,6 +40,7 @@ const adminNavItems = [
   { to: "/admindash", label: "Home", icon: House, end: true },
   { to: "/batches", label: "Batches", icon: UsersRound },
   { to: "/projects", label: "Projects", icon: FolderGit2 },
+  { to: "/attendance", label: "Attendance", icon: UsersRound },
 ];
 
 const dropDownItems = [
