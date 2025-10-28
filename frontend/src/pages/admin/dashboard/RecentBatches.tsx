@@ -269,7 +269,9 @@ export default function RecentBatches({
 
               <li className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium">Project Mangement Tool</div>
+                  <div className="text-sm font-medium">
+                    Project Mangement Tool
+                  </div>
                   <div className="text-xs text-gray-500">
                     Team Lead: Aashin S
                   </div>
@@ -281,9 +283,7 @@ export default function RecentBatches({
               <li className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-medium">Leave Manangement</div>
-                  <div className="text-xs text-gray-500">
-                    Team Lead: Amal A
-                  </div>
+                  <div className="text-xs text-gray-500">Team Lead: Amal A</div>
                 </div>
                 <div className="w-10 h-10 flex items-center justify-center">
                   <Donut percent={98} size={40} />
