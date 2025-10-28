@@ -245,9 +245,9 @@ export default function RecentBatches({
             <ul className="space-y-3">
               <li className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium">Project Name</div>
+                  <div className="text-sm font-medium">ILP Repo</div>
                   <div className="text-xs text-gray-500">
-                    Team Lead: The team lead
+                    Team Lead: Alex Joseph Pius
                   </div>
                 </div>
                 <div className="w-10 h-10 flex items-center justify-center">
@@ -257,9 +257,9 @@ export default function RecentBatches({
 
               <li className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium">Project Name</div>
+                  <div className="text-sm font-medium"></div>Cyber Security
                   <div className="text-xs text-gray-500">
-                    Team Lead: The team lead
+                    Team Lead: Abhinav S
                   </div>
                 </div>
                 <div className="w-10 h-10 flex items-center justify-center">
@@ -269,9 +269,9 @@ export default function RecentBatches({
 
               <li className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium">Project Name</div>
+                  <div className="text-sm font-medium">Project Mangement Tool</div>
                   <div className="text-xs text-gray-500">
-                    Team Lead: Theteamlead
+                    Team Lead: Aashin S
                   </div>
                 </div>
                 <div className="w-10 h-10 flex items-center justify-center">
@@ -280,9 +280,9 @@ export default function RecentBatches({
               </li>
               <li className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium">Project Name</div>
+                  <div className="text-sm font-medium">Leave Manangement</div>
                   <div className="text-xs text-gray-500">
-                    Team Lead: Theteamlead
+                    Team Lead: Amal A
                   </div>
                 </div>
                 <div className="w-10 h-10 flex items-center justify-center">
@@ -291,9 +291,9 @@ export default function RecentBatches({
               </li>
               <li className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium">Project Name</div>
+                  <div className="text-sm font-medium">Car Parking</div>
                   <div className="text-xs text-gray-500">
-                    Team Lead: Theteamlead
+                    Team Lead: Yadhu krishnan
                   </div>
                 </div>
                 <div className="w-10 h-10 flex items-center justify-center">
@@ -331,7 +331,7 @@ export default function RecentBatches({
                   <img
                     src={batchIcon}
                     alt="avatar"
-                    className="w-10 h-10 object-cover"
+                    className="w-12 h-12 object-cover"
                   />
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function RecentBatches({
                   <img
                     src={batchIcon}
                     alt="avatar"
-                    className="w-10 h-10 object-cover"
+                    className="w-12 h-12 object-cover"
                   />
                 </div>
               </div>
@@ -382,7 +382,7 @@ export default function RecentBatches({
                   <img
                     src={batchIcon}
                     alt="avatar"
-                    className="w-10 h-10 object-cover"
+                    className="w-12 h-12 object-cover"
                   />
                 </div>
               </div>
@@ -407,7 +407,7 @@ export default function RecentBatches({
                   <img
                     src={batchIcon}
                     alt="avatar"
-                    className="w-10 h-10 object-cover"
+                    className="w-12 h-12 object-cover"
                   />
                 </div>
               </div>
