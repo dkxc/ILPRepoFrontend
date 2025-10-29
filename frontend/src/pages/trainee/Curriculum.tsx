@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, BookOpen, Clock, User, CheckCircle, XCircle } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Clock,
+  User,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import type {
   CurriculumEvent,
   SelectedDay,
@@ -118,8 +126,6 @@ const attendanceData: Record<number, { fn: "P" | "A"; an: "P" | "A" }> = {
   4: { fn: "A", an: "A" },
   5: { fn: "P", an: "A" },
 };
-
-
 
 // Helper functions to replace date-fns
 
@@ -276,34 +282,34 @@ function TraineeCurriculumCalendar() {
                     </div>
                     {/* Attendance Dots */}
 
-                          {/* Attendance Indicator (top-right corner beside date number) */}
-{attendanceData[day] && (
-  <div className="absolute top-3 right-3">
-    {/* FULL ABSENT */}
-    {attendanceData[day].fn === "A" && attendanceData[day].an === "A" ? (
-      <div title="Absent">
-        <XCircle className="w-4 h-4 text-red-500" />
-      </div>
-    ) : /* FULL PRESENT */ attendanceData[day].fn === "P" && attendanceData[day].an === "P" ? (
-      <div title="Present">
-        <CheckCircle className="w-4 h-4 text-green-500" />
-      </div>
-    ) : (
-      /* PARTIAL */
-      <div
-        title={
-          attendanceData[day].fn === "A"
-            ? "Present Afternoon"
-            : "Present Forenoon"
-        }
-      >
-        <CheckCircle className="w-4 h-4 text-yellow-500" />
-      </div>
-    )}
-  </div>
-)}
-
-                          
+                    {/* Attendance Indicator (top-right corner beside date number) */}
+                    {attendanceData[day] && (
+                      <div className="absolute top-3 right-3">
+                        {/* FULL ABSENT */}
+                        {attendanceData[day].fn === "A" &&
+                        attendanceData[day].an === "A" ? (
+                          <div title="Absent">
+                            <XCircle className="w-4 h-4 text-red-500" />
+                          </div>
+                        ) : /* FULL PRESENT */ attendanceData[day].fn === "P" &&
+                          attendanceData[day].an === "P" ? (
+                          <div title="Present">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                          </div>
+                        ) : (
+                          /* PARTIAL */
+                          <div
+                            title={
+                              attendanceData[day].fn === "A"
+                                ? "Present Afternoon"
+                                : "Present Forenoon"
+                            }
+                          >
+                            <CheckCircle className="w-4 h-4 text-yellow-500" />
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     <div className="space-y-1">
                       {dayEvents.slice(0, 2).map((event) => (

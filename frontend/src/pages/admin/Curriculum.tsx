@@ -15,24 +15,28 @@ import {
 } from "lucide-react";
 
 // Toast Notification Component
-const Toast = ({ 
-  message, 
-  type, 
-  onClose 
-}: { 
-  message: string; 
-  type: 'success' | 'error' | 'info'; 
+const Toast = ({
+  message,
+  type,
+  onClose,
+}: {
+  message: string;
+  type: "success" | "error" | "info";
   onClose: () => void;
 }) => {
   const bgColors = {
-    success: 'bg-green-100 border-green-400 text-green-700',
-    error: 'bg-red-100 border-red-400 text-red-700',
-    info: 'bg-blue-100 border-blue-400 text-blue-700'
+    success: "bg-green-100 border-green-400 text-green-700",
+    error: "bg-red-100 border-red-400 text-red-700",
+    info: "bg-blue-100 border-blue-400 text-blue-700",
   };
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-slide-up">
-<div className={`${bgColors[type]} border-l-4 p-4 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px]`}>        <span className="flex-1 font-medium">{message}</span>
-        <button 
+      <div
+        className={`${bgColors[type]} border-l-4 p-4 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px]`}
+      >
+        {" "}
+        <span className="flex-1 font-medium">{message}</span>
+        <button
           onClick={onClose}
           className="text-current opacity-70 hover:opacity-100 transition-opacity"
         >
@@ -44,7 +48,7 @@ const Toast = ({
 };
 
 // Add animation styles
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   @keyframes slide-up {
     from {
@@ -199,7 +203,9 @@ const DeleteConfirmModal = ({
           </h3>
         </div>
         <p className="text-slate-600 mb-6">
-          Are you sure you want to delete "<span className="font-semibold">{eventTitle}</span>"? This action cannot be undone.
+          Are you sure you want to delete "
+          <span className="font-semibold">{eventTitle}</span>"? This action
+          cannot be undone.
         </p>
         <div className="flex gap-3">
           <button
@@ -337,7 +343,6 @@ const RescheduleModal = ({
           </button>
         </div>
       </div>
-      
     </div>
   );
 };
@@ -364,7 +369,10 @@ const EventSidebar = ({
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<CurriculumEvent>>({});
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   const startEdit = (event: CurriculumEvent) => {
     setEditingId(event.id);
@@ -401,176 +409,177 @@ const EventSidebar = ({
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-       <div>
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-slate-800">
-          {dateLabel || "Select a Day"}
-        </h3>
-        {editable && dateLabel && (
-          <div className="flex gap-2">
-            <button
-              onClick={onAdd}
-              className="text-green-600 hover:text-green-800"
-              title="Add Event"
-            >
-              <PlusCircle size={18} />
-            </button>
-            <button
-              onClick={onToggleHoliday}
-className={`${isHoliday ? "text-red-600" : "text-slate-500"} hover:text-red-800`}         
-     title="Mark as Holiday"
-            >
-              <CalendarX size={18} />
-            </button>
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-slate-800">
+            {dateLabel || "Select a Day"}
+          </h3>
+          {editable && dateLabel && (
+            <div className="flex gap-2">
+              <button
+                onClick={onAdd}
+                className="text-green-600 hover:text-green-800"
+                title="Add Event"
+              >
+                <PlusCircle size={18} />
+              </button>
+              <button
+                onClick={onToggleHoliday}
+                className={`${isHoliday ? "text-red-600" : "text-slate-500"} hover:text-red-800`}
+                title="Mark as Holiday"
+              >
+                <CalendarX size={18} />
+              </button>
+            </div>
+          )}
+        </div>
+        {!dateLabel ? (
+          <div className="text-center py-12 text-slate-500">
+            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p>Select a day to view or manage events</p>
+          </div>
+        ) : isHoliday ? (
+          <div className="text-center py-12 text-rose-500 font-medium">
+            This day is marked as a Holiday
+          </div>
+        ) : events.length > 0 ? (
+          <div className="space-y-4">
+            {events.map((event) => (
+              <div
+                key={event.id}
+                className={`p-4 rounded-lg border-l-4 ${colorClasses[event.color]} relative`}
+              >
+                {editingId === event.id ? (
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      value={editForm.title || ""}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, title: e.target.value })
+                      }
+                      className="w-full px-2 py-1 border rounded text-sm"
+                      placeholder="Title"
+                    />
+                    <input
+                      type="text"
+                      value={editForm.instructor || ""}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, instructor: e.target.value })
+                      }
+                      className="w-full px-2 py-1 border rounded text-sm"
+                      placeholder="Instructor"
+                    />
+                    <textarea
+                      value={editForm.description || ""}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          description: e.target.value,
+                        })
+                      }
+                      className="w-full px-2 py-1 border rounded text-sm"
+                      rows={2}
+                      placeholder="Description"
+                    />
+                    <select
+                      value={editForm.color || event.color}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          color: e.target.value as ColorKey,
+                        })
+                      }
+                      className="w-full px-2 py-1 border rounded text-sm"
+                    >
+                      {Object.keys(colorClasses).map((color) => (
+                        <option key={color} value={color}>
+                          {color}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => saveEdit(event)}
+                        className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                      >
+                        <Save size={14} /> Save
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        className="flex items-center gap-1 px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-sm"
+                      >
+                        <X size={14} /> Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h4 className="font-semibold text-slate-800 mb-3 flex justify-between">
+                      {event.title}
+                      {editable && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => startEdit(event)}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="Edit"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setDeleteConfirm({
+                                id: event.id,
+                                title: event.title,
+                              })
+                            }
+                            className="text-red-600 hover:text-red-800"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      )}
+                    </h4>
+                    <div className="space-y-2 text-sm text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span>
+                          {formatTime(event.start)} - {formatTime(event.end)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span>{event.instructor}</span>
+                      </div>
+                      <p className="pt-2 border-t border-slate-200">
+                        {event.description}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-slate-500">
+            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p>No events yet — click "+" to add one</p>
           </div>
         )}
       </div>
-      {!dateLabel ? (
-        <div className="text-center py-12 text-slate-500">
-          <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>Select a day to view or manage events</p>
-        </div>
-      ) : isHoliday ? (
-        <div className="text-center py-12 text-rose-500 font-medium">
-           This day is marked as a Holiday
-        </div>
-      ) : events.length > 0 ? (
-        <div className="space-y-4">
-          {events.map((event) => (
-            <div
-              key={event.id}
-className={`p-4 rounded-lg border-l-4 ${colorClasses[event.color]} relative`}            >
-              {editingId === event.id ? (
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    value={editForm.title || ""}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, title: e.target.value })
-                    }
-                    className="w-full px-2 py-1 border rounded text-sm"
-                    placeholder="Title"
-                  />
-                  <input
-                    type="text"
-                    value={editForm.instructor || ""}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, instructor: e.target.value })
-                    }
-                    className="w-full px-2 py-1 border rounded text-sm"
-                    placeholder="Instructor"
-                  />
-                  <textarea
-                    value={editForm.description || ""}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, description: e.target.value })
-                    }
-                    className="w-full px-2 py-1 border rounded text-sm"
-                    rows={2}
-                    placeholder="Description"
-                  />
-                  <select
-                    value={editForm.color || event.color}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        color: e.target.value as ColorKey,
-                      })
-                    }
-                    className="w-full px-2 py-1 border rounded text-sm"
-                  >
-                    {Object.keys(colorClasses).map((color) => (
-                      <option key={color} value={color}>
-                        {color}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => saveEdit(event)}
-                      className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-                    >
-                      <Save size={14} /> Save
-                    </button>
-                    <button
-                      onClick={cancelEdit}
-                      className="flex items-center gap-1 px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-sm"
-                    >
-                      <X size={14} /> Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <h4 className="font-semibold text-slate-800 mb-3 flex justify-between">
-                    {event.title}
-                    {editable && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => startEdit(event)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title="Edit"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm({ id: event.id, title: event.title })}
-                          className="text-red-600 hover:text-red-800"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    )}
-                  </h4>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>
-                        {formatTime(event.start)} - {formatTime(event.end)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span>{event.instructor}</span>
-                    </div>
-                    <p className="pt-2 border-t border-slate-200">
-                      {event.description}
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 text-slate-500">
-          <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>No events yet — click "+" to add one</p>
-        </div>
-      )}
 
-     
-
-      </div>
-
-      <DeleteConfirmModal isOpen={!!deleteConfirm} onClose={() => 
-        setDeleteConfirm(null)} onConfirm={() =>
-         { if (deleteConfirm && onDelete) 
-          { onDelete(deleteConfirm.id);
-          setDeleteConfirm(null); } }}
-           eventTitle={deleteConfirm?.title || ''} 
-           />
- 
- 
-   
- 
-     
+      <DeleteConfirmModal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm && onDelete) {
+            onDelete(deleteConfirm.id);
+            setDeleteConfirm(null);
+          }
+        }}
+        eventTitle={deleteConfirm?.title || ""}
+      />
     </div>
-
- 
-
-    
   );
 };
 
@@ -590,10 +599,13 @@ const MonthPicker = ({
 }) => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  
+
   const startYear = 1990;
   const endYear = 2100;
-  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
+  const years = Array.from(
+    { length: endYear - startYear + 1 },
+    (_, i) => startYear + i,
+  );
   const monthRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const yearRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
@@ -621,7 +633,9 @@ const MonthPicker = ({
           >
             Cancel
           </button>
-          <h3 className="text-base font-semibold text-slate-800">Select Date</h3>
+          <h3 className="text-base font-semibold text-slate-800">
+            Select Date
+          </h3>
           <button
             onClick={handleConfirm}
             className="text-blue-600 font-medium hover:text-blue-700"
@@ -641,7 +655,9 @@ const MonthPicker = ({
               {monthNames.map((month, index) => (
                 <div
                   key={index}
-                  ref={(el) => { monthRefs.current[index] = el; }}
+                  ref={(el) => {
+                    monthRefs.current[index] = el;
+                  }}
                   onClick={() => setSelectedMonth(index)}
                   className={`h-12 flex items-center justify-center cursor-pointer snap-center transition-all ${
                     selectedMonth === index
@@ -660,7 +676,9 @@ const MonthPicker = ({
               {years.map((year) => (
                 <div
                   key={year}
-                  ref={(el) => { yearRefs.current[year] = el; }}
+                  ref={(el) => {
+                    yearRefs.current[year] = el;
+                  }}
                   onClick={() => setSelectedYear(year)}
                   className={`h-12 flex items-center justify-center cursor-pointer snap-center transition-all ${
                     selectedYear === year
@@ -697,12 +715,17 @@ function Curriculum() {
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
-  const [conflictingEvents, setConflictingEvents] = useState<CurriculumEvent[]>([]);
+  const [conflictingEvents, setConflictingEvents] = useState<CurriculumEvent[]>(
+    [],
+  );
   const [showMonthPicker, setShowMonthPicker] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error" | "info";
+  } | null>(null);
 
   // Auto-hide toast after 3 seconds
-  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
+  const showToast = (message: string, type: "success" | "error" | "info") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
@@ -713,7 +736,7 @@ function Curriculum() {
 
   const isHolidayDay = (day: number, month: number, year: number): boolean => {
     return holidays.some(
-      (h) => h.day === day && h.month === month && h.year === year
+      (h) => h.day === day && h.month === month && h.year === year,
     );
   };
 
@@ -809,7 +832,7 @@ function Curriculum() {
     const isCurrentlyHoliday = isHolidayDay(
       selectedDay.day,
       currentMonth,
-      currentYear
+      currentYear,
     );
 
     // If already a holiday, just toggle it off
@@ -821,8 +844,8 @@ function Curriculum() {
               h.day === selectedDay.day &&
               h.month === currentMonth &&
               h.year === currentYear
-            )
-        )
+            ),
+        ),
       );
       return;
     }
@@ -850,8 +873,8 @@ function Curriculum() {
             e.start.getDate() === selectedDay.day &&
             e.start.getMonth() === currentMonth &&
             e.start.getFullYear() === currentYear
-          )
-      )
+          ),
+      ),
     );
     // Mark as holiday
     setHolidays((prev) => [
@@ -1030,7 +1053,7 @@ function Curriculum() {
               })}
             </div>
           </div>
-          
+
           <div className="lg:sticky lg:top-6 self-start h-fit">
             <EventSidebar
               dateLabel={
@@ -1046,9 +1069,7 @@ function Curriculum() {
               onDelete={handleDeleteEvent}
               onToggleHoliday={handleToggleHoliday}
             />
-            
           </div>
-
         </div>
       </div>
       {/* Modals */}
@@ -1089,10 +1110,7 @@ function Curriculum() {
           onClose={() => setToast(null)}
         />
       )}
-      
-      
     </div>
-   
   );
 }
 
