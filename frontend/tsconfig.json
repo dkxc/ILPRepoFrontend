@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "@assets/*": ["assets/"],
+      "@assets/*": ["assets/*"],
+      "@features/*": ["features/*"],
       "@hooks/*": ["hooks/*"],
       "@lib/*": ["lib/*"],
       "@ui/*": ["ui/*"]
