@@ -53,6 +53,9 @@ importers:
       '@react-stately/utils':
         specifier: ^3.10.8
         version: 3.10.8(react@19.2.0)
+      '@react-types/shared':
+        specifier: ^3.32.1
+        version: 3.32.1(react@19.2.0)
       '@tailwindcss/vite':
         specifier: ^4.1.16
         version: 4.1.16(rolldown-vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(yaml@2.8.1))
@@ -61,13 +64,16 @@ importers:
         version: 5.90.5(react@19.2.0)
       antd:
         specifier: ^5.27.6
-        version: 5.27.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 5.27.6(date-fns@4.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       framer-motion:
         specifier: ^12.23.24
         version: 12.23.24(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2194,6 +2200,9 @@ packages:
   data-urls@6.0.0:
     resolution: {integrity: sha512-BnBS08aLUM+DKamupXs3w2tJJoqU+AkaE/+6vQxi/G/DPmIZFJJp9Dkb1kM03AZx8ADehDUZgsNxju3mPXZYIA==}
     engines: {node: '>=20'}
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   dayjs@1.11.18:
     resolution: {integrity: sha512-zFBQ7WFRvVRhKcWoUh+ZA1g2HVgUbsZm9sbddh8EC5iv93sui8DVVz1Npvz+r6meo9VKfa8NyLWBsQK1VvIKPA==}
@@ -6339,7 +6348,7 @@ snapshots:
 
   ansis@4.2.0: {}
 
-  antd@5.27.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  antd@5.27.6(date-fns@4.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       '@ant-design/colors': 7.2.1
       '@ant-design/cssinjs': 1.24.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -6371,7 +6380,7 @@ snapshots:
       rc-motion: 2.9.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       rc-notification: 5.6.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       rc-pagination: 5.1.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      rc-picker: 4.11.3(dayjs@1.11.18)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      rc-picker: 4.11.3(date-fns@4.1.0)(dayjs@1.11.18)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       rc-progress: 4.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       rc-rate: 2.13.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       rc-resize-observer: 1.4.3(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -6651,6 +6660,8 @@ snapshots:
       whatwg-mimetype: 4.0.0
       whatwg-url: 15.1.0
     optional: true
+
+  date-fns@4.1.0: {}
 
   dayjs@1.11.18: {}
 
@@ -7524,7 +7535,7 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  rc-picker@4.11.3(dayjs@1.11.18)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  rc-picker@4.11.3(date-fns@4.1.0)(dayjs@1.11.18)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       '@babel/runtime': 7.28.4
       '@rc-component/trigger': 2.3.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -7535,6 +7546,7 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
     optionalDependencies:
+      date-fns: 4.1.0
       dayjs: 1.11.18
 
   rc-progress@4.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
