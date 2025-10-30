@@ -3,7 +3,7 @@
  */
 import type { MouseEventHandler, ReactNode } from "react";
 import { X as CloseX } from "lucide-react";
-import { Dot } from "./components/DotIcon";
+import { Dot } from "@ui/DotIcon";
 import { cn } from "@lib/utils";
 import type {
   BadgeColors,
