@@ -1,29 +1,6 @@
 import { delay, http, HttpResponse } from "msw";
 import { mockAttendanceRecords, MOCK_BATCH_ID } from "./attendanceData";
-import type {
-  AttendanceStatus,
-  FullAttendanceStatus,
-  UpdateQueryType,
-} from "features/admin/attendance/types/AttendanceRecord.types";
-
-const calculateTotal = (
-  forenoon: AttendanceStatus,
-  afternoon: AttendanceStatus,
-): FullAttendanceStatus => {
-  if (forenoon === afternoon) {
-    return forenoon;
-  }
-
-  if (forenoon === "N/A") {
-    return afternoon;
-  }
-
-  if (afternoon === "N/A") {
-    return forenoon;
-  }
-
-  return "PP";
-};
+import type { UpdateQueryType } from "features/admin/attendance/types/AttendanceRecord.types";
 
 export const attendanceHandlers = [
   http.get("/api/attendance/batch/:batchId", async ({ params, request }) => {
@@ -36,13 +13,22 @@ export const attendanceHandlers = [
 
     const startDate = url.searchParams.get("start_date");
     const endDate = url.searchParams.get("end_date");
-    const status = url.searchParams.get("status");
 
-    const filteredData = mockAttendanceRecords.filter((record) => {
-      if (startDate && record.date < startDate) return false;
-      if (endDate && record.date > endDate) return false;
-      if (status && record.total !== status) return false;
-      return true;
+    const filteredData = mockAttendanceRecords.filter((trainee) => {
+      const filteredDates: typeof trainee.dates = {};
+
+      for (const date in trainee.dates) {
+        if (
+          (!startDate || date >= startDate) &&
+          (!endDate || date <= endDate)
+        ) {
+          filteredDates[date] = trainee.dates[date];
+        }
+      }
+      return {
+        ...trainee,
+        dates: filteredDates,
+      };
     });
 
     await delay(800);
@@ -59,23 +45,19 @@ export const attendanceHandlers = [
     const updateData = (await request.json()) as UpdateQueryType;
     let updatedRecordCount = 0;
 
-    mockAttendanceRecords.forEach((record, index) => {
-      const isTraineeMatch = updateData.traineeIds.includes(record.traineeId);
-      const isDateMatch =
-        record.date >= updateData.startDate &&
-        record.date <= updateData.endDate;
-
-      if (isTraineeMatch && isDateMatch) {
-        const newForenoon = updateData.status.forenoon;
-        const newAfternoon = updateData.status.afternoon;
-
-        mockAttendanceRecords[index].forenoon = newForenoon;
-        mockAttendanceRecords[index].afternoon = newAfternoon;
-        mockAttendanceRecords[index].total = calculateTotal(
-          newForenoon,
-          newAfternoon,
-        );
-        updatedRecordCount++;
+    mockAttendanceRecords.forEach((trainee, index) => {
+      if (updateData.traineeIds.includes(trainee.traineeId)) {
+        for (const date in trainee.dates) {
+          if (date >= updateData.startDate && date <= updateData.endDate) {
+            const existingStatus = mockAttendanceRecords[index].dates[date];
+            const newStatus = {
+              ...existingStatus,
+              ...updateData.status,
+            };
+            mockAttendanceRecords[index].dates[date] = newStatus;
+            updatedRecordCount++;
+          }
+        }
       }
     });
 
