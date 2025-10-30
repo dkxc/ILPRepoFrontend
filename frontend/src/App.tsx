@@ -57,7 +57,7 @@ const adminDropDownItems = [
 function App() {
   const sideBarWidth =
     "md:w-40 lg:w-44 xl:w-52 max-w-52 transition-[width] motion-reduce:transition-none";
-  const headerHeight = "h-14 max-h-14";
+  const headerHeight = "h-16 max-h-16";
   // TODO: Remove this after auth
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
