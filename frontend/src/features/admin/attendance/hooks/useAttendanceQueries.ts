@@ -16,7 +16,6 @@ const fetchAttendance = async (
     if (filters.start_date)
       queryParams.append("start_date", filters.start_date);
     if (filters.end_date) queryParams.append("end_date", filters.end_date);
-    if (filters.status) queryParams.append("status", filters.status);
   }
 
   const res = await fetch(
