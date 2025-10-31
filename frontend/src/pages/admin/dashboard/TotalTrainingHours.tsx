@@ -11,6 +11,7 @@ const sampleRows = Array.from({ length: 5 }).map(() => ({
 }));
 
 import { useRef } from "react";
+import BatchSelect, { sampleBatches } from "../../../features/admin/dashboard/BatchSelect";
 
 function CalendarGrid({
   year,
@@ -138,7 +139,7 @@ export default function TotalTrainingHours() {
   const [from, setFrom] = useState("2025-01-01");
   const [to, setTo] = useState("2025-12-31");
   const [batchType, setBatchType] = useState("All Batch Types");
-  const [selectedBatch, setSelectedBatch] = useState("ILP 2024 - 25 Batch 4");
+  const [selectedBatch, setSelectedBatch] = useState<string>(sampleBatches[0].id);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [month, setMonth] = useState(9);
   const [holidays, setHolidays] = useState<number[]>([]);
@@ -154,11 +155,11 @@ export default function TotalTrainingHours() {
   };
 
   return (
-    <div className="p-3">
+    // <div className="p-3">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
         <div className="lg:col-span-2 flex flex-col h-full">
           <Card className="bg-white flex flex-col h-full">
-            <CardHeader className="px-6 py-4">View Training Hours</CardHeader>
+            <CardHeader className="text-xl font-bold text-gray-600 px-6 py-4">View Training Hours</CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div className="space-y-6">
@@ -251,20 +252,15 @@ export default function TotalTrainingHours() {
 
         <div className="flex flex-col h-full">
           <Card className="bg-white flex flex-col h-full">
-            <CardHeader className="px-6 py-4">Edit Training Hours</CardHeader>
+            <CardHeader className="text-xl font-bold text-gray-600 px-6 py-4">Edit Training Hours</CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  {/* <label className="text-sm text-gray-600">Select Batch</label> */}
-                  <select
+                  <BatchSelect
                     value={selectedBatch}
-                    onChange={(e) => setSelectedBatch(e.target.value)}
+                    onChange={(id) => setSelectedBatch(id)}
                     className="w-full border border-gray-200 rounded px-3 py-2"
-                  >
-                    <option>All Batches</option>
-                    <option>ILP 2024 - 25 Batch 4</option>
-                    <option>ILP 2025 - 26 Batch 1</option>
-                  </select>
+                  />
                 </div>
 
                 <div>
@@ -309,6 +305,6 @@ export default function TotalTrainingHours() {
           </Card>
         </div>
       </div>
-    </div>
+    // </div>
   );
 }
