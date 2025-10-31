@@ -10,6 +10,7 @@ interface AttendanceImportSlideoutProps {
   isOpen: boolean;
   onClose: () => void;
   onImport: (file: File) => void;
+  onViewTemplate: () => void;
 }
 
 const ALLOWED_FILE_TYPES = {
@@ -25,6 +26,7 @@ function AttendanceImportSlideout({
   isOpen,
   onClose,
   onImport,
+  onViewTemplate,
 }: AttendanceImportSlideoutProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -76,6 +78,10 @@ function AttendanceImportSlideout({
             columns for Trainee Name, Date, Forenoon Status, and Afternoon
             Status.
           </p>
+
+          <Button color="link-gray" onClick={onViewTemplate}>
+            Download Template
+          </Button>
 
           <FileTrigger
             acceptedFileTypes={ACCEPTED_MIMES}
