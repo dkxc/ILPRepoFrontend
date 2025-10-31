@@ -71,7 +71,7 @@ function AttendanceTable({
             <Dropdown.Root>
               <Button
                 color="secondary"
-                size="sm"
+                size="md"
                 iconLeading={ChevronDown}
                 isLoading={isButtonUpdating}
                 showTextWhileLoading={true}
