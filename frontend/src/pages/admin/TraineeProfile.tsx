@@ -255,12 +255,12 @@ function TraineeProfile() {
           title={
             <div className="flex items-center space-x-2">
               <Briefcase className="w-4 h-4 text-blue-500" />
-              <span>Official Information</span>
+              <span>Training Details</span>
             </div>
           }
           items={officialInfo}
           onEdit={() =>
-            openModal("official", "Edit Official Information", officialInfoData)
+            openModal("official", "Edit Training Details", officialInfoData)
           }
         />
       </div>

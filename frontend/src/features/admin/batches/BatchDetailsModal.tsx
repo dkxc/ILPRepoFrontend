@@ -8,13 +8,11 @@ interface BatchFormData {
   endDate: string;
   batchType: string;
   customBatchType: string;
-  techStack: string; // ✅ added
 }
 
 interface BatchDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // ✅ added techStack to the expected onSubmit data
   onSubmit: (data: Omit<BatchFormData, "customBatchType">) => void;
   title?: string;
   initialData?: Partial<BatchFormData> | null;
@@ -29,7 +27,6 @@ const DEFAULT_TYPES = [
   { value: "developer-trainee", label: "Developer Trainee" },
 ];
 
-// ✅ Reusable field
 const Field = ({
   label,
   value,
@@ -73,7 +70,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
     endDate: "",
     batchType: "",
     customBatchType: "",
-    techStack: "", // ✅ initialized
   });
 
   const [types, setTypes] = useState(DEFAULT_TYPES);
@@ -83,7 +79,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
 
   const modalTitle = title || (isEditing ? "Edit Batch" : "Create Batch");
 
-  // ✅ Load batch types from localStorage
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("allBatchTypes") || "null");
     const sorted = saved
@@ -97,7 +92,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
       localStorage.setItem("allBatchTypes", JSON.stringify(DEFAULT_TYPES));
   }, []);
 
-  // ✅ Handle initial data for edit mode
   useEffect(() => {
     if (initialData && isOpen) {
       setForm({
@@ -106,13 +100,10 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
         endDate: initialData.endDate || "",
         batchType: initialData.batchType || "",
         customBatchType: initialData.customBatchType || "",
-        techStack: initialData.techStack || "", // ✅ added
       });
-
       const isCustomType =
         initialData.batchType &&
         !DEFAULT_TYPES.some((t) => t.value === initialData.batchType);
-
       if (isCustomType) {
         setShowCustom(true);
         setForm((prev) => ({
@@ -128,13 +119,11 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
         endDate: "",
         batchType: "",
         customBatchType: "",
-        techStack: "", // ✅ reset
       });
       setShowCustom(false);
     }
   }, [initialData, isOpen]);
 
-  // ✅ Outside click close
   useEffect(() => {
     const clickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node))
@@ -158,7 +147,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
     if (!showCustom && !form.batchType) e.batchType = "Batch type is required";
     if (showCustom && !form.customBatchType.trim())
       e.customBatchType = "Custom batch type is required";
-    if (!form.techStack.trim()) e.techStack = "Tech stack is required"; // ✅ validation
 
     if (form.startDate && form.endDate) {
       const start = new Date(form.startDate);
@@ -187,15 +175,12 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
     const selectedType = showCustom ? form.customBatchType : form.batchType;
     if (showCustom) saveCustomType(selectedType);
 
-    // ✅ includes techStack
     onSubmit({
       batchName: form.batchName,
       startDate: form.startDate,
       endDate: form.endDate,
       batchType: selectedType,
-      techStack: form.techStack,
     });
-
     handleClose();
   };
 
@@ -208,7 +193,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
         endDate: "",
         batchType: "",
         customBatchType: "",
-        techStack: "",
       });
       setShowCustom(false);
     }
@@ -259,16 +243,6 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
             />
           </div>
 
-          {/* ✅ Added Tech Stack input */}
-          <Field
-            label="Tech Stack"
-            value={form.techStack}
-            onChange={(v: string) => handleChange("techStack", v)}
-            placeholder="e.g., React, Node.js, Solidity"
-            error={errors.techStack}
-          />
-
-          {/* Existing batch type logic */}
           {!showCustom ? (
             <div>
               <label className="block text-sm font-medium text-[#565E6C] mb-1">
@@ -278,11 +252,7 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
                 <select
                   value={form.batchType}
                   onChange={(e) => handleChange("batchType", e.target.value)}
-                  className={`w-full px-3 py-2 rounded-[4px] border text-[#565E6C]
-                    focus:outline-none focus:ring-2 focus:ring-[#bfdbfe]
-                    focus:border-[#3b82f6] hover:border-[#3b82f6] transition-all duration-150
-                    appearance-none bg-white cursor-pointer
-                    ${errors.batchType ? "border-red-500" : "border-gray-300"}`}
+                  className={`w-full px-3 py-2 rounded-[4px] border text-[#565E6C] focus:outline-none focus:ring-2 focus:ring-[#bfdbfe] focus:border-[#3b82f6] hover:border-[#3b82f6] transition-all duration-150 appearance-none bg-white cursor-pointer ${errors.batchType ? "border-red-500" : "border-gray-300"}`}
                 >
                   <option value="">Select batch type...</option>
                   {types.map((type) => (
@@ -306,11 +276,7 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
                 type="button"
                 onClick={() => {
                   setShowCustom(false);
-                  setForm((prev) => ({
-                    ...prev,
-                    batchType: "",
-                    customBatchType: "",
-                  }));
+                  setForm({ ...form, batchType: "", customBatchType: "" });
                 }}
                 className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
               >

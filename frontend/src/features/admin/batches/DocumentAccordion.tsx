@@ -188,6 +188,7 @@ interface DocumentRow {
 interface LinkRow {
   id: number;
   linkName: string;
+  urlPrefix?: string | undefined;
 }
 
 interface AddLinkRow {

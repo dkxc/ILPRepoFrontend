@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ActionIcon } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import DataTable, { type ColumnDef } from "../../features/ui/Table";
+import DataTable from "../../features/ui/Table";
 import BatchDetailsCard from "../../features/admin/batches/BatchDetailsCard";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
 import StatusBadge from "../../features/ui/StatusBadge";
@@ -51,7 +51,6 @@ interface BatchUpdateData {
   startDate: string;
   endDate: string;
   batchType: string;
-  techStack: string;
 }
 
 interface Specialization {
@@ -80,10 +79,8 @@ export default function BatchDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [isAddTraineeModalOpen, setIsAddTraineeModalOpen] = useState(false);
   const [isEditBatchModalOpen, setIsEditBatchModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [activePhase, setActivePhase] = useState("Trainees");
 
   const [currentBatch, setCurrentBatch] = useState<Batch>({
@@ -311,9 +308,7 @@ export default function BatchDetailsPage() {
 
   const handleRowClick = (row: Trainee) => navigate(`/batchDetails/${row.id}`);
 
-  const filteredData = selectedStatus
-    ? trainees.filter((t) => t.status === selectedStatus)
-    : trainees;
+  const filteredData = trainees;
 
   // --- Helper Functions ---
   const formatDateForDisplay = (isoDate: string) =>
@@ -348,7 +343,7 @@ export default function BatchDetailsPage() {
           techStack={currentBatch.techStack}
           onEdit={handleEditBatch}
           onAddTrainee={() => setIsAddTraineeModalOpen(true)}
-          onUploadTrainees={() => setIsUploadModalOpen(true)}
+          onUploadTrainees={() => console.log("Upload trainees clicked")}
         />
       </div>
 
@@ -627,7 +622,6 @@ export default function BatchDetailsPage() {
           startDate: currentBatch.startDate,
           endDate: currentBatch.endDate,
           batchType: currentBatch.batchType,
-          techStack: currentBatch.techStack,
         }}
       />
 
