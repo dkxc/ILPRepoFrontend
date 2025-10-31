@@ -1,3 +1,5 @@
+cd frontend
+
 if command -v pnpm > /dev/null; then
   PACKAGE_MANAGER="pnpm"
 elif command -v yarn > /dev/null; then
