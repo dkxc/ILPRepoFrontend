@@ -19,7 +19,8 @@ import {
 } from "./utils/Attendance.utils";
 import { Dropdown as NestedDropdown } from "@ui/dropdown/NestedDropdown";
 import { Button } from "@ui/button/Button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Download, UploadCloud } from "lucide-react";
+import { Dropdown } from "@ui/dropdown/Dropdown";
 
 interface AttendanceTableProps {
   data: GetResponseType[];
@@ -39,6 +40,8 @@ interface AttendanceTableProps {
   selectedKeys: Selection;
   onSelectionChange: (keys: Selection) => void;
   onBulkUpdate: (newStatus: BulkUpdateStatus) => void;
+  onImport: () => void;
+  onExport: () => void;
   isButtonUpdating?: boolean;
   className?: string;
 }
@@ -53,6 +56,8 @@ function AttendanceTable({
   selectedKeys,
   onSelectionChange,
   onBulkUpdate,
+  onImport,
+  onExport,
   isButtonUpdating,
   className,
 }: AttendanceTableProps) {
@@ -107,6 +112,21 @@ function AttendanceTable({
               value={dateValue}
               onChange={onDateChange}
             />
+            <Dropdown.Root>
+              <Dropdown.DotsButton />
+              <Dropdown.Popover>
+                <Dropdown.Menu>
+                  <Dropdown.Section>
+                    <Dropdown.Item icon={UploadCloud} onAction={onImport}>
+                      Import
+                    </Dropdown.Item>
+                    <Dropdown.Item icon={Download} onAction={onExport}>
+                      Export
+                    </Dropdown.Item>
+                  </Dropdown.Section>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown.Root>
           </div>
         }
       />
