@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Upload, Download, Filter, Trash2 } from "lucide-react";
+import { getUploadedDocuments, uploadDocument } from "./ProjectDetails/api";
 
 interface UploadedDocument {
   id: number;
@@ -20,6 +21,11 @@ const DocumentSubmissionModal = ({
   onClose,
   onSubmit,
 }: DocumentSubmissionModalProps) => {
+  // Replace with actual projectId from props or context if needed
+  const projectId = "default";
+
+  const [uploadError, setUploadError] = useState<string>("");
+  const [uploadSuccess, setUploadSuccess] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedType, setSelectedType] = useState<string>("");
@@ -29,10 +35,13 @@ const DocumentSubmissionModal = ({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Mock uploaded documents - 9 total
+  // Documents state
   const [uploadedDocuments, setUploadedDocuments] = useState<
     UploadedDocument[]
-  >([
+  >([]);
+
+  // Mock data fallback
+  const mockDocuments: UploadedDocument[] = [
     {
       id: 1,
       filename: "BRD_Document_v1.pdf",
@@ -96,7 +105,33 @@ const DocumentSubmissionModal = ({
       uploadDate: "2025-10-26",
       fileUrl: "#",
     },
-  ]);
+  ];
+
+  // Map API Document to UploadedDocument
+  const mapApiDocumentsToUploaded = (apiDocs: any[]): UploadedDocument[] => {
+    return apiDocs.map((doc, index) => ({
+      id: parseInt(doc.id) || index + 1,
+      filename: doc.filename || doc.name || `document_${index + 1}`,
+      type: doc.type || "Unknown",
+      uploadDate: doc.uploadDate || new Date().toISOString().split("T")[0],
+      fileUrl: doc.fileUrl || "#",
+    }));
+  };
+
+  // Fetch documents on open
+  useEffect(() => {
+    if (isOpen) {
+      getUploadedDocuments(projectId)
+        .then((docs: UploadedDocument[] | null) => {
+          if (docs && Array.isArray(docs)) {
+            setUploadedDocuments(mapApiDocumentsToUploaded(docs));
+          } else {
+            setUploadedDocuments(mockDocuments);
+          }
+        })
+        .catch(() => setUploadedDocuments(mockDocuments));
+    }
+  }, [isOpen, projectId]);
 
   const documentTypes = ["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"];
 
@@ -172,14 +207,40 @@ const DocumentSubmissionModal = ({
     setUploadedDocuments((prev) => prev.filter((doc) => doc.id !== docId));
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
+    setUploadError("");
+    setUploadSuccess("");
     if (!selectedType) {
       setShowTypeError(true);
       return;
     }
     if (selectedFile && selectedType) {
-      onSubmit?.(selectedFile, selectedType);
-      handleClose();
+      try {
+        const success = await uploadDocument({
+          projectId,
+          file: selectedFile,
+          type: selectedType,
+        });
+        if (success) {
+          setUploadSuccess("Upload successful!");
+          // Refresh document list
+          getUploadedDocuments(projectId)
+            .then((docs: UploadedDocument[] | null) => {
+              if (docs && Array.isArray(docs)) {
+                setUploadedDocuments(mapApiDocumentsToUploaded(docs));
+              } else {
+                setUploadedDocuments(mockDocuments);
+              }
+            })
+            .catch(() => setUploadedDocuments(mockDocuments));
+          onSubmit?.(selectedFile, selectedType);
+          handleClose();
+        } else {
+          setUploadError("Upload failed. Please try again.");
+        }
+      } catch (error) {
+        setUploadError("Upload failed. Please try again.");
+      }
     }
   };
 
@@ -219,6 +280,18 @@ const DocumentSubmissionModal = ({
 
         {/* Modal Content */}
         <div className="flex-1 overflow-y-auto p-6">
+          {/* Error/Success Messages */}
+          {uploadError && (
+            <div className="text-red-500 text-sm mb-2 text-center bg-red-50 p-2 rounded">
+              {uploadError}
+            </div>
+          )}
+          {uploadSuccess && (
+            <div className="text-green-600 text-sm mb-2 text-center bg-green-50 p-2 rounded">
+              {uploadSuccess}
+            </div>
+          )}
+
           {/* Step 1: View Documents */}
           {currentStep === 1 && (
             <div className="h-full flex flex-col">
@@ -487,7 +560,7 @@ const DocumentSubmissionModal = ({
                       className="inline-block px-5 py-2 text-white text-sm font-medium rounded-md cursor-pointer transition-opacity hover:opacity-90"
                       style={{ backgroundColor: "var(--color-brand-500)" }}
                     >
-                      Browse Files
+                      Choose File
                     </span>
                   </label>
 
