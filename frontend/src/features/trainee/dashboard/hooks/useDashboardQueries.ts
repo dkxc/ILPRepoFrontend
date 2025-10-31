@@ -1,95 +1,64 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ApiBatch } from "../../types/Batch.types";
-import type { ApiSession } from "../../types/Session.types";
-import type { ApiTraineeDocument } from "../../types/TraineeDocument.types";
-
-const fetchProfile = async () => {
-  const res = await fetch("/api/profile");
-  if (!res.ok) throw new Error("Network response was not ok for profile");
-  return res.json();
-};
-
-const fetchProject = async (projectId: number) => {
-  const res = await fetch(`/api/project/${projectId}`);
-  if (!res.ok) throw new Error("Network response was not ok for project");
-  return res.json();
-};
-
-const fetchBatch = async (batchId: number) => {
-  const res = await fetch(`/api/batch/${batchId}`);
-  if (!res.ok) throw new Error("Network response was not ok for batch");
-  return res.json();
-};
-
-const fetchDocuments = async () => {
-  const res = await fetch("/api/documents");
-  if (!res.ok) throw new Error("Network response was not ok for documents");
-  return res.json();
-};
-
-const fetchSessions = async (batchId: number) => {
-  const res = await fetch(`/api/batch/${batchId}/sessions`);
-  if (!res.ok) throw new Error("Network response was not ok for sessions");
-  return res.json();
-};
-
-const fetchScores = async () => {
-  const res = await fetch("/api/scores");
-  if (!res.ok) throw new Error("Network response was not ok for scores");
-  return res.json();
-};
+import type { ApiBatch, Batch } from "../../types/Batch.types";
+import type { ApiSession, Session } from "../../types/Session.types";
+import type {
+  TraineeDocument,
+  ApiTraineeDocument,
+} from "../../types/TraineeDocument.types";
+import type { ProfileData } from "@features/trainee/types/Profile.types";
+import type { Project } from "@features/trainee/types/Project.types";
+import type { Scores } from "@features/trainee/types/scores/Score.types";
 
 export function useDashboardData() {
-  const profileQuery = useQuery({
-    queryKey: ["profile"],
-    queryFn: fetchProfile,
+  const profileQuery = useQuery<ProfileData>({
+    queryKey: ["/api/profile"],
   });
 
-  const { projectId, batchId } = profileQuery.data || {};
+  const projectId = profileQuery.data?.projectId;
+  const batchId = profileQuery.data?.batchId;
 
   // the following queries are dependent on the profile query.
   // they will only run when `projectId` and `batchId` are available.
-  const projectQuery = useQuery({
-    queryKey: ["project", projectId],
-    queryFn: () => fetchProject(projectId),
+  const projectQuery = useQuery<Project>({
+    queryKey: [`/api/project/${projectId}`],
     enabled: !!projectId,
   });
 
-  const batchQuery = useQuery({
-    queryKey: ["batch", batchId],
-    queryFn: () => fetchBatch(batchId!),
+  const batchQuery = useQuery<ApiBatch, Error, Batch>({
+    queryKey: [`/api/batch/${batchId}`],
     enabled: !!batchId,
-    select: (batchData: ApiBatch) => ({
+    select: (batchData) => ({
       ...batchData,
       startDate: new Date(batchData.startDate),
       endDate: new Date(batchData.endDate),
     }),
   });
 
-  const documentsQuery = useQuery({
-    queryKey: ["documents"],
-    queryFn: fetchDocuments,
+  const documentsQuery = useQuery<
+    ApiTraineeDocument[],
+    Error,
+    TraineeDocument[]
+  >({
+    queryKey: ["/api/documents"],
     select: (data) =>
-      data.map((doc: ApiTraineeDocument) => ({
+      data.map((doc) => ({
         ...doc,
         uploadDate: new Date(doc.uploadDate),
       })),
   });
 
-  const sessionsQuery = useQuery({
-    queryKey: ["sessions", batchId],
-    queryFn: () => fetchSessions(batchId!),
+  const sessionsQuery = useQuery<ApiSession[], Error, Session[]>({
+    queryKey: [`/api/batch/${batchId}/sessions`],
     enabled: !!batchId,
-    select: (sessionsData) =>
+    select: (sessionsData: ApiSession[]) =>
       sessionsData.map((session: ApiSession) => ({
         ...session,
         date: new Date(session.date),
       })),
   });
 
-  const scoresQuery = useQuery({
-    queryKey: ["scores"],
-    queryFn: fetchScores,
+  const scoresQuery = useQuery<Scores>({
+    queryKey: ["/api/scores"],
   });
 
   return {

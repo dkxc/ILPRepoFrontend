@@ -4,56 +4,19 @@ import type {
   GetResponseType,
   UpdateQueryType,
   UpdateSuccessResponseType,
-  ApiErrorResponse,
 } from "../types/AttendanceQuery.types";
+import apiClient from "@lib/api/apiClient";
 
-const fetchAttendance = async (
-  batchId: number,
-  filters?: GetQueryType,
-): Promise<GetResponseType[]> => {
+function buildAttendanceUrl(batchId: number, filters?: GetQueryType): string {
   const queryParams = new URLSearchParams();
   if (filters) {
-    if (filters.start_date)
-      queryParams.append("start_date", filters.start_date);
-    if (filters.end_date) queryParams.append("end_date", filters.end_date);
+    if (filters.start_date) queryParams.set("start_date", filters.start_date);
+    if (filters.end_date) queryParams.set("end_date", filters.end_date);
   }
 
-  const res = await fetch(
-    `/api/attendance/batch/${batchId}?${queryParams.toString()}`,
-  );
-  if (!res.ok) {
-    const errorData: ApiErrorResponse = await res.json();
-    throw new Error(
-      errorData.message || "Network response was not ok for attendance",
-    );
-  }
-  return res.json();
-};
-
-const updateAttendance = async ({
-  batchId,
-  data,
-}: {
-  batchId: number;
-  data: UpdateQueryType;
-}): Promise<UpdateSuccessResponseType> => {
-  const res = await fetch(`/api/attendance/batch/${batchId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    const errorData: ApiErrorResponse = await res.json();
-    throw new Error(
-      errorData.message ||
-        "Network response was not ok while updating attendance",
-    );
-  }
-  return res.json();
-};
+  const queryString = queryParams.toString();
+  return `/api/attendance/batch/${batchId}${queryString ? `?${queryString}` : ""}`;
+}
 
 // Custom Hooks
 /**
@@ -62,9 +25,12 @@ const updateAttendance = async ({
  * @param filters Optional filters for start date, end date, and status.
  */
 export function useAttendanceQuery(batchId: number, filters?: GetQueryType) {
-  return useQuery({
+  return useQuery<GetResponseType[]>({
     queryKey: ["attendance", batchId, filters],
-    queryFn: () => fetchAttendance(batchId, filters),
+    queryFn: () => {
+      const endpoint = buildAttendanceUrl(batchId, filters);
+      return apiClient(endpoint);
+    },
     enabled: !!batchId,
   });
 }
@@ -73,13 +39,25 @@ export function useAttendanceQuery(batchId: number, filters?: GetQueryType) {
  * Custom hook to create a mutation for updating attendance records.
  * @param batchId The ID of the batch whose cache needs to be invalidated on success.
  */
-export function useUpdateAttendanceMutation(batchId: number) {
+export function useUpdateAttendanceMutation() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: updateAttendance,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["attendance", batchId] });
+  return useMutation<
+    UpdateSuccessResponseType,
+    Error,
+    { batchId: number; data: UpdateQueryType }
+  >({
+    mutationFn: ({ batchId, data }) => {
+      return apiClient(`/api/attendance/batch/${batchId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+    },
+
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["attendance", variables.batchId],
+      });
     },
   });
 }

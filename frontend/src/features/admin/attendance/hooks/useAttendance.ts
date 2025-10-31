@@ -53,7 +53,7 @@ export function useAttendance(batchId: number) {
     status: queryStatus,
     error: queryError,
   } = useAttendanceQuery(batchId, filters);
-  const updateMutation = useUpdateAttendanceMutation(batchId);
+  const updateMutation = useUpdateAttendanceMutation();
 
   useEffect(() => {
     if (updateMutation.isSuccess)
