@@ -1,5 +1,7 @@
+import AttendanceImportSlideout from "@features/admin/attendance/components/AttendanceImportSlideout/AttendanceImportSlideout";
 import AttendanceTable from "@features/admin/attendance/components/AttendanceTable/AttendanceTable";
 import AttendanceTableLoading from "@features/admin/attendance/components/AttendanceTable/components/AttendanceTableLoading";
+import { exportToXLSX } from "@features/admin/attendance/components/AttendanceTable/utils/AttendanceExport.utils";
 import {
   useAttendanceQuery,
   useUpdateAttendanceMutation,
@@ -28,6 +30,7 @@ function Attendance() {
     direction: "ascending",
   });
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+  const [isActionspaneOpen, setIsActionspaneOpen] = useState(false);
 
   const filters = useMemo(() => {
     if (!dateValue?.start || !dateValue?.end) return undefined;
@@ -131,6 +134,22 @@ function Attendance() {
     }
   };
 
+  const handleExport = () => {
+    if (!sortedData.length || !dateColumns.length) {
+      toast.error("No data available to export.");
+      return;
+    }
+    exportToXLSX(sortedData, dateColumns, dateValue);
+  };
+
+  const handleImportFile = (file: File) => {
+    console.log("Importing file:", file);
+    toast.success(
+      `File "${file.name}" selected for import. (P.S. Feature coming soon)`,
+    );
+    setIsActionspaneOpen(false);
+  };
+
   if (queryStatus === "error")
     return <div className="p-4 text-red-500">Error: {queryError.message}</div>;
 
@@ -155,10 +174,18 @@ function Attendance() {
           selectedKeys={selectedKeys}
           onSelectionChange={setSelectedKeys}
           onBulkUpdate={handleBulkUpdate}
+          onImport={() => setIsActionspaneOpen(true)}
+          onExport={handleExport}
           isButtonUpdating={updateMutation.isPending}
           className="px-4 pb-4"
         />
       )}
+
+      <AttendanceImportSlideout
+        isOpen={isActionspaneOpen}
+        onClose={() => setIsActionspaneOpen(false)}
+        onImport={handleImportFile}
+      />
     </div>
   );
 }
