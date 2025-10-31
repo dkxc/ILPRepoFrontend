@@ -1,8 +1,15 @@
 import AttendanceHeader from "@features/admin/attendance/components/AttendanceHeader/AttendanceHeader";
-import AttendanceImportSlideout from "@features/admin/attendance/components/AttendanceImportSlideout/AttendanceImportSlideout";
 import AttendanceTable from "@features/admin/attendance/components/AttendanceTable/AttendanceTable";
 import AttendanceTableLoading from "@features/admin/attendance/components/AttendanceTable/components/AttendanceTableLoading";
 import LargeDateRangeWarning from "@features/admin/attendance/components/AttendanceTable/components/LargeDateRangeWarning";
+import { lazy } from "react";
+
+const AttendanceImportSlideout = lazy(
+  () =>
+    import(
+      "@features/admin/attendance/components/AttendanceImportSlideout/AttendanceImportSlideout"
+    ),
+);
 
 import { useAttendance } from "@features/admin/attendance/hooks/useAttendance";
 
