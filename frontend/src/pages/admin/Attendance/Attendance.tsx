@@ -1,4 +1,5 @@
 import AttendanceTable from "@features/admin/attendance/components/AttendanceTable/AttendanceTable";
+import AttendanceTableLoading from "@features/admin/attendance/components/AttendanceTable/components/AttendanceTableLoading";
 import {
   useAttendanceQuery,
   useUpdateAttendanceMutation,
@@ -130,28 +131,34 @@ function Attendance() {
     }
   };
 
-  if (queryStatus === "pending")
-    return <div className="p-4">Loading records...</div>;
   if (queryStatus === "error")
     return <div className="p-4 text-red-500">Error: {queryError.message}</div>;
 
   const numSelected =
     selectedKeys === "all" ? (attendanceData?.length ?? 0) : selectedKeys.size;
+
   return (
     <div className="pt-6 px-4">
-      <AttendanceTable
-        data={sortedData}
-        dateColumns={dateColumns}
-        dateValue={dateValue}
-        onDateChange={setDateValue}
-        sortDescriptor={sortDescriptor}
-        onSortChange={setSortDescriptor}
-        selectedKeys={selectedKeys}
-        onSelectionChange={setSelectedKeys}
-        onBulkUpdate={handleBulkUpdate}
-        isButtonUpdating={updateMutation.isPending}
-        className="px-4 pb-4"
-      />
+      {queryStatus === "pending" ? (
+        <AttendanceTableLoading
+          dateColumns={dateColumns}
+          className="px-4 pb-4"
+        />
+      ) : (
+        <AttendanceTable
+          data={sortedData}
+          dateColumns={dateColumns}
+          dateValue={dateValue}
+          onDateChange={setDateValue}
+          sortDescriptor={sortDescriptor}
+          onSortChange={setSortDescriptor}
+          selectedKeys={selectedKeys}
+          onSelectionChange={setSelectedKeys}
+          onBulkUpdate={handleBulkUpdate}
+          isButtonUpdating={updateMutation.isPending}
+          className="px-4 pb-4"
+        />
+      )}
     </div>
   );
 }
