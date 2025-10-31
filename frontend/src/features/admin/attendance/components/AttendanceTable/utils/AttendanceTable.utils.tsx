@@ -1,7 +1,5 @@
-import type {
-  AttendanceStatus,
-  BulkUpdateStatus,
-} from "@features/admin/attendance/types/AttendanceRecord.types";
+import type { BulkUpdateStatus } from "@features/admin/attendance/types/AttendanceQuery.types";
+import type { AttendanceStatus } from "@features/admin/attendance/types/AttendanceRecord.types";
 import type { BadgeColor } from "@ui/badges/Badges";
 import type { BadgeTypes } from "@ui/badges/components/BadgeTypes";
 import { Dot } from "@ui/DotIcon";
