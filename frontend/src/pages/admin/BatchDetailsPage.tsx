@@ -76,13 +76,11 @@ interface DUData {
 }
 
 export default function BatchDetailsPage() {
-  //const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [selectedStatus] = useState<string | null>(null);
   const [isAddTraineeModalOpen, setIsAddTraineeModalOpen] = useState(false);
   const [isEditBatchModalOpen, setIsEditBatchModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [activePhase, setActivePhase] = useState("Trainees");
 
   const [currentBatch, setCurrentBatch] = useState<Batch>({
@@ -310,9 +308,7 @@ export default function BatchDetailsPage() {
 
   const handleRowClick = (row: Trainee) => navigate(`/batchDetails/${row.id}`);
 
-  const filteredData = selectedStatus
-    ? trainees.filter((t) => t.status === selectedStatus)
-    : trainees;
+  const filteredData = trainees;
 
   // --- Helper Functions ---
   const formatDateForDisplay = (isoDate: string) =>
@@ -347,7 +343,7 @@ export default function BatchDetailsPage() {
           techStack={currentBatch.techStack}
           onEdit={handleEditBatch}
           onAddTrainee={() => setIsAddTraineeModalOpen(true)}
-          onUploadTrainees={() => setIsUploadModalOpen(true)}
+          onUploadTrainees={() => console.log("Upload trainees clicked")}
         />
       </div>
 
@@ -676,14 +672,28 @@ export default function BatchDetailsPage() {
       <div className="mt-4">
         <DocumentUpload
           batchTitle="Document and Link Requirements"
+          batchId={id || currentBatch.id.toString()}
           initialDocuments={[
-            { id: 1, documentName: "BRD", deadline: "", templateFile: null },
-            { id: 2, documentName: "UAT", deadline: "", templateFile: null },
+            {
+              id: 1,
+              documentName: "BRD",
+              deadline: "",
+              templateFile: null,
+              submissionType: "pdf" as const,
+            },
+            {
+              id: 2,
+              documentName: "UAT",
+              deadline: "",
+              templateFile: null,
+              submissionType: "xlsx" as const,
+            },
             {
               id: 3,
               documentName: "Sprint Tracker",
               deadline: "",
               templateFile: null,
+              submissionType: "excel" as const,
             },
           ]}
           initialLinks={[

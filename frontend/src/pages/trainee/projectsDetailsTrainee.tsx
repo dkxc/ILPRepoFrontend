@@ -30,30 +30,40 @@ function ProjectDetails() {
           name={projectData.name}
           trainees={projectData.trainees}
           status={projectData.status}
+          projectId={id || "unknown"}
         />
 
         <div className="grid grid-cols-12 gap-4 mb-6">
           <div className="col-span-3 flex flex-col gap-4">
-            <TechStack techStack={projectData.techStack} canEdit={false} />
+            <TechStack
+              techStack={projectData.techStack}
+              canEdit={false}
+              projectId={id || "unknown"}
+            />
             <div className="flex-1">
               <ProjectLinks
                 repositoryUrl={projectData.repositoryUrl}
                 figmaUrl={projectData.figmaUrl}
                 canEdit={false}
+                projectId={id || "unknown"}
               />
             </div>
           </div>
           <div className="col-span-9">
-            <ProjectDocuments canUpload={false} canNotify={false} />
+            <ProjectDocuments
+              canUpload={false}
+              canNotify={false}
+              projectId={id || "unknown"}
+            />
           </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-7/10 flex items-stretch">
-            <TeamList />
+            <TeamList projectId={id || "unknown"} />
           </div>
           <div className="w-full md:w-3/10 flex items-stretch">
-            <SubmissionRate />
+            <SubmissionRate projectId={id || "unknown"} />
           </div>
         </div>
       </div>
