@@ -17,7 +17,7 @@ import {
   sessionOptions,
   StatusIcon,
 } from "./utils/Attendance.utils";
-import { Dropdown } from "@ui/dropdown/NestedDropdown";
+import { Dropdown as NestedDropdown } from "@ui/dropdown/NestedDropdown";
 import { Button } from "@ui/button/Button";
 import { ChevronDown } from "lucide-react";
 
@@ -68,9 +68,9 @@ function AttendanceTable({
         }
         contentTrailing={
           <div className="flex items-center-safe gap-4">
-            <Dropdown.Root>
+            <NestedDropdown.Root>
               <Button
-                color="secondary"
+                color="primary"
                 size="md"
                 iconLeading={ChevronDown}
                 isLoading={isButtonUpdating}
@@ -79,16 +79,16 @@ function AttendanceTable({
               >
                 {isButtonUpdating ? "Updating" : "Mark As"}
               </Button>
-              <Dropdown.Popover>
-                <Dropdown.Menu>
+              <NestedDropdown.Popover>
+                <NestedDropdown.Menu>
                   {attendanceStatuses.map((status) => (
-                    <Dropdown.Submenu
+                    <NestedDropdown.Submenu
                       key={status.id}
                       label={status.label}
                       icon={<StatusIcon dotClassName={status.dotClassName} />}
                     >
                       {sessionOptions.map((session) => (
-                        <Dropdown.Item
+                        <NestedDropdown.Item
                           key={session.label}
                           label={session.label}
                           icon={session.icon}
@@ -97,11 +97,11 @@ function AttendanceTable({
                           }
                         />
                       ))}
-                    </Dropdown.Submenu>
+                    </NestedDropdown.Submenu>
                   ))}
-                </Dropdown.Menu>
-              </Dropdown.Popover>
-            </Dropdown.Root>
+                </NestedDropdown.Menu>
+              </NestedDropdown.Popover>
+            </NestedDropdown.Root>
             <DateRangePicker
               shouldCloseOnSelect
               value={dateValue}
