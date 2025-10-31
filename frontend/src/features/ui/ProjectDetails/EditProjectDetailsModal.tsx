@@ -6,10 +6,16 @@ import { updateTechStack, updateProjectLinks } from "./api";
 interface EditProjectDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSave: (params: {
+    techStack: string[];
+    repositoryUrl: string;
+    figmaUrl: string;
+  }) => Promise<void>;
   initialTechStack: string[];
   initialRepositoryUrl: string;
   initialFigmaUrl: string;
   saveError: string | null;
+  saving: boolean;
   projectId?: string;
 }
 

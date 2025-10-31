@@ -146,7 +146,7 @@ export default function TotalTrainingHours() {
   );
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [month, setMonth] = useState(9);
-  const [holidays, setHolidays] = useState<number[]>([]);
+  const [holidays] = useState<number[]>([]);
   const [trainingHours, setTrainingHours] = useState<Record<number, number>>(
     {},
   );

@@ -5,6 +5,9 @@ import { getAllProjectLinks, updateProjectLink } from "./api";
 import type { ProjectLink } from "./api";
 
 interface ProjectLinksProps {
+  id?: number;
+  repositoryUrl: string;
+  figmaUrl: string;
   canEdit?: boolean;
   projectId: string;
 }

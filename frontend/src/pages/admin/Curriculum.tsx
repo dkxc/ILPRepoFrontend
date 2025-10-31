@@ -289,8 +289,6 @@ const RescheduleModal = ({
   isOpen,
   onClose,
   onConfirm,
-  currentYear,
-  currentMonth,
 }: {
   isOpen: boolean;
   onClose: () => void;

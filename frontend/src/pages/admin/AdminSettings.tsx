@@ -7,7 +7,6 @@ import {
   Plus,
   Trash2,
   Save,
-  Mail,
 } from "lucide-react";
 
 interface Sections {

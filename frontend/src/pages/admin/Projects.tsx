@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { useNavigate } from "react-router";
-import Button from "../../features/ui/Button";
 import { logos } from "../../assets/projects-svg";
 
 interface Project {
@@ -205,7 +204,7 @@ function EditModal({
 }
 
 export default function Projects() {
-  const [selectedBatch, setSelectedBatch] = useState<string | null>("");
+  const [selectedBatch] = useState<string | null>("");
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Projects");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

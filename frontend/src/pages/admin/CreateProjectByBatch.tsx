@@ -15,10 +15,6 @@ interface ProjectData {
   teamMembers: string;
 }
 
-interface CreateProjectByBatchProps {
-  batchName: string;
-}
-
 export default function CreateProjectByBatch() {
   const batchName = "ILP Batch 1 - 2025-26";
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);

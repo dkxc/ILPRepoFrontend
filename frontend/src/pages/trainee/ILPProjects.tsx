@@ -1,11 +1,7 @@
 import { useState, forwardRef } from "react";
-import { Badge, ActionIcon } from "@mantine/core";
-import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
-import { Trash2 } from "lucide-react";
+import { Badge } from "@mantine/core";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { useNavigate } from "react-router";
-import Button from "../../features/ui/Button";
 import { logos } from "../../assets/projects-svg";
 
 interface Project {
@@ -48,7 +44,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
 ProjectCard.displayName = "ProjectCard";
 
 export default function Projects() {
-  const [selectedBatch, setSelectedBatch] = useState<string | null>("");
+  const [selectedBatch] = useState<string | null>("");
   const navigate = useNavigate();
 
   const projectsData: Project[] = [
@@ -215,27 +211,6 @@ export default function Projects() {
       default:
         return "gray";
     }
-  };
-
-  const handleDelete = (project: Project) => {
-    modals.openConfirmModal({
-      title: "Delete Project",
-      centered: true,
-      children: (
-        <p>
-          Are you sure you want to delete <b>{project.name}</b>?
-        </p>
-      ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
-      confirmProps: { color: "red" },
-      onConfirm: () => {
-        notifications.show({
-          title: "Deleted",
-          message: `${project.name} was removed.`,
-          color: "red",
-        });
-      },
-    });
   };
 
   const handleRowClick = (row: Project) => {

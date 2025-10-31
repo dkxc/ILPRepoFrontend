@@ -34,7 +34,6 @@ interface ResultsAccordionProps {
 
 export default function ResultsAccordion({
   batchId,
-  batchTitle = "ILP Batch 1 - 2025-26",
   onUploadClick,
   defaultOpen = false,
 }: ResultsAccordionProps) {

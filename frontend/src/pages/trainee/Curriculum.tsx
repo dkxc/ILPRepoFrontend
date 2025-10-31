@@ -3,8 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
-  Clock,
-  User,
   CheckCircle,
   XCircle,
 } from "lucide-react";
@@ -15,12 +13,10 @@ import type {
 import {
   getDaysInMonth,
   getFirstDayOfMonth,
-  formatTime,
   monthNames,
   dayNames,
   colorClasses,
 } from "../../features/ui/Calendar-utils";
-import { CalendarGrid } from "../../features/ui/calendar/CalendarGrid";
 
 import { EventSidebar } from "../../features/ui/calendar/EventSideBar";
 

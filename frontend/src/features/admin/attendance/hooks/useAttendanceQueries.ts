@@ -54,7 +54,7 @@ export function useUpdateAttendanceMutation() {
       });
     },
 
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["attendance", variables.batchId],
       });

@@ -39,7 +39,6 @@ interface CurriculumUploadProps {
 }
 
 export default function CurriculumUpload({
-  batchId = "BATCH001",
   onUpload,
   showNotification,
 }: CurriculumUploadProps = {}) {
