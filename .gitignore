@@ -52,6 +52,7 @@ frontend/dist
 frontend/dist-ssr
 frontend/*.local
 frontend/.react-router
+frontend/build
 
 # Environment files
 frontend/.env*
@@ -71,6 +72,9 @@ frontend/package-lock.json
 
 # Ignore pnpm store
 frontend/.pnpm-store/
+
+# Ignore hosting provider dirs
+frontend/.vercel
 
 
 # ===================================================================
