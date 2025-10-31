@@ -107,26 +107,6 @@ function AttendanceTable({
                 </NestedDropdown.Menu>
               </NestedDropdown.Popover>
             </NestedDropdown.Root>
-            <DateRangePicker
-              shouldCloseOnSelect
-              value={dateValue}
-              onChange={onDateChange}
-            />
-            <Dropdown.Root>
-              <Dropdown.DotsButton />
-              <Dropdown.Popover>
-                <Dropdown.Menu>
-                  <Dropdown.Section>
-                    <Dropdown.Item icon={UploadCloud} onAction={onImport}>
-                      Import
-                    </Dropdown.Item>
-                    <Dropdown.Item icon={Download} onAction={onExport}>
-                      Export
-                    </Dropdown.Item>
-                  </Dropdown.Section>
-                </Dropdown.Menu>
-              </Dropdown.Popover>
-            </Dropdown.Root>
           </div>
         }
       />
