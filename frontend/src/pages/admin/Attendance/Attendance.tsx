@@ -6,13 +6,14 @@ import {
 import type { BulkUpdateStatus } from "@features/admin/attendance/types/AttendanceRecord.types";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { eachDayOfInterval, format, parseISO } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type {
   DateValue,
   Selection,
   SortDescriptor,
   Key,
 } from "react-aria-components";
+import { toast } from "sonner";
 
 const now = today(getLocalTimeZone());
 
@@ -42,6 +43,20 @@ function Attendance() {
     error: queryError,
   } = useAttendanceQuery(12345, filters);
   const updateMutation = useUpdateAttendanceMutation(12345);
+
+  useEffect(() => {
+    if (updateMutation.isSuccess) {
+      toast.success(`${updateMutation.data.updateRecordCount} entries updated`);
+    }
+    if (updateMutation.isError) {
+      toast.error(`Failed due to ${updateMutation.error.message}`);
+    }
+  }, [
+    updateMutation.isSuccess,
+    updateMutation.isError,
+    updateMutation.data,
+    updateMutation.error,
+  ]);
 
   const sortedData = useMemo(() => {
     if (!attendanceData) return [];
@@ -134,6 +149,7 @@ function Attendance() {
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}
         onBulkUpdate={handleBulkUpdate}
+        isButtonUpdating={updateMutation.isPending}
         className="px-4 pb-4"
       />
     </div>

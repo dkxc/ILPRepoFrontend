@@ -68,40 +68,40 @@ function AttendanceTable({
         }
         contentTrailing={
           <div className="flex items-center-safe gap-4">
-            {getTotalSelections > 0 && (
-              <Dropdown.Root>
-                <Button
-                  color="secondary"
-                  size="sm"
-                  iconTrailing={ChevronDown}
-                  isLoading={isButtonUpdating}
-                >
-                  Mark As
-                </Button>
-                <Dropdown.Popover>
-                  <Dropdown.Menu>
-                    {attendanceStatuses.map((status) => (
-                      <Dropdown.Submenu
-                        key={status.id}
-                        label={status.label}
-                        icon={<StatusIcon dotClassName={status.dotClassName} />}
-                      >
-                        {sessionOptions.map((session) => (
-                          <Dropdown.Item
-                            key={session.label}
-                            label={session.label}
-                            icon={session.icon}
-                            onAction={() =>
-                              onBulkUpdate(session.getPayload(status.id))
-                            }
-                          />
-                        ))}
-                      </Dropdown.Submenu>
-                    ))}
-                  </Dropdown.Menu>
-                </Dropdown.Popover>
-              </Dropdown.Root>
-            )}
+            <Dropdown.Root>
+              <Button
+                color="secondary"
+                size="sm"
+                iconLeading={ChevronDown}
+                isLoading={isButtonUpdating}
+                showTextWhileLoading={true}
+                isDisabled={getTotalSelections <= 0}
+              >
+                {isButtonUpdating ? "Updating" : "Mark As"}
+              </Button>
+              <Dropdown.Popover>
+                <Dropdown.Menu>
+                  {attendanceStatuses.map((status) => (
+                    <Dropdown.Submenu
+                      key={status.id}
+                      label={status.label}
+                      icon={<StatusIcon dotClassName={status.dotClassName} />}
+                    >
+                      {sessionOptions.map((session) => (
+                        <Dropdown.Item
+                          key={session.label}
+                          label={session.label}
+                          icon={session.icon}
+                          onAction={() =>
+                            onBulkUpdate(session.getPayload(status.id))
+                          }
+                        />
+                      ))}
+                    </Dropdown.Submenu>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown.Root>
             <DateRangePicker
               shouldCloseOnSelect
               value={dateValue}
