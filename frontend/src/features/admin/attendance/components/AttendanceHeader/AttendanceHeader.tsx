@@ -2,6 +2,7 @@ import type { DateValue } from "react-aria";
 import { Dropdown } from "@ui/dropdown/Dropdown";
 import { Download, UploadCloud } from "lucide-react";
 import DateRangePicker from "../DateRangePicker";
+import { getLocalTimeZone, today } from "@internationalized/date";
 
 interface AttendanceHeaderProps {
   /** The current date range value. */
@@ -28,6 +29,7 @@ function AttendanceHeader({
           shouldCloseOnSelect
           value={dateValue}
           onChange={onDateChange}
+          maxValue={today(getLocalTimeZone())}
         />
         <Dropdown.Root>
           <Dropdown.DotsButton />
