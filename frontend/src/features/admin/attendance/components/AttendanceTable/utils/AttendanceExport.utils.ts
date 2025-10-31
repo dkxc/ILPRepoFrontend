@@ -1,6 +1,6 @@
-import type { GetResponseType } from "../../../types/AttendanceRecord.types";
+import type { ProcessedTraineeData } from "../../../types/AttendanceRecord.types";
 import { format } from "date-fns";
-import * as XLSX from "xlsx";
+import { utils as XLSXUtils, writeFile, type Range } from "xlsx";
 import type { DateValue } from "react-aria";
 
 /**
@@ -8,56 +8,93 @@ import type { DateValue } from "react-aria";
  * @param data - The sorted attendance records to export.
  * @param dateColumns - An array of Date objects representing the columns.
  * @param dateValue - The selected date range for the file name.
+ * @param isMultiDateView - prints total column if this is true.
  */
 export function exportToXLSX(
-  data: GetResponseType[],
+  data: ProcessedTraineeData[],
   dateColumns: Date[],
   dateValue: { start: DateValue; end: DateValue } | null,
+  isMultiDateView: boolean,
 ) {
-  const headerRow1 = ["Trainee Name"];
-  const headerRow2 = [""]; // First cell is empty in the second row
+  // multisheet xlsx
+  const wb = XLSXUtils.book_new();
 
+  // Sheet 1: Merged Sheet
+  const reportHeaderRow1: (string | Date)[] = ["Trainee Name"];
+  const reportHeaderRow2: string[] = [""];
   dateColumns.forEach((date) => {
-    headerRow1.push(format(date, "MMM d, yyyy"));
-    headerRow1.push(""); // an empty cell for the merge
-    headerRow2.push("FN");
-    headerRow2.push("AN");
+    reportHeaderRow1.push(date, "");
+    reportHeaderRow2.push("FN", "AN");
   });
+  if (isMultiDateView) {
+    reportHeaderRow1.push("Total", "", "");
+    reportHeaderRow2.push("FN", "AN", "Total");
+  }
 
   const dataRows = data.map((trainee) => {
-    const row = [trainee.traineeName];
+    const row: (string | number)[] = [trainee.traineeName];
     dateColumns.forEach((date) => {
       const dateKey = format(date, "yyyy-MM-dd");
       const record = trainee.dates[dateKey];
-      row.push(record?.forenoon ?? "N/A");
-      row.push(record?.afternoon ?? "N/A");
+      row.push(record?.forenoon ?? "N/A", record?.afternoon ?? "N/A");
     });
+    if (isMultiDateView) {
+      row.push(trainee.presentFN, trainee.presentAN, trainee.totalPresentDays);
+    }
     return row;
   });
 
-  const finalData = [headerRow1, headerRow2, ...dataRows];
+  const reportFinalData = [reportHeaderRow1, reportHeaderRow2, ...dataRows];
+  const ws_report = XLSXUtils.aoa_to_sheet(reportFinalData, {
+    cellDates: true,
+  });
 
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(finalData);
-
-  // Define the merged cell ranges
-  const merges = [];
-  // Also, merge the "Trainee Name" cell across the first two rows
-  merges.push({ s: { r: 0, c: 0 }, e: { r: 1, c: 0 } });
-
+  // merges
+  const merges: Range[] = [];
+  merges.push({ s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }); // Trainee Name
   for (let i = 0; i < dateColumns.length; i++) {
-    merges.push({
-      s: { r: 0, c: i * 2 + 1 }, // Start cell (row 0, col 1, 3, 5...)
-      e: { r: 0, c: i * 2 + 2 }, // End cell (row 0, col 2, 4, 6...)
-    });
+    merges.push({ s: { r: 0, c: i * 2 + 1 }, e: { r: 0, c: i * 2 + 2 } }); // Dates
   }
-  ws["!merges"] = merges;
+  if (isMultiDateView) {
+    const totalStartIndex = 1 + dateColumns.length * 2;
+    merges.push({
+      s: { r: 0, c: totalStartIndex },
+      e: { r: 0, c: totalStartIndex + 2 },
+    }); // Total
+  }
+  ws_report["!merges"] = merges;
 
-  XLSX.utils.book_append_sheet(wb, ws, "Attendance Records");
+  // append to book
+  XLSXUtils.book_append_sheet(wb, ws_report, "Formatted Report");
 
-  // generate and trigger the download
+  // Sheet 2: Filterable Sheet
+  const flatHeader: string[] = ["Trainee Name"];
+  dateColumns.forEach((date) => {
+    const dateString = format(date, "MMM d");
+    flatHeader.push(`${dateString} (FN)`, `${dateString} (AN)`);
+  });
+  if (isMultiDateView) {
+    flatHeader.push("Total (FN)", "Total (AN)", "Total");
+  }
+
+  // reusing data
+  const dataFinalData = [flatHeader, ...dataRows];
+  const ws_data = XLSXUtils.aoa_to_sheet(dataFinalData);
+
+  // add filter
+  ws_data["!autofilter"] = {
+    ref: XLSXUtils.encode_range({
+      s: { r: 0, c: 0 },
+      e: { r: 0, c: flatHeader.length - 1 },
+    }),
+  };
+
+  // append to book
+  XLSXUtils.book_append_sheet(wb, ws_data, "Sortable Data");
+
+  // Download
   const startDate = dateValue?.start.toString() ?? "start";
   const endDate = dateValue?.end.toString() ?? "end";
   const fileName = `attendance-records-${startDate}-to-${endDate}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+  writeFile(wb, fileName);
 }
