@@ -26,5 +26,7 @@ export default [
     route("curriculumAdmin", "./pages/admin/Curriculum.tsx"),
     route("upload-results", "./pages/admin/ResultsUp.tsx"),
     route("upload-curriculum", "./pages/admin/CurriculumUp.tsx"),
+
+    route("attendance", "./pages/admin/Attendance/Attendance.tsx"),
   ]),
 ] satisfies RouteConfig;

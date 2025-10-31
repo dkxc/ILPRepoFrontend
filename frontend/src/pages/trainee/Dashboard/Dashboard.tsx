@@ -68,7 +68,7 @@ function Dashboard() {
     <>
       <WelcomeHeader
         className="pt-6"
-        firstName={profileQuery.data?.firstName}
+        firstName={profileQuery.data?.firstName || ""}
         isLoading={profileQuery.isLoading}
       />
       <ResponsiveGridLayout

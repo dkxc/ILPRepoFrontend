@@ -1,3 +1,8 @@
 import traineeDashboardHandlers from "./trainee/dashboardHandlers";
 
-export const handlers = [...traineeDashboardHandlers];
+import adminAttendanceHandlers from "./admin/attendanceHandlers";
+
+export const handlers = [
+  ...traineeDashboardHandlers,
+  ...adminAttendanceHandlers,
+];
