@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import SideBar from "./features/ui/sidebar/Sidebar";
 import {
   Bell,
@@ -58,7 +58,9 @@ function App() {
     "md:w-40 lg:w-44 xl:w-52 max-w-52 transition-[width] motion-reduce:transition-none";
   const headerHeight = "h-14 max-h-14";
   // TODO: Remove this after auth
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(
+    useLocation().pathname.startsWith("/admindash"),
+  );
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
 

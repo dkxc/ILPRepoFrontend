@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import { createPortal } from "react-dom";
+import { useParams } from "react-router";
 import {
   Upload,
   Trash2,
   Download,
-  SquarePen,
   ChevronDown,
   ChevronUp,
   MoreHorizontal,
@@ -17,6 +18,11 @@ import { notifications } from "@mantine/notifications";
 import type { ColumnDef } from "../../ui/Table";
 import Button from "../../ui/Button";
 import DataTable from "../../ui/Table";
+import {
+  getDocuments,
+  getProjectLinks,
+  uploadDocument,
+} from "../../ui/ProjectDetails/api";
 
 // DropdownMenu for action column
 function DropdownMenu({
@@ -107,9 +113,7 @@ function DropdownMenu({
                 setOpen(false);
               }}
               type="button"
-            >
-              <SquarePen className="w-4 h-4" /> Edit
-            </button>
+            ></button>
             <button
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-800 text-sm"
               onClick={() => {
@@ -159,12 +163,24 @@ function DropdownMenu({
   );
 }
 
-// Types
+// Submission type enum
+const SubmissionType = {
+  PDF: "pdf",
+  XLSX: "xlsx",
+  EXCEL: "excel",
+  DOCX: "docx",
+  IMAGE: "image",
+  PPTX: "pptx",
+} as const;
+
+type SubmissionType = (typeof SubmissionType)[keyof typeof SubmissionType];
+
 interface DocumentRow {
   id: number;
   documentName: string;
   deadline: string;
   templateFile: File | null;
+  submissionType: SubmissionType;
   isMultiple?: boolean;
   isBroadcast?: boolean;
 }
@@ -172,11 +188,20 @@ interface DocumentRow {
 interface LinkRow {
   id: number;
   linkName: string;
-  urlPrefix: string;
+}
+
+interface AddLinkRow {
+  isAddRow: true;
+}
+
+interface LinkType {
+  id: number;
+  name: string;
 }
 
 interface DocumentUploadProps {
   batchTitle?: string;
+  batchId?: string;
   initialDocuments?: DocumentRow[];
   initialLinks?: LinkRow[];
   onDocumentChange?: (documents: DocumentRow[]) => void;
@@ -185,19 +210,19 @@ interface DocumentUploadProps {
 }
 
 export default function DocumentUpload({
-  batchTitle = "Document and Link Requirements",
-  initialDocuments = [
-    { id: 1, documentName: "BRD", deadline: "", templateFile: null },
-    { id: 2, documentName: "UAT", deadline: "", templateFile: null },
-    { id: 3, documentName: "Sprint Tracker", deadline: "", templateFile: null },
-  ],
-  initialLinks = [
-    { id: 1, linkName: "GitHub Repo", urlPrefix: "https://github.com/" },
-    { id: 2, linkName: "Deployment Link", urlPrefix: "https://" },
-  ],
+  batchTitle = "Batch Requirements",
+  batchId: propBatchId,
+  initialDocuments = [],
+  initialLinks = [],
   onDocumentChange,
   onLinksChange,
+  defaultOpen = false,
 }: DocumentUploadProps) {
+  // Use batchId from props, or fallback to URL params
+  const { id: urlBatchId } = useParams<{ id: string }>();
+  const batchId = propBatchId || urlBatchId;
+
+  // (defaultLinkTypes removed, not used)
   const [documentRows, setDocumentRows] =
     useState<DocumentRow[]>(initialDocuments);
   const [editingRowId, setEditingRowId] = useState<number | null>(null);
@@ -207,29 +232,244 @@ export default function DocumentUpload({
   } | null>(null);
 
   const [linkRows, setLinkRows] = useState<LinkRow[]>(initialLinks);
-  const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
-  const [linkEditDraft, setLinkEditDraft] = useState<{
-    linkName: string;
-    urlPrefix: string;
-  } | null>(null);
+  // Add Link Record State
+  const [showAddLinkRecord, setShowAddLinkRecord] = useState(false);
+  const [selectedLinkTypeId, setSelectedLinkTypeId] = useState<number | null>(
+    null,
+  );
+  const [linkTypes, setLinkTypes] = useState<LinkType[]>([]);
 
-  const [accordionOpen, setAccordionOpen] = useState(false);
+  // Compose the data for the table, adding the add-row if needed
+  const linkTableRows: (LinkRow | AddLinkRow)[] = showAddLinkRecord
+    ? [...linkRows, { isAddRow: true }]
+    : linkRows;
+
+  // Fetch link types from backend on mount
+  useEffect(() => {
+    async function fetchLinkTypes() {
+      try {
+        const response = await axios.get(
+          "https://localhost:7224/api/Links/types",
+        );
+        if (
+          response.data &&
+          response.data.succeeded &&
+          Array.isArray(response.data.data)
+        ) {
+          setLinkTypes(response.data.data);
+        }
+      } catch (err) {
+        // fallback to default types if needed
+        setLinkTypes([
+          { id: 1, name: "GitHub Repository" },
+          { id: 2, name: "Deployment Link" },
+          { id: 3, name: "Figma Design" },
+          { id: 4, name: "Documentation" },
+        ]);
+      }
+    }
+    fetchLinkTypes();
+  }, []);
+  const [showAddLinkTypeModal, setShowAddLinkTypeModal] = useState(false);
+  const [newLinkTypeName, setNewLinkTypeName] = useState("");
+
+  const [accordionOpen, setAccordionOpen] = useState(defaultOpen || false);
   const [activeTab, setActiveTab] = useState<"documents" | "links">(
     "documents",
   );
+
+  // Mock data for fallback
+  const mockDocuments: DocumentRow[] = [
+    {
+      id: 1,
+      documentName: "BRD",
+      deadline: "2025-11-15",
+      templateFile: null,
+      submissionType: SubmissionType.PDF,
+    },
+    {
+      id: 2,
+      documentName: "UAT",
+      deadline: "2025-11-20",
+      templateFile: null,
+      submissionType: SubmissionType.XLSX,
+    },
+    {
+      id: 3,
+      documentName: "Sprint Tracker",
+      deadline: "2025-11-25",
+      templateFile: null,
+      submissionType: SubmissionType.EXCEL,
+    },
+  ];
+
+  const mockLinks: LinkRow[] = [
+    { id: 1, linkName: "GitHub Repository" },
+    { id: 2, linkName: "Deployment Link" },
+  ];
+
+  // Map API data to component format
+  const mapApiDocumentsToRows = (apiDocs: any[]): DocumentRow[] => {
+    return apiDocs.map((doc, index) => ({
+      id: parseInt(doc.id) || index + 1,
+      documentName: doc.name || doc.filename || `Document ${index + 1}`,
+      deadline: doc.deadline || new Date().toISOString().split("T")[0],
+      templateFile: null,
+      submissionType: doc.submissionType || SubmissionType.PDF,
+      isMultiple: doc.isMultiple || false,
+      isBroadcast: doc.isBroadcast || false,
+    }));
+  };
+
+  const mapApiLinksToRows = (apiLinks: any): LinkRow[] => {
+    if (!apiLinks) return mockLinks;
+    return [
+      { id: 1, linkName: "GitHub Repository" },
+      { id: 2, linkName: "Figma Design" },
+    ];
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    // Fetch documents
+    getDocuments(batchId)
+      .then((docs) => {
+        if (docs && Array.isArray(docs)) {
+          setDocumentRows(mapApiDocumentsToRows(docs));
+        } else {
+          setDocumentRows(mockDocuments);
+        }
+      })
+      .catch(() => setDocumentRows(mockDocuments));
+
+    // Fetch project links
+    getProjectLinks(batchId)
+      .then((links) => {
+        if (links) {
+          setLinkRows(mapApiLinksToRows(links));
+        } else {
+          setLinkRows(mockLinks);
+        }
+      })
+      .catch(() => setLinkRows(mockLinks));
+  }, [batchId]);
 
   const updateLinks = (newLinks: LinkRow[]) => {
     setLinkRows(newLinks);
     onLinksChange?.(newLinks);
   };
 
-  const handleAddLink = () => {
-    const newLink: LinkRow = {
-      id: Date.now(),
-      linkName: `Link ${linkRows.length + 1}`,
-      urlPrefix: "https://",
-    };
-    updateLinks([...linkRows, newLink]);
+  const handleAddLinkRecord = () => {
+    setShowAddLinkRecord(true);
+    setSelectedLinkTypeId(null);
+  };
+  const handleSaveAddLinkRecord = async () => {
+    console.log(
+      "Save clicked - selectedLinkTypeId:",
+      selectedLinkTypeId,
+      "batchId:",
+      batchId,
+    );
+    if (!selectedLinkTypeId || !batchId) {
+      console.log("Save blocked - missing selectedLinkTypeId or batchId");
+      notifications.show({
+        title: "Error",
+        message: "Please select a link type and ensure batch ID is available.",
+        color: "red",
+      });
+      return;
+    }
+    try {
+      const url = "https://localhost:7224/api/Links/assign-to-batch";
+      const payload = {
+        batchId: Number(batchId),
+        linkTypeId: selectedLinkTypeId,
+      };
+      console.log("Making API call to:", url);
+      console.log("With payload:", payload);
+      console.log("Using method: PUT");
+
+      const response = await axios.put(url, payload);
+      console.log("Raw API Response:", response);
+      console.log("API Response Data:", response.data);
+      console.log("Response status:", response.status);
+      console.log("Response succeeded:", response.data?.succeeded);
+
+      if (response.data && response.data.succeeded) {
+        const linkType = linkTypes.find((lt) => lt.id === selectedLinkTypeId);
+        if (linkType) {
+          const newLink: LinkRow = {
+            id: Date.now(),
+            linkName: linkType.name,
+          };
+          updateLinks([...linkRows, newLink]);
+        }
+        setShowAddLinkRecord(false);
+        setSelectedLinkTypeId(null);
+        notifications.show({
+          title: "Success",
+          message: `Link type assigned to batch successfully`,
+          color: "green",
+        });
+      } else {
+        console.log("API call succeeded but response.data.succeeded is false");
+        notifications.show({
+          title: "Error",
+          message: response.data?.message || "Failed to assign link type.",
+          color: "red",
+        });
+      }
+    } catch (err) {
+      console.error("API call failed with error:", err);
+      if (axios.isAxiosError(err)) {
+        console.log("Error response:", err.response?.data);
+        console.log("Error status:", err.response?.status);
+      }
+      notifications.show({
+        title: "Error",
+        message: `Failed to assign link type. ${err instanceof Error ? err.message : "Unknown error"}`,
+        color: "red",
+      });
+    }
+  };
+
+  const handleAddLinkType = async () => {
+    if (newLinkTypeName.trim()) {
+      try {
+        const response = await axios.post(
+          "https://localhost:7224/api/Links/types",
+          {
+            name: newLinkTypeName.trim(),
+          },
+        );
+        if (response.data && response.data.succeeded && response.data.data) {
+          const newLinkType: LinkType = {
+            id: response.data.data.id,
+            name: response.data.data.name,
+          };
+          setLinkTypes([...linkTypes, newLinkType]);
+          setNewLinkTypeName("");
+          setShowAddLinkTypeModal(false);
+          notifications.show({
+            title: "Success",
+            message: `Link type "${newLinkTypeName}" added successfully`,
+            color: "green",
+          });
+        } else {
+          notifications.show({
+            title: "Error",
+            message: response.data?.message || "Failed to add link type.",
+            color: "red",
+          });
+        }
+      } catch (err) {
+        notifications.show({
+          title: "Error",
+          message: "Failed to add link type.",
+          color: "red",
+        });
+      }
+    }
   };
 
   const handleDeleteLink = (id: number) => {
@@ -242,138 +482,80 @@ export default function DocumentUpload({
     });
   };
 
-  const handleLinkNameChange = (newName: string) => {
-    setLinkEditDraft((draft) =>
-      draft ? { ...draft, linkName: newName } : draft,
-    );
-  };
-
-  const handleUrlPrefixChange = (newPrefix: string) => {
-    setLinkEditDraft((draft) =>
-      draft ? { ...draft, urlPrefix: newPrefix } : draft,
-    );
-  };
-
-  const handleSaveLinkEdit = () => {
-    if (editingLinkId && linkEditDraft) {
-      const updatedLinks = linkRows.map((link) => {
-        if (link.id === editingLinkId) {
-          return {
-            ...link,
-            linkName: linkEditDraft.linkName,
-            urlPrefix: linkEditDraft.urlPrefix ?? link.urlPrefix,
-          };
-        }
-        return link;
-      });
-      updateLinks(updatedLinks);
-      setEditingLinkId(null);
-      setLinkEditDraft(null);
-      notifications.show({
-        title: "Saved",
-        message: "Link updated successfully",
-        color: "green",
-      });
-    }
-  };
-
   // Columns for Links
-  const linkColumns: ColumnDef<LinkRow>[] = [
+  const linkColumns: ColumnDef<LinkRow | AddLinkRow>[] = [
     {
       key: "linkName",
-      header: "Name",
-      width: "40%",
-      render: (_v, row) =>
-        editingLinkId === row.id ? (
-          <input
-            type="text"
-            value={linkEditDraft?.linkName ?? row.linkName}
-            onChange={(e) => handleLinkNameChange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-            placeholder="Enter link name"
-          />
-        ) : (
-          <span>{row.linkName}</span>
-        ),
-    },
-    {
-      key: "urlPrefix",
-      header: "URL Prefix",
-      width: "45%",
+      header: "Link Type",
+      width: "70%",
       render: (_v, row) => {
-        console.log(
-          "Rendering urlPrefix for row:",
-          row,
-          "value:",
-          row.urlPrefix,
-        );
-        return editingLinkId === row.id ? (
-          <input
-            type="text"
-            value={linkEditDraft?.urlPrefix ?? row.urlPrefix}
-            onChange={(e) => handleUrlPrefixChange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-            placeholder="e.g., https://github.com/"
-          />
-        ) : (
-          <span className="text-gray-600 font-mono text-sm">
-            {row.urlPrefix}
-          </span>
-        );
+        if ((row as any).isAddRow) {
+          return (
+            <select
+              value={selectedLinkTypeId ?? ""}
+              onChange={(e) => setSelectedLinkTypeId(Number(e.target.value))}
+              className="px-2 py-1 border border-gray-300 rounded text-sm"
+              style={{ minWidth: 100, maxWidth: 180 }}
+            >
+              <option value="" disabled>
+                Select Link Type
+              </option>
+              {linkTypes
+                .filter((lt) => !linkRows.some((lr) => lr.linkName === lt.name))
+                .map((lt) => (
+                  <option key={lt.id} value={lt.id}>
+                    {lt.name}
+                  </option>
+                ))}
+            </select>
+          );
+        }
+        return <span>{(row as LinkRow).linkName}</span>;
       },
     },
     {
       key: "action",
       header: "Action",
       align: "center",
-      width: "15%",
-      render: (_v, row) =>
-        editingLinkId === row.id ? (
-          <div className="flex gap-2 justify-center">
-            <button
-              className="px-3 py-1 text-sm text-green-600 hover:text-green-700 font-medium hover:bg-green-50 rounded transition-colors"
-              onClick={handleSaveLinkEdit}
-              type="button"
-            >
-              Save
-            </button>
-            <button
-              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 font-medium hover:bg-gray-100 rounded transition-colors"
-              onClick={() => {
-                setEditingLinkId(null);
-                setLinkEditDraft(null);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
-        ) : (
+      width: "30%",
+      render: (_v, row) => {
+        if ((row as any).isAddRow) {
+          return (
+            <div className="flex gap-2 justify-center">
+              <Button
+                variant="default"
+                className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-3 py-1 rounded-md text-xs"
+                onClick={handleSaveAddLinkRecord}
+                disabled={!selectedLinkTypeId}
+              >
+                Save
+              </Button>
+              <Button
+                variant="default"
+                className="!bg-gray-400 hover:!bg-gray-500 !text-white font-medium px-3 py-1 rounded-md text-xs"
+                onClick={() => {
+                  setShowAddLinkRecord(false);
+                  setSelectedLinkTypeId(null);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          );
+        }
+        return (
           <div className="flex gap-2 justify-center">
             <button
               type="button"
               className="p-2 rounded hover:bg-gray-200"
-              onClick={() => {
-                setEditingLinkId(row.id);
-                setLinkEditDraft({
-                  linkName: row.linkName,
-                  urlPrefix: row.urlPrefix,
-                });
-              }}
-              title="Edit"
-            >
-              <SquarePen className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              type="button"
-              className="p-2 rounded hover:bg-gray-200"
-              onClick={() => handleDeleteLink(row.id)}
+              onClick={() => handleDeleteLink((row as LinkRow).id)}
               title="Delete"
             >
               <Trash2 className="w-5 h-5 text-red-600" />
             </button>
           </div>
-        ),
+        );
+      },
     },
   ];
 
@@ -382,26 +564,55 @@ export default function DocumentUpload({
     onDocumentChange?.(newDocuments);
   };
 
+  // State for new document type selection
+  const [newDocType] = useState<SubmissionType>(SubmissionType.PDF);
+
   const handleAddDocument = () => {
     const newDoc: DocumentRow = {
       id: Date.now(),
       documentName: `Document ${documentRows.length + 1}`,
       deadline: new Date().toISOString().split("T")[0],
       templateFile: null,
+      submissionType: newDocType,
     };
     updateDocuments([...documentRows, newDoc]);
   };
 
-  const handleTemplateUpload = (id: number, file: File) => {
-    const updatedDocs = documentRows.map((doc) =>
-      doc.id === id ? { ...doc, templateFile: file } : doc,
-    );
-    updateDocuments(updatedDocs);
-    notifications.show({
-      title: "Template Uploaded",
-      message: `Template uploaded for ${documentRows.find((d) => d.id === id)?.documentName}`,
-      color: "green",
-    });
+  const handleTemplateUpload = async (id: number, file: File) => {
+    const doc = documentRows.find((d) => d.id === id);
+    if (!doc) return;
+
+    try {
+      const success = await uploadDocument({
+        projectId: batchId || "",
+        file,
+        type: doc.documentName,
+      });
+
+      if (success) {
+        const updatedDocs = documentRows.map((d) =>
+          d.id === id ? { ...d, templateFile: file } : d,
+        );
+        updateDocuments(updatedDocs);
+        notifications.show({
+          title: "Template Uploaded",
+          message: `Template uploaded for ${doc.documentName}`,
+          color: "green",
+        });
+      } else {
+        notifications.show({
+          title: "Upload Failed",
+          message: `Failed to upload template for ${doc.documentName}`,
+          color: "red",
+        });
+      }
+    } catch (error) {
+      notifications.show({
+        title: "Upload Error",
+        message: `Error uploading template for ${doc.documentName}`,
+        color: "red",
+      });
+    }
   };
 
   const handleDeleteTemplate = (id: number) => {
@@ -480,7 +691,7 @@ export default function DocumentUpload({
       key: "documentName",
       header: "Name",
       sortable: true,
-      width: "25%",
+      width: "20%",
       render: (_, row) =>
         editingRowId === row.id ? (
           <input
@@ -507,6 +718,34 @@ export default function DocumentUpload({
         ),
     },
     {
+      key: "submissionType",
+      header: "Type",
+      sortable: true,
+      width: "15%",
+      render: (_, row) => (
+        <select
+          value={row.submissionType}
+          onChange={(e) => {
+            e.stopPropagation();
+            const updatedDocs = documentRows.map((doc) =>
+              doc.id === row.id
+                ? { ...doc, submissionType: e.target.value as SubmissionType }
+                : doc,
+            );
+            updateDocuments(updatedDocs);
+          }}
+          className="px-2 py-1 rounded-md border border-gray-300 text-xs font-medium bg-white"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {Object.values(SubmissionType).map((type) => (
+            <option key={type} value={type}>
+              {type.toUpperCase()}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
       key: "deadline",
       header: "Deadline",
       sortable: true,
@@ -531,24 +770,30 @@ export default function DocumentUpload({
       render: (value, row) => (
         <div className="flex items-center justify-center gap-2">
           {value ? (
-            <>
+            <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-md">
                 <Download className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-700 font-medium">
-                  {(value as File).name}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm text-green-700 font-medium">
+                    Uploaded
+                  </span>
+                  <span className="text-xs text-green-600">
+                    {(value as File).name}
+                  </span>
+                </div>
               </div>
               <button
-                className="p-2 inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm border border-gray-300 rounded"
+                className="px-3 py-1 inline-flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 font-medium text-xs border border-red-300 rounded transition-colors"
                 onClick={(e: React.MouseEvent) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   handleDeleteTemplate(row.id);
                 }}
               >
-                <Trash2 size={16} />
+                <Trash2 size={12} />
                 Delete
               </button>
-            </>
+            </div>
           ) : (
             <>
               <input
@@ -648,20 +893,45 @@ export default function DocumentUpload({
             </span>
           </div>
           <div className="flex items-center gap-3">
-            {/* Add Button aligned to right */}
+            {/* Add Buttons aligned to right */}
             {accordionOpen && (
-              <Button
-                variant="default"
-                className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-4 py-2 rounded-md shadow-sm h-auto text-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  activeTab === "documents"
-                    ? handleAddDocument()
-                    : handleAddLink();
-                }}
-              >
-                + Add {activeTab === "documents" ? "Document" : "Link"}
-              </Button>
+              <div className="flex gap-2">
+                {activeTab === "documents" ? (
+                  <Button
+                    variant="default"
+                    className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-4 py-2 rounded-md shadow-sm h-auto text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddDocument();
+                    }}
+                  >
+                    + Add Document
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="default"
+                      className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-3 py-2 rounded-md shadow-sm h-auto text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAddLinkTypeModal(true);
+                      }}
+                    >
+                      + Add Link Type
+                    </Button>
+                    <Button
+                      variant="default"
+                      className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-3 py-2 rounded-md shadow-sm h-auto text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddLinkRecord();
+                      }}
+                    >
+                      + Add Link Record
+                    </Button>
+                  </>
+                )}
+              </div>
             )}
             {accordionOpen ? (
               <ChevronUp className="w-5 h-5 text-gray-500" />
@@ -732,12 +1002,9 @@ export default function DocumentUpload({
               )}
               {activeTab === "links" && (
                 <>
-                  {/* Debug: Log link data */}
-                  {console.log("LinkRows data:", linkRows)}
-                  {console.log("LinkColumns:", linkColumns)}
                   <DataTable
                     columns={linkColumns}
-                    data={linkRows}
+                    data={linkTableRows}
                     showHeaderSection={true}
                     headerTitle="Links"
                     enableSearch={true}
@@ -764,6 +1031,50 @@ export default function DocumentUpload({
           )}
         </div>
       </div>
+
+      {/* Add Link Type Modal */}
+      {showAddLinkTypeModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Add New Link Type</h2>
+            <div className="mb-4">
+              <label className="block font-semibold mb-2">Link Type Name</label>
+              <input
+                type="text"
+                value={newLinkTypeName}
+                onChange={(e) => setNewLinkTypeName(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                placeholder="Enter link type name (e.g., Documentation)"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddLinkType();
+                  }
+                }}
+              />
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <Button
+                variant="default"
+                className="!bg-gray-400 hover:!bg-gray-500 !text-white font-medium px-4 py-2 rounded-md"
+                onClick={() => {
+                  setShowAddLinkTypeModal(false);
+                  setNewLinkTypeName("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                className="!bg-blue-600 hover:!bg-blue-700 !text-white font-medium px-4 py-2 rounded-md"
+                onClick={handleAddLinkType}
+                disabled={!newLinkTypeName.trim()}
+              >
+                Add Link Type
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

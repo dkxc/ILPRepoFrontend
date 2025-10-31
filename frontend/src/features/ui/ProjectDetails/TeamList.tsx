@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
 import DataTable from "../../admin/Table";
 import type { ColumnDef } from "../../admin/Table";
+import { getTeamList } from "./api";
 
 export interface TeamMember {
   id?: number;
@@ -17,6 +18,7 @@ interface TeamListProps {
   showTitle?: boolean;
   canDelete?: boolean;
   onDelete?: (member: TeamMember) => void;
+  projectId?: string;
 }
 
 const defaultData: TeamMember[] = [
@@ -46,13 +48,34 @@ const defaultData: TeamMember[] = [
 
 export default function TeamList({
   columns,
-  data = defaultData,
+  data,
   title = "Team Members",
   showTitle = true,
   canDelete = false,
   onDelete,
+  projectId,
 }: TeamListProps) {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(data);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(
+    data || defaultData,
+  );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      setLoading(true);
+      const apiData = await getTeamList(projectId);
+
+      if (apiData) {
+        setTeamMembers(apiData);
+      } else {
+        // Use props data or default data as fallback
+        setTeamMembers(data || defaultData);
+      }
+      setLoading(false);
+    };
+
+    fetchTeamMembers();
+  }, [projectId, data]);
 
   const handleDelete = (member: TeamMember) => {
     setTeamMembers((prev) => prev.filter((m) => m.id !== member.id));
@@ -88,6 +111,20 @@ export default function TeamList({
   ];
 
   const tableColumns = columns || defaultColumns;
+
+  if (loading) {
+    return (
+      <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto animate-pulse">
+        {showTitle && <div className="h-6 bg-gray-300 rounded w-32 mb-6"></div>}
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-12 bg-gray-300 rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto">
       {showTitle && (

@@ -678,14 +678,28 @@ export default function BatchDetailsPage() {
       <div className="mt-4">
         <DocumentUpload
           batchTitle="Document and Link Requirements"
+          batchId={id || currentBatch.id.toString()}
           initialDocuments={[
-            { id: 1, documentName: "BRD", deadline: "", templateFile: null },
-            { id: 2, documentName: "UAT", deadline: "", templateFile: null },
+            {
+              id: 1,
+              documentName: "BRD",
+              deadline: "",
+              templateFile: null,
+              submissionType: "pdf" as const,
+            },
+            {
+              id: 2,
+              documentName: "UAT",
+              deadline: "",
+              templateFile: null,
+              submissionType: "xlsx" as const,
+            },
             {
               id: 3,
               documentName: "Sprint Tracker",
               deadline: "",
               templateFile: null,
+              submissionType: "excel" as const,
             },
           ]}
           initialLinks={[

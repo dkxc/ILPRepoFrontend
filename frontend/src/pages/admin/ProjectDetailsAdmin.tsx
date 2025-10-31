@@ -55,6 +55,7 @@ function ProjectDetails() {
           name={projectData.name}
           trainees={projectData.trainees}
           status={projectData.status}
+          projectId={id || "unknown"}
         />
 
         <div className="flex gap-4 mb-6">
@@ -66,12 +67,14 @@ function ProjectDetails() {
               id={projectData.id}
               techStack={projectData.techStack}
               canEdit={true}
+              projectId={id || "unknown"}
             />
             <ProjectLinks
               id={projectData.id}
               repositoryUrl={projectData.repositoryUrl}
               figmaUrl={projectData.figmaUrl}
               canEdit={true}
+              projectId={id || "unknown"}
             />
           </div>
           <div style={{ width: "70%" }} className="flex-shrink-0">
@@ -79,16 +82,22 @@ function ProjectDetails() {
               canUpload={true}
               canNotify={true}
               teamMembers={teamMembers}
+              isAdmin={true}
+              projectId={id || "unknown"}
             />
           </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="w-full md:w-7/10 flex items-stretch">
-            <TeamList data={teamMembers} canDelete={true} />
+            <TeamList
+              data={teamMembers}
+              canDelete={true}
+              projectId={id || "unknown"}
+            />
           </div>
           <div className="w-full md:w-3/10 flex items-stretch">
-            <SubmissionRate />
+            <SubmissionRate projectId={id || "unknown"} />
           </div>
         </div>
       </div>
