@@ -1,0 +1,161 @@
+# ===================================================================
+# Global Rules
+#
+# These rules apply to the entire repository, regardless of folder.
+# They are typically for OS or editor-specific files.
+# ===================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.env
+*.suo
+
+# ===================================================================
+# Root-Level Editor and IDE Configuration
+#
+# Ignore editor folders at the root, but un-ignore specific files
+# that should be shared with the team.
+# The leading slash '/' anchors these patterns to the root directory.
+# ===================================================================
+
+# VS Code
+/.vscode/
+!/.vscode/extensions.json
+!/.vscode/launch.json
+!/.vscode/settings.json
+!/.vscode/tasks.json
+
+# JetBrains / IntelliJ
+/.idea/
+
+# Visual Studio (solution-level files)
+/.vs/
+
+# ===================================================================
+# Frontend Specific Rules
+#
+# All rules are prepended with `frontend/` to target that directory.
+# ===================================================================
+
+# Logs
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# Dependencies and build output
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/*.local
+
+# Environment files
+frontend/.env*
+
+# Editor directories and files
+frontend/.vscode/
+!frontend/.vscode/extensions.json
+frontend/.idea/
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
+
+# Ignore other package managers
+frontend/yarn.lock
+frontend/package-lock.json
+
+# Ignore pnpm store
+frontend/.pnpm-store/
+
+
+# ===================================================================
+# Backend Specific Rules
+#
+# All rules are prepended with `backend/` to target that directory.
+# ===================================================================
+
+# User-specific files
+backend/*.rsuser
+backend/*.user
+backend/*.userosscache
+backend/*.sln.docstates
+
+# User-specific files (MonoDevelop/Xamarin Studio)
+backend/*.userprefs
+
+# Mono auto generated files
+backend/mono_crash.*
+
+# Build results
+backend/[Dd]ebug/
+backend/[Dd]ebugPublic/
+backend/[Rr]elease/
+backend/[Rr]eleases/
+backend/bld/
+backend/[Oo]bj/
+backend/[Oo]ut/
+backend/[Ll]og/
+backend/[Ll]ogs/
+
+# Visual Studio & VS Code cache/options directory
+backend/.vs/
+backend/.vscode/
+
+# MSTest test Results
+backend/[Tt]est[Rr]esult*/
+backend/[Bb]uild[Ll]og.*
+backend/*.trx
+
+# NuGet Packages & Caches
+backend/**/[Pp]ackages/*
+!backend/**/[Pp]ackages/build/
+backend/*.nupkg
+backend/*.snupkg
+backend/project.lock.json
+
+# And the rest of the standard Visual Studio ignores...
+# NOTE: Many rules from the default VS gitignore are recursive (e.g., *.pdb)
+# and do not strictly need to be prepended, but doing so makes the intent clearer.
+backend/*_i.c
+backend/*_p.c
+backend/*_h.h
+backend/*.ilk
+backend/*.meta
+backend/*.obj
+backend/*.idb
+backend/*.iobj
+backend/*.pch
+backend/*.pdb
+backend/*.ipdb
+backend/*.pgc
+backend/*.pgd
+backend/*.rsp
+!backend/Directory.Build.rsp
+backend/*.sbr
+backend/*.tlb
+backend/*.tli
+backend/*.tlh
+backend/*.tmp
+backend/*.tmp_proj
+backend/*_wpftmp.csproj
+backend/*.tlog
+backend/*.vspscc
+backend/*.vssscc
+backend/.builds
+backend/*.pidb
+backend/*.svclog
+backend/*.scc
+backend/ipch/
+backend/*.aps
+backend/*.ncb
+backend/*.opendb
+backend/*.opensdf
+backend/*.sdf
+backend/*.cachefile
+backend/*.VC.db
+backend/*.VC.VC.opendb
+backend/node_modules/
