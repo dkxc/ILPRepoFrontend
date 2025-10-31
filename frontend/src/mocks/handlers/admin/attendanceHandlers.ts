@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from "msw";
 import { mockAttendanceRecords, MOCK_BATCH_ID } from "./attendanceData";
-import type { UpdateQueryType } from "features/admin/attendance/types/AttendanceRecord.types";
+import type { UpdateQueryType } from "features/admin/attendance/types/AttendanceQuery.types";
 
 export const attendanceHandlers = [
   http.get("/api/attendance/batch/:batchId", async ({ params, request }) => {

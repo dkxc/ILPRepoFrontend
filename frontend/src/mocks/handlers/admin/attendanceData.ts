@@ -1,4 +1,4 @@
-import type { GetResponseType } from "features/admin/attendance/types/AttendanceRecord.types";
+import type { GetResponseType } from "features/admin/attendance/types/AttendanceQuery.types";
 
 export const MOCK_BATCH_ID = 12345;
 

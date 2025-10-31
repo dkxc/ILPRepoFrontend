@@ -5,7 +5,7 @@ import type {
   UpdateQueryType,
   UpdateSuccessResponseType,
   ApiErrorResponse,
-} from "../types/AttendanceRecord.types";
+} from "../types/AttendanceQuery.types";
 
 const fetchAttendance = async (
   batchId: number,
