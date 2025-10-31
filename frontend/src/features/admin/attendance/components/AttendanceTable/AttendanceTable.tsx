@@ -1,12 +1,7 @@
-import type { DateValue } from "react-aria";
-import type {
-  BulkUpdateStatus,
-  GetResponseType,
-} from "../../types/AttendanceRecord.types";
+import type { BulkUpdateStatus } from "../../types/AttendanceQuery.types";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { Table, TableCard } from "@ui/table/Table";
 import { Fragment } from "react";
-import DateRangePicker from "../DateRangePicker";
 import { format } from "date-fns";
 import { Badge } from "@ui/badges/Badges";
 import {
@@ -16,32 +11,22 @@ import {
   getStatusExpanded,
   sessionOptions,
   StatusIcon,
-} from "./utils/Attendance.utils";
+} from "./utils/AttendanceTable.utils";
 import { Dropdown as NestedDropdown } from "@ui/dropdown/NestedDropdown";
 import { Button } from "@ui/button/Button";
-import { ChevronDown, Download, UploadCloud } from "lucide-react";
-import { Dropdown } from "@ui/dropdown/Dropdown";
+import { CheckCircle, ChevronDown } from "lucide-react";
+import type { ProcessedTraineeData } from "../../types/AttendanceRecord.types";
+import { getTotalBadgeColor } from "@features/admin/attendance/utils/Attendance.utils";
 
 interface AttendanceTableProps {
-  data: GetResponseType[];
+  data: ProcessedTraineeData[];
   dateColumns: Date[];
-  dateValue: {
-    start: DateValue;
-    end: DateValue;
-  } | null;
-  onDateChange: (
-    value: {
-      start: DateValue;
-      end: DateValue;
-    } | null,
-  ) => void;
+  showTotalColumns: boolean;
   sortDescriptor: SortDescriptor;
   onSortChange: (descriptor: SortDescriptor) => void;
   selectedKeys: Selection;
   onSelectionChange: (keys: Selection) => void;
   onBulkUpdate: (newStatus: BulkUpdateStatus) => void;
-  onImport: () => void;
-  onExport: () => void;
   isButtonUpdating?: boolean;
   className?: string;
 }
@@ -49,15 +34,12 @@ interface AttendanceTableProps {
 function AttendanceTable({
   data,
   dateColumns,
-  dateValue,
-  onDateChange,
+  showTotalColumns,
   sortDescriptor,
   onSortChange,
   selectedKeys,
   onSelectionChange,
   onBulkUpdate,
-  onImport,
-  onExport,
   isButtonUpdating,
   className,
 }: AttendanceTableProps) {
@@ -150,6 +132,13 @@ function AttendanceTable({
               </Table.Head>
             </Fragment>
           ))}
+          {showTotalColumns && (
+            <>
+              <Table.Head id="total-fn" label="Total (FN)" />
+              <Table.Head id="total-an" label="Total (AN)" />
+              <Table.Head id="total" label="Total" />
+            </>
+          )}
         </Table.Header>
 
         <Table.Body items={data}>
@@ -178,6 +167,47 @@ function AttendanceTable({
                   </Fragment>
                 );
               })}
+
+              {showTotalColumns && (
+                <>
+                  <Table.Cell>
+                    <Badge
+                      color={getTotalBadgeColor(
+                        item.presentFN,
+                        item.totalPossibleDays,
+                      )}
+                    >
+                      {`${item.presentFN} / ${item.totalPossibleDays}`}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge
+                      color={getTotalBadgeColor(
+                        item.presentAN,
+                        item.totalPossibleDays,
+                      )}
+                    >
+                      {`${item.presentAN} / ${item.totalPossibleDays}`}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        color={getTotalBadgeColor(
+                          item.totalPresentDays,
+                          item.totalPossibleDays,
+                        )}
+                      >
+                        {`${item.totalPresentDays} / ${item.totalPossibleDays}`}
+                      </Badge>
+                      {item.totalPresentDays === item.totalPossibleDays &&
+                        item.totalPossibleDays > 0 && (
+                          <CheckCircle className="size-4 text-green-500" />
+                        )}
+                    </div>
+                  </Table.Cell>
+                </>
+              )}
             </Table.Row>
           )}
         </Table.Body>
