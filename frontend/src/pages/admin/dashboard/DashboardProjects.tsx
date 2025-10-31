@@ -100,8 +100,8 @@ export default function DashboardProjects({
 }: DashboardProjectsProps) {
   const navigate = useNavigate();
 
-  const selected = sampleBatches.find((b) => b.id === selectedBatchId) || sampleBatches[0];
-
+  const selected =
+    sampleBatches.find((b) => b.id === selectedBatchId) || sampleBatches[0];
 
   const statuses = [
     "Live",
@@ -120,8 +120,6 @@ export default function DashboardProjects({
     rate: 98 - idx * 2, // sample varying % as number
     status: statuses[idx % statuses.length],
   }));
-
-
 
   return (
     // <DashboardProjectCard title="Projects">
@@ -145,12 +143,24 @@ export default function DashboardProjects({
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Project Name</th>
-                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Team Lead</th>
-                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">No of Trainees</th>
-                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Tech Stack</th>
-                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Submission Rate</th>
-                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Status</th>
+                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                  Project Name
+                </th>
+                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                  Team Lead
+                </th>
+                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                  No of Trainees
+                </th>
+                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                  Tech Stack
+                </th>
+                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                  Submission Rate
+                </th>
+                <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -162,7 +172,9 @@ export default function DashboardProjects({
                 >
                   <td className="py-3 px-6 text-sm text-gray-900">{p.name}</td>
                   <td className="py-3 px-6 text-sm text-gray-600">{p.lead}</td>
-                  <td className="py-3 px-6 text-sm text-gray-600">{p.trainees}</td>
+                  <td className="py-3 px-6 text-sm text-gray-600">
+                    {p.trainees}
+                  </td>
                   <td className="py-3 px-6 text-sm">
                     {p.tech.split("+").map((t) => (
                       <span

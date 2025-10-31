@@ -11,7 +11,9 @@ const sampleRows = Array.from({ length: 5 }).map(() => ({
 }));
 
 import { useRef } from "react";
-import BatchSelect, { sampleBatches } from "../../../features/admin/dashboard/BatchSelect";
+import BatchSelect, {
+  sampleBatches,
+} from "../../../features/admin/dashboard/BatchSelect";
 
 function CalendarGrid({
   year,
@@ -139,7 +141,9 @@ export default function TotalTrainingHours() {
   const [from, setFrom] = useState("2025-01-01");
   const [to, setTo] = useState("2025-12-31");
   const [batchType, setBatchType] = useState("All Batch Types");
-  const [selectedBatch, setSelectedBatch] = useState<string>(sampleBatches[0].id);
+  const [selectedBatch, setSelectedBatch] = useState<string>(
+    sampleBatches[0].id,
+  );
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [month, setMonth] = useState(9);
   const [holidays, setHolidays] = useState<number[]>([]);
@@ -156,155 +160,157 @@ export default function TotalTrainingHours() {
 
   return (
     // <div className="p-3">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-        <div className="lg:col-span-2 flex flex-col h-full">
-          <Card className="bg-white flex flex-col h-full">
-            <CardHeader className="text-xl font-bold text-gray-600 px-6 py-4">View Training Hours</CardHeader>
-            <CardContent>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+      <div className="lg:col-span-2 flex flex-col h-full">
+        <Card className="bg-white flex flex-col h-full">
+          <CardHeader className="text-xl font-bold text-gray-600 px-6 py-4">
+            View Training Hours
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
               <div className="space-y-6">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between gap-4">
-                      <div className="flex flex-col w-full gap-1">
-                        <label className="text-sm text-gray-600">
-                          Select Start Date
-                        </label>
-                        <input
-                          type="date"
-                          value={from}
-                          onChange={(e) => setFrom(e.target.value)}
-                          className="w-full border border-gray-200 rounded px-3 py-2"
-                        />
-                      </div>
-                      <div className="flex flex-col w-full gap-1">
-                        <label className="text-sm text-gray-600">
-                          Select End Date
-                        </label>
-                        <input
-                          type="date"
-                          value={to}
-                          onChange={(e) => setTo(e.target.value)}
-                          className="w-full border border-gray-200 rounded px-3 py-2"
-                        />
-                      </div>
-                      <div className="flex flex-col w-full gap-1">
-                        <label className="text-sm text-gray-600">
-                          Select Batch Type
-                        </label>
-                        <select
-                          value={batchType}
-                          onChange={(e) => setBatchType(e.target.value)}
-                          className="w-full border border-gray-200 rounded px-3 py-2"
-                        >
-                          <option>All Batch Types</option>
-                          <option>Full Stack</option>
-                          <option>Frontend</option>
-                        </select>
-                      </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between gap-4">
+                    <div className="flex flex-col w-full gap-1">
+                      <label className="text-sm text-gray-600">
+                        Select Start Date
+                      </label>
+                      <input
+                        type="date"
+                        value={from}
+                        onChange={(e) => setFrom(e.target.value)}
+                        className="w-full border border-gray-200 rounded px-3 py-2"
+                      />
                     </div>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <div className="bg-blue-50 px-6 py-3 rounded-md text-center w-[200px]">
-                      <div className="text-sm text-gray-600 mb-1">
-                        Total Training Hours
-                      </div>
-                      <div className="text-xl font-semibold text-blue-600">
-                        48
-                      </div>
+                    <div className="flex flex-col w-full gap-1">
+                      <label className="text-sm text-gray-600">
+                        Select End Date
+                      </label>
+                      <input
+                        type="date"
+                        value={to}
+                        onChange={(e) => setTo(e.target.value)}
+                        className="w-full border border-gray-200 rounded px-3 py-2"
+                      />
                     </div>
-                  </div>
-                </div>
-
-                <div className="border-[var(--color-brand-600)] rounded overflow-hidden">
-                  <div className="grid grid-cols-4 gap-4 bg-gray-50 px-4 py-3 text-sm text-gray-600 font-medium">
-                    <div>Name</div>
-                    <div className="text-center">Batch Type</div>
-                    <div>Total Training hrs</div>
-                    <div>Training Days</div>
-                  </div>
-                  <div className="max-h-[300px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent">
-                    <div className="divide-y divide-gray-200">
-                      {sampleRows.map((r, i) => (
-                        <div
-                          key={i}
-                          className="grid grid-cols-4 items-center text-sm px-4 py-3"
-                        >
-                          <div className="text-gray-700">{r.name}</div>
-                          <div className="text-muted-foreground text-center">
-                            {r.type}
-                          </div>
-                          <div className="text-blue-600 font-semibold">
-                            {r.hrs}
-                          </div>
-                          <div className="text-blue-600 font-semibold">
-                            {r.days}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex flex-col h-full">
-          <Card className="bg-white flex flex-col h-full">
-            <CardHeader className="text-xl font-bold text-gray-600 px-6 py-4">Edit Training Hours</CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <BatchSelect
-                    value={selectedBatch}
-                    onChange={(id) => setSelectedBatch(id)}
-                    className="w-full border border-gray-200 rounded px-3 py-2"
-                  />
-                </div>
-
-                <div>
-                  {/* <label className="text-sm text-gray-600">
-                    Click a Date to Edit
-                  </label> */}
-                  <div className="mt-3 border-[var(--color-brand-600)] rounded">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-col w-full gap-1">
+                      <label className="text-sm text-gray-600">
+                        Select Batch Type
+                      </label>
                       <select
-                        className="border border-gray-200 rounded px-2 py-1"
-                        value={month}
-                        onChange={(e) => setMonth(Number(e.target.value))}
+                        value={batchType}
+                        onChange={(e) => setBatchType(e.target.value)}
+                        className="w-full border border-gray-200 rounded px-3 py-2"
                       >
-                        {Array.from({ length: 12 }, (_, i) => i + 1).map(
-                          (m) => (
-                            <option key={m} value={m}>
-                              {new Date(2025, m - 1).toLocaleString("default", {
-                                month: "long",
-                              })}{" "}
-                              2025
-                            </option>
-                          ),
-                        )}
+                        <option>All Batch Types</option>
+                        <option>Full Stack</option>
+                        <option>Frontend</option>
                       </select>
                     </div>
-                    <CalendarGrid
-                      year={2025}
-                      month={month}
-                      holidays={holidays}
-                      onDayClick={(d) => setSelectedDay(d)}
-                      selectedDay={selectedDay}
-                      setPopupDay={setSelectedDay}
-                      trainingHours={trainingHours}
-                      onUpdateHours={handleUpdateHours}
-                    />
                   </div>
                 </div>
 
-                {/* Removed Training Hours/Mark as Holiday card from default view. Now only shown in popup. */}
+                <div className="flex justify-center">
+                  <div className="bg-blue-50 px-6 py-3 rounded-md text-center w-[200px]">
+                    <div className="text-sm text-gray-600 mb-1">
+                      Total Training Hours
+                    </div>
+                    <div className="text-xl font-semibold text-blue-600">
+                      48
+                    </div>
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+
+              <div className="border-[var(--color-brand-600)] rounded overflow-hidden">
+                <div className="grid grid-cols-4 gap-4 bg-gray-50 px-4 py-3 text-sm text-gray-600 font-medium">
+                  <div>Name</div>
+                  <div className="text-center">Batch Type</div>
+                  <div>Total Training hrs</div>
+                  <div>Training Days</div>
+                </div>
+                <div className="max-h-[300px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent">
+                  <div className="divide-y divide-gray-200">
+                    {sampleRows.map((r, i) => (
+                      <div
+                        key={i}
+                        className="grid grid-cols-4 items-center text-sm px-4 py-3"
+                      >
+                        <div className="text-gray-700">{r.name}</div>
+                        <div className="text-muted-foreground text-center">
+                          {r.type}
+                        </div>
+                        <div className="text-blue-600 font-semibold">
+                          {r.hrs}
+                        </div>
+                        <div className="text-blue-600 font-semibold">
+                          {r.days}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      <div className="flex flex-col h-full">
+        <Card className="bg-white flex flex-col h-full">
+          <CardHeader className="text-xl font-bold text-gray-600 px-6 py-4">
+            Edit Training Hours
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <BatchSelect
+                  value={selectedBatch}
+                  onChange={(id) => setSelectedBatch(id)}
+                  className="w-full border border-gray-200 rounded px-3 py-2"
+                />
+              </div>
+
+              <div>
+                {/* <label className="text-sm text-gray-600">
+                    Click a Date to Edit
+                  </label> */}
+                <div className="mt-3 border-[var(--color-brand-600)] rounded">
+                  <div className="flex items-center justify-between mb-3">
+                    <select
+                      className="border border-gray-200 rounded px-2 py-1"
+                      value={month}
+                      onChange={(e) => setMonth(Number(e.target.value))}
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                        <option key={m} value={m}>
+                          {new Date(2025, m - 1).toLocaleString("default", {
+                            month: "long",
+                          })}{" "}
+                          2025
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <CalendarGrid
+                    year={2025}
+                    month={month}
+                    holidays={holidays}
+                    onDayClick={(d) => setSelectedDay(d)}
+                    selectedDay={selectedDay}
+                    setPopupDay={setSelectedDay}
+                    trainingHours={trainingHours}
+                    onUpdateHours={handleUpdateHours}
+                  />
+                </div>
+              </div>
+
+              {/* Removed Training Hours/Mark as Holiday card from default view. Now only shown in popup. */}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
     // </div>
   );
 }

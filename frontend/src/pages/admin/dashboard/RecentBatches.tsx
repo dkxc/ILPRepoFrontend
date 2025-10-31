@@ -33,7 +33,10 @@ function CalendarGrid({
   return (
     <div className="grid grid-cols-7 gap-2 text-sm relative" ref={gridRef}>
       {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-        <div key={day} className="text-xs text-center h-8 flex items-center justify-center bg-white text-gray-400">
+        <div
+          key={day}
+          className="text-xs text-center h-8 flex items-center justify-center bg-white text-gray-400"
+        >
           {day[0]}
         </div>
       ))}
@@ -56,8 +59,8 @@ function CalendarGrid({
                 isSunday
                   ? "text-gray-400"
                   : isToday
-                  ? "bg-green-600 text-white hover:bg-green-500"
-                  : "hover:text-green-800"
+                    ? "bg-green-600 text-white hover:bg-green-500"
+                    : "hover:text-green-800"
               }`}
             >
               {d}
@@ -65,12 +68,14 @@ function CalendarGrid({
 
             {hoverDate && hoverDate.toDateString() === date.toDateString() && (
               <div className="absolute z-10 bg-white border rounded shadow-md p-3 text-xs w-64 left-1/2 transform -translate-x-1/2 bottom-full mb-2">
-                <div className="text-xs font-medium mb-2">Schedule for {date.toLocaleDateString()}</div>
+                <div className="text-xs font-medium mb-2">
+                  Schedule for {date.toLocaleDateString()}
+                </div>
                 <ul className="text-xs space-y-1.5">
                   {[
                     { time: "09:00", topic: "JavaScript Fundamentals" },
                     { time: "14:30", topic: "State Management" },
-                    { time: "16:00", topic: "Hands-on Workshop" }
+                    { time: "16:00", topic: "Hands-on Workshop" },
                   ].map((session) => (
                     <li key={session.time} className="flex items-center gap-2">
                       <span className="text-gray-500 w-12">{session.time}</span>
@@ -88,15 +93,25 @@ function CalendarGrid({
   );
 }
 
-export default function RecentBatches({ selectedBatchId, setSelectedBatchId }: RecentBatchesProps) {
-  const selected = sampleBatches.find((b) => b.id === selectedBatchId) || sampleBatches[0];
+export default function RecentBatches({
+  selectedBatchId,
+  setSelectedBatchId,
+}: RecentBatchesProps) {
+  const selected =
+    sampleBatches.find((b) => b.id === selectedBatchId) || sampleBatches[0];
 
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
 
   // month navigation is handled by currentMonth; CalendarGrid computes layout for the month
-  const goToPreviousMonth = () => setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1));
-  const goToNextMonth = () => setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1));
+  const goToPreviousMonth = () =>
+    setCurrentMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1),
+    );
+  const goToNextMonth = () =>
+    setCurrentMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1),
+    );
 
   return (
     <div className="bg-gray-50">
@@ -105,8 +120,12 @@ export default function RecentBatches({ selectedBatchId, setSelectedBatchId }: R
         <div className="md:col-span-2 rounded-md p-4 bg-white">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold text-gray-600">{selected.title}</h2>
-              {selected.subtitle && <div className="text-sm text-gray-500">{selected.subtitle}</div>}
+              <h2 className="text-xl font-bold text-gray-600">
+                {selected.title}
+              </h2>
+              {selected.subtitle && (
+                <div className="text-sm text-gray-500">{selected.subtitle}</div>
+              )}
             </div>
           </div>
 
@@ -115,10 +134,11 @@ export default function RecentBatches({ selectedBatchId, setSelectedBatchId }: R
               <div className="text-sm text-gray-600 mb-1">Batch Status</div>
               <div>
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm ${(selected.status || "ongoing").toLowerCase() === "ongoing"
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-purple-100 text-purple-700"
-                    }`}
+                  className={`inline-block px-3 py-1 rounded-full text-sm ${
+                    (selected.status || "ongoing").toLowerCase() === "ongoing"
+                      ? "bg-orange-100 text-orange-700"
+                      : "bg-purple-100 text-purple-700"
+                  }`}
                 >
                   {selected.status || "Ongoing"}
                 </span>
@@ -127,7 +147,9 @@ export default function RecentBatches({ selectedBatchId, setSelectedBatchId }: R
 
             <div>
               <div className="text-sm text-gray-600 mb-1">No. of Trainees</div>
-              <div className="text-base font-medium text-gray-900">{selected.trainees || 36}</div>
+              <div className="text-base font-medium text-gray-900">
+                {selected.trainees || 36}
+              </div>
             </div>
 
             <div>
@@ -137,12 +159,16 @@ export default function RecentBatches({ selectedBatchId, setSelectedBatchId }: R
 
             <div>
               <div className="text-sm text-gray-600 mb-1">Start Date</div>
-              <div className="text-base font-medium text-gray-900">{selected.startDate || "23/08/2025"}</div>
+              <div className="text-base font-medium text-gray-900">
+                {selected.startDate || "23/08/2025"}
+              </div>
             </div>
 
             <div>
               <div className="text-sm text-gray-600 mb-1">End Date</div>
-              <div className="text-base font-medium text-gray-900">{selected.endDate || "23/08/2025"}</div>
+              <div className="text-base font-medium text-gray-900">
+                {selected.endDate || "23/08/2025"}
+              </div>
             </div>
 
             {/* <div>
@@ -160,34 +186,78 @@ export default function RecentBatches({ selectedBatchId, setSelectedBatchId }: R
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Phases</th>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Start Date</th>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">End Date</th>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">Days</th>
+                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                    Phases
+                  </th>
+                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                    Start Date
+                  </th>
+                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                    End Date
+                  </th>
+                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                    Days
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {[
                   // Using actual sequential dates for phases
-                  { phase: "E-Learning", start: "23/08/2025", end: "03/09/2025", days: 12 },
-                  { phase: "Tech - Fundamentals", start: "04/09/2025", end: "16/09/2025", days: 13 },
-                  { phase: "Business Orientation", start: "17/09/2025", end: "01/10/2025", days: 15 },
-                  { phase: "Specialization", start: "02/10/2025", end: "26/11/2025", days: 25 },
+                  {
+                    phase: "E-Learning",
+                    start: "23/08/2025",
+                    end: "03/09/2025",
+                    days: 12,
+                  },
+                  {
+                    phase: "Tech - Fundamentals",
+                    start: "04/09/2025",
+                    end: "16/09/2025",
+                    days: 13,
+                  },
+                  {
+                    phase: "Business Orientation",
+                    start: "17/09/2025",
+                    end: "01/10/2025",
+                    days: 15,
+                  },
+                  {
+                    phase: "Specialization",
+                    start: "02/10/2025",
+                    end: "26/11/2025",
+                    days: 25,
+                  },
                 ].map((phaseData) => {
                   // Convert dates to compare
-                  const startDate = new Date(phaseData.start.split('/').reverse().join('-'));
-                  const endDate = new Date(phaseData.end.split('/').reverse().join('-'));
+                  const startDate = new Date(
+                    phaseData.start.split("/").reverse().join("-"),
+                  );
+                  const endDate = new Date(
+                    phaseData.end.split("/").reverse().join("-"),
+                  );
                   const currentDate = currentMonth; // Using the selected month date
-                  
+
                   // Check if this phase is current
-                  const isCurrentPhase = currentDate >= startDate && currentDate <= endDate;
+                  const isCurrentPhase =
+                    currentDate >= startDate && currentDate <= endDate;
 
                   return (
-                    <tr key={phaseData.phase} className={`hover:bg-gray-50 ${isCurrentPhase ? 'bg-green-100/40' : ''}`}>
-                      <td className="py-3 px-6 text-sm text-gray-900">{phaseData.phase}</td>
-                      <td className="py-3 px-6 text-sm text-gray-600">{phaseData.start}</td>
-                      <td className="py-3 px-6 text-sm text-gray-600">{phaseData.end}</td>
-                      <td className="py-3 px-6 text-sm text-gray-600">{phaseData.days}</td>
+                    <tr
+                      key={phaseData.phase}
+                      className={`hover:bg-gray-50 ${isCurrentPhase ? "bg-green-100/40" : ""}`}
+                    >
+                      <td className="py-3 px-6 text-sm text-gray-900">
+                        {phaseData.phase}
+                      </td>
+                      <td className="py-3 px-6 text-sm text-gray-600">
+                        {phaseData.start}
+                      </td>
+                      <td className="py-3 px-6 text-sm text-gray-600">
+                        {phaseData.end}
+                      </td>
+                      <td className="py-3 px-6 text-sm text-gray-600">
+                        {phaseData.days}
+                      </td>
                     </tr>
                   );
                 })}
@@ -214,11 +284,24 @@ export default function RecentBatches({ selectedBatchId, setSelectedBatchId }: R
 
           <div className="p-2">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={goToPreviousMonth} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600">&lt;</button>
+              <button
+                onClick={goToPreviousMonth}
+                className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+              >
+                &lt;
+              </button>
               <span className="text-sm font-medium text-gray-600">
-                {currentMonth.toLocaleString("default", { month: "long", year: "numeric" })}
+                {currentMonth.toLocaleString("default", {
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
-              <button onClick={goToNextMonth} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600">&gt;</button>
+              <button
+                onClick={goToNextMonth}
+                className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+              >
+                &gt;
+              </button>
             </div>
 
             {/* <div className="grid grid-cols-7 text-center mb-1">

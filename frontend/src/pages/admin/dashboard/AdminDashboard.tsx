@@ -27,7 +27,7 @@ function Dashboard() {
     const fetchSummary = async () => {
       try {
         const res = await axios.get<DashboardSummaryData>(
-          "https://localhost:7224/api/AdminDashboard/summary"
+          "https://localhost:7224/api/AdminDashboard/summary",
         );
         setSummary(res.data);
       } catch (err) {
