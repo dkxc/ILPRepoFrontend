@@ -1,6 +1,6 @@
 import type { GetResponseType } from "../../../types/AttendanceQuery.types";
 import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
-import { utils as XLSXUtils, writeFile } from "xlsx";
+import { utils as XLSXUtils, writeFile } from "xlsx/dist/xlsx.mini.min";
 
 export const getFormattedStringFromFileTypes = (fileTypes: any) => {
   const extensions = Object.keys(fileTypes).map((ext) => ext.toUpperCase());

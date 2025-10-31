@@ -5,7 +5,7 @@ import {
   type ChangeEvent,
   type DragEvent,
 } from "react";
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx/dist/xlsx.mini.min";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { Download, Upload } from "lucide-react";
 

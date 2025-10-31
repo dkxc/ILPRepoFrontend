@@ -5,7 +5,7 @@ import {
   type DragEvent,
   useEffect,
 } from "react";
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx/dist/xlsx.mini.min";
 
 interface CurriculumData {
   day: string;

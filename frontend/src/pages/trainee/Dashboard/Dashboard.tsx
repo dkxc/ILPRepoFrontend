@@ -7,31 +7,15 @@ import {
   type Layouts,
 } from "react-grid-layout";
 
-import { lazy } from "react";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import { useDashboardData } from "../../../features/trainee/dashboard/hooks/useDashboardQueries";
 
-const BatchCard = lazy(
-  () => import("../../../features/trainee/dashboard/components/BatchCard"),
-);
-const PublicDocumentsCard = lazy(
-  () =>
-    import(
-      "../../../features/trainee/dashboard/components/PublicDocumentsCard"
-    ),
-);
-const ProjectCard = lazy(
-  () => import("../../../features/trainee/dashboard/ProjectCard"),
-);
-const UpcomingSessionsCard = lazy(
-  () => import("../../../features/trainee/dashboard/UpcomingSessionsCard"),
-);
-const ScoreCard = lazy(
-  () => import("../../../features/trainee/dashboard/ScoresCard"),
-);
-const WelcomeHeader = lazy(
-  () => import("../../../features/trainee/dashboard/components/WelcomeHeader"),
-);
+import BatchCard from "../../../features/trainee/dashboard/components/BatchCard";
+import PublicDocumentsCard from "../../../features/trainee/dashboard/components/PublicDocumentsCard";
+import ProjectCard from "../../../features/trainee/dashboard/ProjectCard";
+import UpcomingSessionsCard from "../../../features/trainee/dashboard/UpcomingSessionsCard";
+import ScoreCard from "../../../features/trainee/dashboard/ScoresCard";
+import WelcomeHeader from "../../../features/trainee/dashboard/components/WelcomeHeader";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

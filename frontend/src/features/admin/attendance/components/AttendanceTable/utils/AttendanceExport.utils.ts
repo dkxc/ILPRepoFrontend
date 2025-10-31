@@ -1,6 +1,10 @@
 import type { ProcessedTraineeData } from "../../../types/AttendanceRecord.types";
 import { format } from "date-fns";
-import { utils as XLSXUtils, writeFile, type Range } from "xlsx";
+import {
+  utils as XLSXUtils,
+  writeFile,
+  type Range,
+} from "xlsx/dist/xlsx.mini.min";
 import type { DateValue } from "react-aria";
 
 /**
