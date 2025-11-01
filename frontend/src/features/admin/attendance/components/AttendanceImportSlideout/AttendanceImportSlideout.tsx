@@ -8,6 +8,7 @@ import { getFormattedStringFromFileTypes } from "./utils/AttendanceImportSlideou
 
 interface AttendanceImportSlideoutProps {
   isOpen: boolean;
+  isImporting: boolean;
   onClose: () => void;
   onImport: (file: File) => void;
   onViewTemplate: () => void;
@@ -24,6 +25,7 @@ const formattedStringFromFileTypes =
 
 function AttendanceImportSlideout({
   isOpen,
+  isImporting,
   onClose,
   onImport,
   onViewTemplate,
@@ -120,6 +122,7 @@ function AttendanceImportSlideout({
             color="primary"
             onClick={handleImportClick}
             isDisabled={!selectedFile}
+            isLoading={isImporting}
           >
             Import
           </Button>
