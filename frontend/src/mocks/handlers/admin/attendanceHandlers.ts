@@ -1,6 +1,9 @@
 import { delay, http, HttpResponse } from "msw";
 import { mockAttendanceRecords, MOCK_BATCH_ID } from "./attendanceData";
-import type { UpdateQueryType } from "features/admin/attendance/types/AttendanceQuery.types";
+import type {
+  UpdateQueryType,
+  UploadJsonQueryType,
+} from "features/admin/attendance/types/AttendanceQuery.types";
 
 export const attendanceHandlers = [
   http.get("/api/attendance/batch/:batchId", async ({ params, request }) => {
@@ -69,6 +72,62 @@ export const attendanceHandlers = [
       updateRecordCount: updatedRecordCount,
     });
   }),
+
+  http.post(
+    "/api/attendance/batch/:batchId/upload-json",
+    async ({ params, request }) => {
+      if (Number(params.batchId) !== MOCK_BATCH_ID) {
+        return HttpResponse.json(
+          { message: "Batch not found" },
+          { status: 404 },
+        );
+      }
+
+      const uploadData = (await request.json()) as UploadJsonQueryType;
+      if (!Array.isArray(uploadData)) {
+        return HttpResponse.json(
+          { message: "Invalid payload" },
+          { status: 400 },
+        );
+      }
+
+      let updatedRecordCount = 0;
+      let newTraineesCount = 0;
+      let nextId =
+        Math.max(...mockAttendanceRecords.map((t) => t.traineeId)) + 1;
+
+      for (const item of uploadData) {
+        let trainee = mockAttendanceRecords.find(
+          (t) => t.traineeName === item.traineeName,
+        );
+        if (!trainee) {
+          trainee = {
+            traineeId: nextId++,
+            traineeName: item.traineeName,
+            dates: {},
+          };
+          mockAttendanceRecords.push(trainee);
+          newTraineesCount++;
+        }
+        trainee.dates[item.date] = {
+          forenoon: item.forenoon,
+          afternoon: item.afternoon,
+        };
+        updatedRecordCount++;
+      }
+
+      console.log(
+        `[MSW] Records updated: ${updatedRecordCount}, New trainees: ${newTraineesCount}`,
+      );
+      await delay(1500);
+      return HttpResponse.json({
+        status: "success",
+        message: "File processed successfully.",
+        updatedRecordCount,
+        newTraineesCount,
+      });
+    },
+  ),
 ];
 
 export default attendanceHandlers;
