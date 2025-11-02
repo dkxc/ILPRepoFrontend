@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import SideBar from "./features/ui/sidebar/Sidebar";
 import {
   Bell,
@@ -22,12 +22,14 @@ import HeaderBar from "./features/ui/header/HeaderBar";
 import HeaderItem from "./features/ui/header/HeaderItem";
 import SearchBar from "./features/ui/header/search/SearchBar";
 
-import { useState } from "react";
 import { Toaster } from "sonner";
 
 import { cn } from "./lib/utils";
 import { ProfileIconWithDropDown } from "./features/ui/header/profile/ProfileIconWithDropDown";
 import { useTheme } from "./hooks/useTheme";
+import LoginPage from "./LoginPage";
+import { useAuth } from "./context/AuthContext";
+import { useEffect } from "react";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
@@ -48,33 +50,44 @@ const dropDownItems = [
   { to: "/traineeSettings", label: "Settings", icon: Settings },
   { to: "/signout", label: "Sign Out", icon: LogOut },
 ];
+
 const adminDropDownItems = [
   { to: "/profile", label: "My Profile", icon: UserRoundCog },
   { to: "/adminSettings", label: "Settings", icon: Settings },
   { to: "/signout", label: "Sign Out", icon: LogOut },
+   
 ];
 
 function App() {
-  const sideBarWidth =
-    "md:w-40 lg:w-44 xl:w-52 max-w-52 transition-[width] motion-reduce:transition-none";
-  const headerHeight = "h-16 max-h-16";
-  // TODO: Remove this after auth
-  const [isAdmin, setIsAdmin] = useState(
-    useLocation().pathname.startsWith("/admindash"),
-  );
+  // ALL HOOKS AT THE TOP
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { isLoggedIn, isAdmin, authData } = useAuth();
 
-  const handleToggle = () => {
-    const nextIsAdmin = !isAdmin;
-    setIsAdmin(nextIsAdmin);
-
-    if (nextIsAdmin) {
-      navigate("/admindash");
-    } else {
-      navigate("/");
+  // Redirect based on role when logged in
+  useEffect(() => {
+    if (isLoggedIn && authData) {
+      const currentPath = window.location.pathname;
+      
+      // If admin and on root path, redirect to admin dashboard
+      if (isAdmin() && currentPath === '/') {
+        navigate('/admindash');
+      }
+      // If trainee/teamlead and on admin paths, redirect to home
+      else if (!isAdmin() && (currentPath === '/admindash' || currentPath.startsWith('/admin'))) {
+        navigate('/');
+      }
     }
-  };
+  }, [isLoggedIn, authData, navigate, isAdmin]);
+
+  // Show login page if not logged in
+  if (!isLoggedIn) {
+    return <LoginPage />;
+  }
+
+  const sideBarWidth =
+    "md:w-40 lg:w-44 xl:w-52 max-w-52 transition-[width] motion-reduce:transition-none";
+  const headerHeight = "h-14 max-h-14";
 
   return (
     <>
@@ -99,17 +112,6 @@ function App() {
           logoWidth={sideBarWidth}
         >
           <HeaderBar>
-            {/* TODO: Remove this after auth */}
-            <div className="flex items-center text-sm">
-              <input
-                type="checkbox"
-                id="admin-toggle"
-                checked={isAdmin}
-                onChange={handleToggle}
-                className="mr-4"
-              />
-              <label htmlFor="admin-toggle">Admin View</label>
-            </div>
             <SearchBar placeholder="Search for batches, projects & trainees" />
             <HeaderItem aria-label="Notifications">
               <Bell className="size-3.5" />
@@ -123,16 +125,15 @@ function App() {
             </HeaderItem>
             <ProfileIconWithDropDown>
               <SideBar
-                navItems={isAdmin ? adminDropDownItems : dropDownItems}
+                navItems={isAdmin() ? adminDropDownItems : dropDownItems}
               />
             </ProfileIconWithDropDown>
           </HeaderBar>
         </Header>
 
         <div className="flex grow min-h-0">
-          {/* TODO: Remove this after auth */}
           <SideBar
-            navItems={isAdmin ? adminNavItems : navItems}
+            navItems={isAdmin() ? adminNavItems : navItems}
             className={cn("bg-menucolor", sideBarWidth)}
           />
 

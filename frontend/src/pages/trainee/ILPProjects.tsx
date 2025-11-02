@@ -1,9 +1,24 @@
-import { useState, forwardRef } from "react";
-import { Badge } from "@mantine/core";
+import { useState, useEffect, forwardRef } from "react";
+import { Badge, ActionIcon } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
+import { Trash2 } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { useNavigate } from "react-router";
+import Button from "../../features/ui/Button";
 import { logos } from "../../assets/projects-svg";
+import { useAuth } from "../../context/AuthContext";
+import { ProjectService } from "../../services/projectService";
 
+// ============= GLOBAL CACHE =============
+let traineeProjectsCache: {
+  projects: Project[];
+  timestamp: number;
+} | null = null;
+
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// ============= INTERFACES =============
 interface Project {
   id: number;
   name: string;
@@ -12,29 +27,48 @@ interface Project {
   status: "In Progress" | "Live" | "Not Live";
   startDate: string;
   endDate: string;
-  pocs: string[];
 }
 
 export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
   type: keyof typeof logos;
   title: string;
   value: number | string;
+  isActive?: boolean;
+  onCardClick?: () => void;
 }
 
+// ============= PROJECT CARD COMPONENT =============
 const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
-  ({ className, type, title, value, ...props }, ref) => {
+  ({ className, type, title, value, isActive = false, onCardClick, ...props }, ref) => {
     const icon = logos[type];
 
     return (
       <div
         ref={ref}
-        className={`flex items-center gap-4 p-2 rounded-md border border-gray-200 bg-white transition-all duration-200 hover:shadow-md hover:scale-[1.01] ${className}`}
+        onClick={onCardClick}
+        className={`flex items-center gap-4 p-2 rounded-md border transition-all duration-200 cursor-pointer ${
+          isActive 
+            ? 'border-blue-500 bg-blue-50 shadow-lg scale-[1.02] ring-2 ring-blue-200 text-blue-600' 
+            : 'border-gray-200 bg-white hover:shadow-md hover:scale-[1.01] text-gray-400'
+        } ${className}`}
         {...props}
       >
-        <div className="flex items-center justify-center">{icon}</div>
+        <div className={`flex items-center justify-center transition-colors duration-200 ${
+          isActive ? 'text-blue-600' : 'text-gray-400'
+        }`}>
+          {icon}
+        </div>
         <div className="flex flex-col">
-          <p className="text-sm text-gray-500 font-medium">{title}</p>
-          <p className="text-2xl font-semibold text-gray-800">{value}</p>
+          <p className={`text-sm font-medium transition-colors duration-200 ${
+            isActive ? 'text-blue-600' : 'text-gray-500'
+          }`}>
+            {title}
+          </p>
+          <p className={`text-2xl font-semibold transition-colors duration-200 ${
+            isActive ? 'text-blue-700' : 'text-gray-800'
+          }`}>
+            {value}
+          </p>
         </div>
       </div>
     );
@@ -43,163 +77,125 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
 
 ProjectCard.displayName = "ProjectCard";
 
+// ============= MAIN COMPONENT =============
 export default function Projects() {
-  const [selectedBatch] = useState<string | null>("");
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const [selectedBatch, setSelectedBatch] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [projectsData, setProjectsData] = useState<Project[]>([]);
+  const [activeFilter, setActiveFilter] = useState<string>("all");
 
-  const projectsData: Project[] = [
-    {
-      id: 1,
-      name: "ILP Repo Project",
-      batch: "ILP 2025-26 Batch 7",
-      teamLead: "Alex Jose",
-      status: "In Progress",
-      startDate: "2025-01-15",
-      endDate: "2025-06-30",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 2,
-      name: "Project Management Tool",
-      batch: "ILP 2025-26 Batch 7",
-      teamLead: "Amal Babu",
-      status: "Live",
-      startDate: "2024-09-01",
-      endDate: "2025-03-15",
-      pocs: ["Michael Brown", "Sarah Johnson"],
-    },
-    {
-      id: 3,
-      name: "Car Parking",
-      batch: "ILP 2025-26 Batch 7",
-      teamLead: "George Mathew",
-      status: "Not Live",
-      startDate: "2025-02-01",
-      endDate: "2025-07-31",
-      pocs: ["Kamal Roy", "Deepa Iyer"],
-    },
-    {
-      id: 4,
-      name: "Attendance Tracker",
-      batch: "ILP 2025-26 Batch 8",
-      teamLead: "Riya Thomas",
-      status: "In Progress",
-      startDate: "2025-03-10",
-      endDate: "2025-08-20",
-      pocs: ["Sneha Gupta", "Vikas Mehta"],
-    },
-    {
-      id: 5,
-      name: "E-Learning Portal",
-      batch: "ILP 2025-26 Batch 6",
-      teamLead: "Samuel Raj",
-      status: "Live",
-      startDate: "2024-08-15",
-      endDate: "2025-02-28",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 6,
-      name: "Inventory Management System",
-      batch: "ILP 2025-26 Batch 7",
-      teamLead: "Neha Varghese",
-      status: "In Progress",
-      startDate: "2025-01-20",
-      endDate: "2025-06-15",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 7,
-      name: "Online Voting System",
-      batch: "ILP 2025-26 Batch 5",
-      teamLead: "Vijay Kumar",
-      status: "In Progress",
-      startDate: "2024-11-01",
-      endDate: "2025-04-30",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 8,
-      name: "Expense Tracker",
-      batch: "ILP 2025-26 Batch 8",
-      teamLead: "Kiran Das",
-      status: "Not Live",
-      startDate: "2025-04-01",
-      endDate: "2025-09-30",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 9,
-      name: "Smart Library Management",
-      batch: "ILP 2025-26 Batch 6",
-      teamLead: "Anjali Nair",
-      status: "In Progress",
-      startDate: "2024-12-01",
-      endDate: "2025-05-31",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 10,
-      name: "Health Monitoring Dashboard",
-      batch: "ILP 2025-26 Batch 9",
-      teamLead: "Mohammed Faisal",
-      status: "Live",
-      startDate: "2024-10-15",
-      endDate: "2025-03-31",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 11,
-      name: "Task Scheduling App",
-      batch: "ILP 2025-26 Batch 7",
-      teamLead: "Sneha George",
-      status: "In Progress",
-      startDate: "2025-02-15",
-      endDate: "2025-07-15",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 12,
-      name: "Chat Communication Platform",
-      batch: "ILP 2025-26 Batch 5",
-      teamLead: "Rahul Dev",
-      status: "Not Live",
-      startDate: "2025-03-01",
-      endDate: "2025-08-31",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 13,
-      name: "AI Resume Screener",
-      batch: "ILP 2025-26 Batch 8",
-      teamLead: "Priya Menon",
-      status: "Live",
-      startDate: "2024-09-20",
-      endDate: "2025-02-28",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 14,
-      name: "Bug Tracking System",
-      batch: "ILP 2025-26 Batch 6",
-      teamLead: "Aditya Verma",
-      status: "In Progress",
-      startDate: "2025-01-10",
-      endDate: "2025-06-10",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 15,
-      name: "Smart Attendance with QR",
-      batch: "ILP 2025-26 Batch 9",
-      teamLead: "Divya Suresh",
-      status: "In Progress",
-      startDate: "2025-02-20",
-      endDate: "2025-07-20",
-      pocs: ["John Doe", "Jane Smith"],
-    },
-  ];
+  // ============= DATA TRANSFORMATION =============
+  const transformApiData = (apiProjects: any[]): Project[] => {
+    return apiProjects.map((project) => {
+      // Status mapping: 0 = Not Live, 1 = Live, 2 = In Progress
+      const statusMap: { [key: number]: "In Progress" | "Live" | "Not Live" } = {
+        0: "Not Live",
+        1: "Live",
+        2: "In Progress",
+      };
 
+      return {
+        id: project.id,
+        name: project.projectName,
+        batch: project.batchName || "N/A",
+        teamLead: project.teamLead || "N/A",
+        status: statusMap[project.status] || "Not Live",
+        startDate: project.createdAt ? project.createdAt.split("T")[0] : "",
+        endDate: project.updatedAt ? project.updatedAt.split("T")[0] : "",
+      };
+    });
+  };
+
+  // ============= FETCH DATA =============
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
+    // Check if we have cached data that's still fresh
+    const now = Date.now();
+    if (traineeProjectsCache && (now - traineeProjectsCache.timestamp) < CACHE_DURATION) {
+      console.log('📦 Loading from cache...');
+      setProjectsData(traineeProjectsCache.projects);
+      setLoading(false);
+      return;
+    }
+
+    const fetchProjects = async () => {
+      try {
+        console.log('🚀 Starting to fetch projects...');
+        setLoading(true);
+
+        const result = await ProjectService.getAllProjects();
+        console.log('📦 Raw API Result:', result);
+
+        if (!isMounted) {
+          console.log('⚠️ Component unmounted, aborting');
+          return;
+        }
+
+        if (result && result.data && Array.isArray(result.data)) {
+          console.log(`✅ Received ${result.data.length} projects`);
+
+          const transformed = transformApiData(result.data);
+          console.log('🔄 Transformed Data:', transformed.length, 'projects');
+
+          // Update state
+          setProjectsData(transformed);
+
+          // Store in cache
+          traineeProjectsCache = {
+            projects: transformed,
+            timestamp: Date.now()
+          };
+          console.log('💾 Data cached successfully');
+
+          if (transformed.length > 0) {
+            notifications.show({
+              title: "Success",
+              message: result.message || `Loaded ${transformed.length} projects`,
+              color: "green",
+            });
+          }
+        } else {
+          console.error('❌ Invalid response structure:', result);
+          notifications.show({
+            title: "Error",
+            message: result?.message || "Invalid response from server",
+            color: "red",
+          });
+        }
+      } catch (error: any) {
+        if (!isMounted) return;
+        
+        console.error('❌ Error fetching projects:', error);
+        notifications.show({
+          title: "Error",
+          message: error.message || "Failed to load projects",
+          color: "red",
+        });
+      } finally {
+        if (isMounted) {
+          console.log('✓ Fetch complete');
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchProjects();
+
+    return () => {
+      console.log('🧹 Cleanup: Component unmounting');
+      isMounted = false;
+    };
+  }, [isLoggedIn]);
+
+  // ============= HELPER FUNCTIONS =============
   const getStatusColor = (status: string) => {
     switch (status) {
       case "In Progress":
@@ -213,20 +209,48 @@ export default function Projects() {
     }
   };
 
+  const handleCardClick = (filterType: string) => {
+    console.log('Card clicked:', filterType);
+    setActiveFilter(filterType);
+    setSelectedBatch(null); // Reset batch filter when clicking status cards
+  };
+
+  const handleDelete = (project: Project) => {
+    modals.openConfirmModal({
+      title: "Delete Project",
+      centered: true,
+      children: (
+        <p>
+          Are you sure you want to delete <b>{project.name}</b>?
+        </p>
+      ),
+      labels: { confirm: "Delete", cancel: "Cancel" },
+      confirmProps: { color: "red" },
+      onConfirm: () => {
+        notifications.show({
+          title: "Deleted",
+          message: `${project.name} was removed.`,
+          color: "red",
+        });
+      },
+    });
+  };
+
   const handleRowClick = (row: Project) => {
     console.log("Clicked project:", row);
     navigate(`/projectsDetailsTrainee/${row.id}`);
   };
 
+  // ============= TABLE COLUMNS =============
   const columns: ColumnDef<Project>[] = [
-    { key: "name", header: "Name", sortable: true, width: "22%" },
-    { key: "batch", header: "Batch", sortable: true, width: "22%" },
+    { key: "name", header: "Name", sortable: true, width: "30%" },
+    { key: "batch", header: "Batch", sortable: true, width: "25%" },
     { key: "teamLead", header: "Team Lead", sortable: true, width: "25%" },
     {
       key: "status",
       header: "Status",
       sortable: true,
-      width: "15%",
+      width: "20%",
       render: (value) => (
         <Badge
           color={getStatusColor(value)}
@@ -238,45 +262,61 @@ export default function Projects() {
         </Badge>
       ),
     },
-    {
-      key: "pocs",
-      header: "POC Names",
-      sortable: false,
-      width: "25%",
-      render: (value: string[]) => (
-        <div className="flex flex-col gap-1">
-          {value.map((poc, index) => (
-            <span key={index} className="text-sm">
-              {poc}
-            </span>
-          ))}
-        </div>
-      ),
-    },
-    // {
-    //   key: "action",
-    //   header: "Action",
-    //   align: "center",
-    //   width: "10%",
-    //   render: (_, row) => (
-    //     <ActionIcon
-    //       variant="subtle"
-    //       color="gray"
-    //       onClick={(e) => {
-    //         e.stopPropagation();
-    //         handleDelete(row);
-    //       }}
-    //     >
-    //       <Trash2 size={18} />
-    //     </ActionIcon>
-    //   ),
-    // },
   ];
 
-  const filteredData = selectedBatch
-    ? projectsData.filter((project) => project.batch === selectedBatch)
-    : projectsData;
+  // ============= COMPUTED VALUES =============
+  const filteredData = projectsData.filter((project) => {
+    // Apply status filter
+    let statusMatch = true;
+    if (activeFilter === "inProgress") {
+      statusMatch = project.status === "In Progress";
+    } else if (activeFilter === "live") {
+      statusMatch = project.status === "Live";
+    } else if (activeFilter === "notLive") {
+      statusMatch = project.status === "Not Live";
+    }
 
+    // Apply batch filter
+    const batchMatch = selectedBatch ? project.batch === selectedBatch : true;
+
+    return statusMatch && batchMatch;
+  });
+
+  const stats = {
+    all: projectsData.length,
+    inProgress: projectsData.filter((p) => p.status === "In Progress").length,
+    live: projectsData.filter((p) => p.status === "Live").length,
+    notLive: projectsData.filter((p) => p.status === "Not Live").length,
+  };
+
+  const uniqueBatches = Array.from(new Set(projectsData.map(p => p.batch))).filter(b => b !== "N/A");
+
+  const getHeaderTitle = () => {
+    if (selectedBatch) {
+      return `${selectedBatch} Projects${activeFilter !== "all" ? ` - ${activeFilter === "inProgress" ? "In Progress" : activeFilter === "live" ? "Live" : "Not Live"}` : ''}`;
+    }
+    
+    if (activeFilter === "all") return "All Projects";
+    if (activeFilter === "inProgress") return "Projects In Progress";
+    if (activeFilter === "live") return "Live Projects";
+    if (activeFilter === "notLive") return "Not Live Projects";
+    
+    return "All Projects";
+  };
+
+  // ============= LOADING STATE =============
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="text-xl font-semibold text-gray-700 mb-2">Loading projects...</div>
+          <div className="text-sm text-gray-500">Please wait</div>
+        </div>
+      </div>
+    );
+  }
+
+  // ============= RENDER =============
   return (
     <>
       <div className="flex items-center justify-between mt-10 bg">
@@ -287,48 +327,54 @@ export default function Projects() {
           Projects
         </h1>
       </div>
+      
+      {/* Project Cards with Clickable Filters */}
       <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w ml-4">
         <ProjectCard
           type="all"
           title="All Projects"
-          value={15}
+          value={stats.all}
           className="text-sm w-60 h-16"
+          isActive={activeFilter === "all"}
+          onCardClick={() => handleCardClick("all")}
         />
         <ProjectCard
           type="inProgress"
           title="Projects In Progress"
-          value={9}
+          value={stats.inProgress}
           className="text-sm w-60 h-16"
+          isActive={activeFilter === "inProgress"}
+          onCardClick={() => handleCardClick("inProgress")}
         />
         <ProjectCard
           type="live"
           title="Live Projects"
-          value={4}
+          value={stats.live}
           className="text-sm w-60 h-16"
+          isActive={activeFilter === "live"}
+          onCardClick={() => handleCardClick("live")}
         />
         <ProjectCard
           type="notLive"
           title="Not Live Projects"
-          value={2}
+          value={stats.notLive}
           className="text-sm w-60 h-16"
+          isActive={activeFilter === "notLive"}
+          onCardClick={() => handleCardClick("notLive")}
         />
       </div>
+
+      {/* Data Table */}
       <div className="bg ml-10 mr-10">
         <DataTable
           columns={columns}
           data={filteredData}
           showHeaderSection={true}
-          headerTitle="All Projects"
+          headerTitle={getHeaderTitle()}
           headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
-          enableFilter={true}
+          enableFilter={uniqueBatches.length > 0}
           filterColumn="batch"
-          filterOptions={[
-            "ILP 2025-26 Batch 5",
-            "ILP 2025-26 Batch 6",
-            "ILP 2025-26 Batch 7",
-            "ILP 2025-26 Batch 8",
-            "ILP 2025-26 Batch 9",
-          ]}
+          filterOptions={uniqueBatches}
           enableSearch={true}
           enablePagination={true}
           enableDateFilter={true}
