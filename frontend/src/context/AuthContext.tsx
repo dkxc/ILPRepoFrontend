@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 export const UserRole = {
   Admin: 0,
@@ -6,7 +12,7 @@ export const UserRole = {
   TeamLead: 2,
 } as const;
 
-export type UserRole = typeof UserRole[keyof typeof UserRole];
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 interface AuthData {
   accessToken: string;
@@ -27,7 +33,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AUTH_STORAGE_KEY = 'auth_data';
+const AUTH_STORAGE_KEY = "auth_data";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authData, setAuthData] = useState<AuthData | null>(null);
@@ -69,11 +75,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const validateToken = async () => {
       try {
-        const response = await fetch("https://localhost:7224/api/Auth/validate-token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
+        const response = await fetch(
+          "https://localhost:7224/api/Auth/validate-token",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          },
+        );
 
         console.log("📡 Token validation status:", response.status);
 
@@ -134,7 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

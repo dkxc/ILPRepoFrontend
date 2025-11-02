@@ -6,7 +6,12 @@ import DataTablePagination from "./DataTablePagination";
 vi.mock("@mui/material", () => ({
   Box: ({ children, ...props }: any) => <div {...props}>{children}</div>,
   Pagination: ({ count, page, onChange, ...props }: any) => (
-    <div data-testid="pagination" data-page={page} data-count={count} {...props}>
+    <div
+      data-testid="pagination"
+      data-page={page}
+      data-count={count}
+      {...props}
+    >
       <button
         data-testid="prev-button"
         onClick={() => onChange(null, Math.max(1, page - 1))}
@@ -44,7 +49,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -59,7 +64,7 @@ describe("DataTablePagination", () => {
           currentPage={3}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -73,7 +78,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByTestId("page-1")).toBeInTheDocument();
@@ -88,7 +93,7 @@ describe("DataTablePagination", () => {
           currentPage={2}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const currentPageButton = screen.getByTestId("page-2");
@@ -104,7 +109,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
@@ -117,7 +122,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
@@ -130,7 +135,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByTestId("pagination")).toBeInTheDocument();
@@ -143,7 +148,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByTestId("pagination")).toBeInTheDocument();
@@ -158,7 +163,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -172,7 +177,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -186,7 +191,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
@@ -199,7 +204,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={25}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -213,7 +218,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={5}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -230,7 +235,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("page-2"));
@@ -246,7 +251,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("page-4"));
@@ -262,7 +267,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("next-button"));
@@ -278,7 +283,7 @@ describe("DataTablePagination", () => {
           currentPage={2}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("prev-button"));
@@ -294,7 +299,7 @@ describe("DataTablePagination", () => {
           currentPage={2}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("page-2"));
@@ -311,7 +316,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
@@ -324,7 +329,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={20}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.queryByTestId("pagination")).not.toBeInTheDocument();
@@ -337,7 +342,7 @@ describe("DataTablePagination", () => {
           currentPage={5}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -351,7 +356,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const pagination = screen.getByTestId("pagination");
@@ -365,7 +370,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const prevButton = screen.getByTestId("prev-button");
@@ -379,7 +384,7 @@ describe("DataTablePagination", () => {
           currentPage={3}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const nextButton = screen.getByTestId("next-button");
@@ -393,7 +398,7 @@ describe("DataTablePagination", () => {
           currentPage={3}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
       const prevButton = screen.getByTestId("prev-button");
@@ -412,10 +417,13 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByTestId("pagination")).toHaveAttribute("data-count", "10");
+      expect(screen.getByTestId("pagination")).toHaveAttribute(
+        "data-count",
+        "10",
+      );
 
       rerender(
         <DataTablePagination
@@ -423,10 +431,13 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={25}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByTestId("pagination")).toHaveAttribute("data-count", "4");
+      expect(screen.getByTestId("pagination")).toHaveAttribute(
+        "data-count",
+        "4",
+      );
     });
 
     it("updates when totalEntries changes", () => {
@@ -436,10 +447,13 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByTestId("pagination")).toHaveAttribute("data-count", "3");
+      expect(screen.getByTestId("pagination")).toHaveAttribute(
+        "data-count",
+        "3",
+      );
 
       rerender(
         <DataTablePagination
@@ -447,10 +461,13 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByTestId("pagination")).toHaveAttribute("data-count", "5");
+      expect(screen.getByTestId("pagination")).toHaveAttribute(
+        "data-count",
+        "5",
+      );
     });
 
     it("updates when currentPage changes", () => {
@@ -460,10 +477,13 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByTestId("pagination")).toHaveAttribute("data-page", "1");
+      expect(screen.getByTestId("pagination")).toHaveAttribute(
+        "data-page",
+        "1",
+      );
 
       rerender(
         <DataTablePagination
@@ -471,10 +491,13 @@ describe("DataTablePagination", () => {
           currentPage={3}
           pageSize={10}
           onPageChange={vi.fn()}
-        />
+        />,
       );
 
-      expect(screen.getByTestId("pagination")).toHaveAttribute("data-page", "3");
+      expect(screen.getByTestId("pagination")).toHaveAttribute(
+        "data-page",
+        "3",
+      );
     });
   });
 
@@ -487,7 +510,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("next-button"));
@@ -499,7 +522,7 @@ describe("DataTablePagination", () => {
           currentPage={2}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("next-button"));
@@ -514,7 +537,7 @@ describe("DataTablePagination", () => {
           currentPage={1}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("page-7"));
@@ -529,7 +552,7 @@ describe("DataTablePagination", () => {
           currentPage={3}
           pageSize={10}
           onPageChange={onPageChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId("page-1"));

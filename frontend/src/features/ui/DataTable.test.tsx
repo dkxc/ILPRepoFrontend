@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import DataTable, { type ColumnDef } from "./Table"
+import DataTable, { type ColumnDef } from "./Table";
 
 // Mock Mantine components used
 vi.mock("@mantine/core", () => ({
@@ -52,7 +52,14 @@ describe("DataTable", () => {
   });
 
   it("filters data using search", () => {
-    render(<DataTable columns={columns} data={data} enableSearch showHeaderSection />);
+    render(
+      <DataTable
+        columns={columns}
+        data={data}
+        enableSearch
+        showHeaderSection
+      />,
+    );
 
     fireEvent.change(screen.getByPlaceholderText("Search..."), {
       target: { value: "Alice" },
@@ -79,9 +86,15 @@ describe("DataTable", () => {
   });
 
   it("does not show search input if enableSearch=false", () => {
-    render(<DataTable columns={columns} data={data} enableSearch={false} showHeaderSection />);
+    render(
+      <DataTable
+        columns={columns}
+        data={data}
+        enableSearch={false}
+        showHeaderSection
+      />,
+    );
 
     expect(screen.queryByPlaceholderText("Search...")).not.toBeInTheDocument();
   });
-  
 });

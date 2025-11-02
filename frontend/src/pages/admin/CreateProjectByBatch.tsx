@@ -33,7 +33,7 @@ interface ProjectData {
 
 interface ExcelRow {
   "Project Name": string;
-  "Technology": string;
+  Technology: string;
   "Team Lead": string;
   "Scrum Master": string;
   "Team Members": string;
@@ -68,9 +68,9 @@ interface Trainee {
   batchName: string;
 }
 
-export default function CreateProjectByBatch({ 
-  batchId = 1, 
-  batchName 
+export default function CreateProjectByBatch({
+  batchId = 1,
+  batchName,
 }: CreateProjectByBatchProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -81,7 +81,7 @@ export default function CreateProjectByBatch({
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [batchTrainees, setBatchTrainees] = useState<Trainee[]>([]);
   const [isLoadingTrainees, setIsLoadingTrainees] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<'basic' | 'detailed'>('basic');
+  const [viewMode, setViewMode] = useState<"basic" | "detailed">("basic");
   const [currentBatchName, setCurrentBatchName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -93,9 +93,9 @@ export default function CreateProjectByBatch({
   const fetchBatchData = async (): Promise<void> => {
     try {
       setIsLoadingTrainees(true);
-      
+
       notifications.show({
-        id: 'loading-batch',
+        id: "loading-batch",
         title: "Loading Batch Data...",
         message: "Fetching batch information and trainee list...",
         color: "blue",
@@ -104,28 +104,34 @@ export default function CreateProjectByBatch({
       });
 
       const traineesResponse = await ProjectService.getBatchTrainees(batchId);
-      
+
       console.log("Trainees API Response:", traineesResponse);
-      
+
       // Check if the response has status and data properties (already parsed JSON)
       let traineesData = traineesResponse;
-      
+
       // If it's a Response object, parse it
       if (traineesResponse.ok !== undefined) {
         if (!traineesResponse.ok) {
-          throw new Error(`Failed to fetch trainees: ${traineesResponse.statusText}`);
+          throw new Error(
+            `Failed to fetch trainees: ${traineesResponse.statusText}`,
+          );
         }
         traineesData = await traineesResponse.json();
       }
-      
+
       // Check for API success
-      if (traineesData.status !== 200 && traineesData.succeeded === false && !traineesData.data) {
+      if (
+        traineesData.status !== 200 &&
+        traineesData.succeeded === false &&
+        !traineesData.data
+      ) {
         throw new Error(traineesData.message || "Failed to fetch trainees");
       }
-      
+
       let trainees: Trainee[] = [];
       let batchNameFromApi = batchName || `Batch ${batchId}`;
-      
+
       if (traineesData.data && Array.isArray(traineesData.data)) {
         trainees = traineesData.data.map((trainee: any) => ({
           id: trainee.id,
@@ -133,11 +139,15 @@ export default function CreateProjectByBatch({
           email: trainee.email,
           username: trainee.username,
           batchId: trainee.batchId,
-          batchName: trainee.batchName
+          batchName: trainee.batchName,
         }));
-        
+
         // Get batch name from first trainee if available and not default 'string'
-        if (trainees.length > 0 && trainees[0].batchName && trainees[0].batchName !== 'string') {
+        if (
+          trainees.length > 0 &&
+          trainees[0].batchName &&
+          trainees[0].batchName !== "string"
+        ) {
           batchNameFromApi = trainees[0].batchName;
         }
       } else if (Array.isArray(traineesData)) {
@@ -147,62 +157,71 @@ export default function CreateProjectByBatch({
           email: trainee.email,
           username: trainee.username,
           batchId: trainee.batchId,
-          batchName: trainee.batchName
+          batchName: trainee.batchName,
         }));
-        
+
         // Get batch name from first trainee if available and not default 'string'
-        if (trainees.length > 0 && trainees[0].batchName && trainees[0].batchName !== 'string') {
+        if (
+          trainees.length > 0 &&
+          trainees[0].batchName &&
+          trainees[0].batchName !== "string"
+        ) {
           batchNameFromApi = trainees[0].batchName;
         }
       }
-      
+
       setCurrentBatchName(batchNameFromApi);
       setBatchTrainees(trainees);
-      
+
       notifications.update({
-        id: 'loading-batch',
+        id: "loading-batch",
         title: "Batch Data Loaded",
         message: `✓ ${trainees.length} trainees found in ${batchNameFromApi}`,
         color: "green",
         loading: false,
         autoClose: 3000,
       });
-
     } catch (error: any) {
       console.error("Error fetching batch data:", error);
-      
+
       const fallbackBatchName = batchName || `Batch ${batchId}`;
       setCurrentBatchName(fallbackBatchName);
-      
+
       notifications.update({
-        id: 'loading-batch',
+        id: "loading-batch",
         title: "Error Loading Batch Data",
-        message: error.message || "Failed to fetch trainee list. Validation will be limited.",
+        message:
+          error.message ||
+          "Failed to fetch trainee list. Validation will be limited.",
         color: "red",
         loading: false,
         autoClose: 5000,
       });
-      
+
       setBatchTrainees([]);
     } finally {
       setIsLoadingTrainees(false);
     }
   };
 
-  const validateTraineesInBatch = (projectsToValidate: ProjectData[]): string[] => {
+  const validateTraineesInBatch = (
+    projectsToValidate: ProjectData[],
+  ): string[] => {
     const errors: string[] = [];
-    
+
     if (batchTrainees.length === 0) {
-      errors.push("⚠️ Warning: Batch trainee list is empty. Cannot validate team members.");
+      errors.push(
+        "⚠️ Warning: Batch trainee list is empty. Cannot validate team members.",
+      );
       return errors;
     }
 
     const traineeUsernamesSet = new Set(
-      batchTrainees.map(t => t.username.toLowerCase().trim())
+      batchTrainees.map((t) => t.username.toLowerCase().trim()),
     );
 
     const traineeNameMapping = new Map(
-      batchTrainees.map(t => [t.username.toLowerCase().trim(), t.username])
+      batchTrainees.map((t) => [t.username.toLowerCase().trim(), t.username]),
     );
 
     projectsToValidate.forEach((project, index) => {
@@ -211,14 +230,14 @@ export default function CreateProjectByBatch({
       const teamLeadLower = project.teamLeadName.toLowerCase().trim();
       if (!traineeUsernamesSet.has(teamLeadLower)) {
         errors.push(
-          `Row ${rowNumber} (${project.projectName}): Team Lead "${project.teamLeadName}" is not a trainee in this batch`
+          `Row ${rowNumber} (${project.projectName}): Team Lead "${project.teamLeadName}" is not a trainee in this batch`,
         );
       }
 
       const scrumMasterLower = project.scrumMasterName.toLowerCase().trim();
       if (!traineeUsernamesSet.has(scrumMasterLower)) {
         errors.push(
-          `Row ${rowNumber} (${project.projectName}): Scrum Master "${project.scrumMasterName}" is not a trainee in this batch`
+          `Row ${rowNumber} (${project.projectName}): Scrum Master "${project.scrumMasterName}" is not a trainee in this batch`,
         );
       }
 
@@ -226,7 +245,7 @@ export default function CreateProjectByBatch({
         const memberLower = member.toLowerCase().trim();
         if (!traineeUsernamesSet.has(memberLower)) {
           errors.push(
-            `Row ${rowNumber} (${project.projectName}): Team Member "${member}" is not a trainee in this batch`
+            `Row ${rowNumber} (${project.projectName}): Team Member "${member}" is not a trainee in this batch`,
           );
         }
       });
@@ -234,18 +253,20 @@ export default function CreateProjectByBatch({
       const allRoles = [
         project.teamLeadName,
         project.scrumMasterName,
-        ...project.teamMembers
-      ].map(name => name.toLowerCase().trim());
+        ...project.teamMembers,
+      ].map((name) => name.toLowerCase().trim());
 
-      const duplicates = allRoles.filter((name, index) => allRoles.indexOf(name) !== index);
+      const duplicates = allRoles.filter(
+        (name, index) => allRoles.indexOf(name) !== index,
+      );
       const uniqueDuplicates = [...new Set(duplicates)];
 
       if (uniqueDuplicates.length > 0) {
-        const duplicateDisplayNames = uniqueDuplicates.map(name => 
-          traineeNameMapping.get(name) || name
+        const duplicateDisplayNames = uniqueDuplicates.map(
+          (name) => traineeNameMapping.get(name) || name,
         );
         errors.push(
-          `Row ${rowNumber} (${project.projectName}): Duplicate assignments found: ${duplicateDisplayNames.join(", ")}`
+          `Row ${rowNumber} (${project.projectName}): Duplicate assignments found: ${duplicateDisplayNames.join(", ")}`,
         );
       }
     });
@@ -430,16 +451,16 @@ export default function CreateProjectByBatch({
       setIsLoading(true);
       setApiError(null);
       setValidationErrors([]);
-      
+
       notifications.show({
-        id: 'validating',
+        id: "validating",
         title: "Validating...",
         message: "Reading and validating Excel file...",
         color: "blue",
         loading: true,
         autoClose: false,
       });
-      
+
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { type: "array" });
       const sheetName = workbook.SheetNames[0];
@@ -450,27 +471,39 @@ export default function CreateProjectByBatch({
       });
 
       if (jsonData.length === 0) {
-        notifications.hide('validating');
+        notifications.hide("validating");
         throw new Error("Excel file is empty. Please add project data.");
       }
 
       const requiredColumns = [
-        "Project Name", "Technology", "Team Lead", "Scrum Master", "Team Members",
-        "Code Mentor", "Code Mentor Email", "Project Mentor", "Project Mentor Email",
-        "BA Mentor", "BA Mentor Email", "POC Names", "POC Emails"
+        "Project Name",
+        "Technology",
+        "Team Lead",
+        "Scrum Master",
+        "Team Members",
+        "Code Mentor",
+        "Code Mentor Email",
+        "Project Mentor",
+        "Project Mentor Email",
+        "BA Mentor",
+        "BA Mentor Email",
+        "POC Names",
+        "POC Emails",
       ];
 
-      const missingColumns = requiredColumns.filter(col => 
-        !Object.keys(jsonData[0] || {}).includes(col)
+      const missingColumns = requiredColumns.filter(
+        (col) => !Object.keys(jsonData[0] || {}).includes(col),
       );
 
       if (missingColumns.length > 0) {
-        notifications.hide('validating');
-        throw new Error(`Missing required columns: ${missingColumns.join(", ")}. Please use the provided template.`);
+        notifications.hide("validating");
+        throw new Error(
+          `Missing required columns: ${missingColumns.join(", ")}. Please use the provided template.`,
+        );
       }
 
       notifications.update({
-        id: 'validating',
+        id: "validating",
         title: "Validating...",
         message: `Checking ${jsonData.length} rows...`,
         color: "blue",
@@ -482,43 +515,49 @@ export default function CreateProjectByBatch({
 
       jsonData.forEach((row, index) => {
         const rowNumber = index + 2;
-        
+
         const teamMembers = row["Team Members"]
           .split(",")
-          .map(member => member.trim())
-          .filter(member => member !== "");
+          .map((member) => member.trim())
+          .filter((member) => member !== "");
 
         // Parse POCs - handle multiple POCs separated by commas
         const pocNames = row["POC Names"]
           .split(",")
-          .map(name => name.trim())
-          .filter(name => name !== "");
-        
+          .map((name) => name.trim())
+          .filter((name) => name !== "");
+
         const pocEmails = row["POC Emails"]
           .split(",")
-          .map(email => email.trim())
-          .filter(email => email !== "");
+          .map((email) => email.trim())
+          .filter((email) => email !== "");
 
         // Validate POCs
         if (pocNames.length !== pocEmails.length) {
-          errors.push(`Row ${rowNumber}: Number of POC names (${pocNames.length}) does not match number of POC emails (${pocEmails.length})`);
+          errors.push(
+            `Row ${rowNumber}: Number of POC names (${pocNames.length}) does not match number of POC emails (${pocEmails.length})`,
+          );
         }
 
         const pocs: Poc[] = [];
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
+
         pocNames.forEach((name, idx) => {
           const email = pocEmails[idx] || "";
           if (name && email) {
             if (!emailRegex.test(email)) {
-              errors.push(`Row ${rowNumber}: Invalid POC email format for "${name}": ${email}`);
+              errors.push(
+                `Row ${rowNumber}: Invalid POC email format for "${name}": ${email}`,
+              );
             } else {
               pocs.push({ name, email });
             }
           } else if (name && !email) {
             errors.push(`Row ${rowNumber}: POC "${name}" is missing email`);
           } else if (!name && email) {
-            errors.push(`Row ${rowNumber}: POC email "${email}" is missing name`);
+            errors.push(
+              `Row ${rowNumber}: POC email "${email}" is missing name`,
+            );
           }
         });
 
@@ -531,7 +570,8 @@ export default function CreateProjectByBatch({
           codeMentor: row["Code Mentor"]?.toString()?.trim() || "",
           codeMentorEmail: row["Code Mentor Email"]?.toString()?.trim() || "",
           projectMentor: row["Project Mentor"]?.toString()?.trim() || "",
-          projectMentorEmail: row["Project Mentor Email"]?.toString()?.trim() || "",
+          projectMentorEmail:
+            row["Project Mentor Email"]?.toString()?.trim() || "",
           baMentor: row["BA Mentor"]?.toString()?.trim() || "",
           baMentorEmail: row["BA Mentor Email"]?.toString()?.trim() || "",
           pocs: pocs,
@@ -540,7 +580,7 @@ export default function CreateProjectByBatch({
         if (!project.projectName) {
           errors.push(`Row ${rowNumber}: Project Name is required`);
         }
-        
+
         if (!project.teamLeadName) {
           errors.push(`Row ${rowNumber}: Team Lead is required`);
         }
@@ -558,7 +598,10 @@ export default function CreateProjectByBatch({
           errors.push(`Row ${rowNumber}: Invalid Code Mentor Email format`);
         }
 
-        if (project.projectMentor && !emailRegex.test(project.projectMentorEmail)) {
+        if (
+          project.projectMentor &&
+          !emailRegex.test(project.projectMentorEmail)
+        ) {
           errors.push(`Row ${rowNumber}: Invalid Project Mentor Email format`);
         }
 
@@ -572,12 +615,14 @@ export default function CreateProjectByBatch({
       });
 
       if (parsedProjects.length === 0) {
-        errors.push("No valid projects found in the file. Please check that Project Name fields are filled.");
+        errors.push(
+          "No valid projects found in the file. Please check that Project Name fields are filled.",
+        );
       }
 
       if (parsedProjects.length > 0 && batchTrainees.length > 0) {
         notifications.update({
-          id: 'validating',
+          id: "validating",
           title: "Validating Trainees...",
           message: "Checking if team members belong to the batch...",
           color: "blue",
@@ -587,14 +632,16 @@ export default function CreateProjectByBatch({
         const batchValidationErrors = validateTraineesInBatch(parsedProjects);
         errors.push(...batchValidationErrors);
       } else if (parsedProjects.length > 0 && batchTrainees.length === 0) {
-        errors.push("⚠️ Cannot validate team members: Batch trainee list is not available.");
+        errors.push(
+          "⚠️ Cannot validate team members: Batch trainee list is not available.",
+        );
       }
 
-      notifications.hide('validating');
+      notifications.hide("validating");
 
       if (errors.length > 0) {
         setValidationErrors(errors);
-        
+
         notifications.show({
           title: "Validation Errors",
           message: `Found ${errors.length} error(s) in the Excel file. Please check the error list below.`,
@@ -607,7 +654,7 @@ export default function CreateProjectByBatch({
 
       setProjectsData(parsedProjects);
       setShowPreview(true);
-      
+
       if (errors.length === 0) {
         notifications.show({
           title: "Validation Complete",
@@ -615,26 +662,26 @@ export default function CreateProjectByBatch({
           color: "green",
         });
       }
-
     } catch (error: any) {
       console.error("Error reading Excel file:", error);
-      
-      notifications.hide('validating');
-      
-      let errorMessage = "Error reading Excel file. Please check the file format.";
-      
+
+      notifications.hide("validating");
+
+      let errorMessage =
+        "Error reading Excel file. Please check the file format.";
+
       if (error.message.includes("Missing required columns")) {
         errorMessage = error.message;
       } else if (error.message.includes("empty")) {
         errorMessage = error.message;
       }
-      
+
       notifications.show({
         title: "Validation Failed",
         message: errorMessage,
         color: "red",
       });
-      
+
       setValidationErrors([errorMessage]);
     } finally {
       setIsLoading(false);
@@ -658,7 +705,7 @@ export default function CreateProjectByBatch({
       setApiError(null);
 
       notifications.show({
-        id: 'saving',
+        id: "saving",
         title: "Saving Projects...",
         message: `Creating ${projectsData.length} projects for ${currentBatchName}...`,
         color: "blue",
@@ -668,7 +715,7 @@ export default function CreateProjectByBatch({
 
       const apiData = {
         batchId: batchId,
-        projects: projectsData.map(project => ({
+        projects: projectsData.map((project) => ({
           projectName: project.projectName,
           technology: project.technology,
           status: 2,
@@ -680,25 +727,25 @@ export default function CreateProjectByBatch({
             {
               name: project.codeMentor,
               email: project.codeMentorEmail,
-              mentorType: 0
+              mentorType: 0,
             },
             {
               name: project.projectMentor,
               email: project.projectMentorEmail,
-              mentorType: 1
+              mentorType: 1,
             },
             {
               name: project.baMentor,
               email: project.baMentorEmail,
-              mentorType: 2
-            }
-          ].filter(mentor => mentor.name && mentor.email),
-          pocs: project.pocs.map(poc => ({
+              mentorType: 2,
+            },
+          ].filter((mentor) => mentor.name && mentor.email),
+          pocs: project.pocs.map((poc) => ({
             name: poc.name,
-            email: poc.email
+            email: poc.email,
             // Removed createdAt and updatedAt
-          }))
-        }))
+          })),
+        })),
       };
 
       console.log("📤 Sending data to API:", apiData);
@@ -707,12 +754,14 @@ export default function CreateProjectByBatch({
 
       console.log("📥 API Response:", result);
 
-      notifications.hide('saving');
+      notifications.hide("saving");
 
       if (result.succeeded === true || result.status === 200) {
         notifications.show({
           title: "Success!",
-          message: result.message || `✓ ${projectsData.length} projects created successfully for ${currentBatchName}`,
+          message:
+            result.message ||
+            `✓ ${projectsData.length} projects created successfully for ${currentBatchName}`,
           color: "green",
           icon: "✓",
         });
@@ -722,7 +771,7 @@ export default function CreateProjectByBatch({
         setShowPreview(false);
         setValidationErrors([]);
         setApiError(null);
-        
+
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -731,18 +780,17 @@ export default function CreateProjectByBatch({
           message: result.message || "Failed to create projects",
           errors: result.errors,
           statusCode: result.status,
-          succeeded: result.succeeded
+          succeeded: result.succeeded,
         };
-        
+
         setApiError(errorResponse);
         throw new Error(errorResponse.message);
       }
-
     } catch (error: any) {
       console.error("❌ Error saving projects:", error);
-      
-      notifications.hide('saving');
-      
+
+      notifications.hide("saving");
+
       let errorMessage = "Failed to save projects. Please try again.";
       let statusCode = 500;
       let detailedErrors: string[] = [];
@@ -750,12 +798,13 @@ export default function CreateProjectByBatch({
       if (error.response) {
         statusCode = error.response.status;
         const responseData = error.response.data;
-        
+
         if (responseData) {
           errorMessage = responseData.message || errorMessage;
           if (responseData.errors) {
-            detailedErrors = Object.entries(responseData.errors).flatMap(([field, messages]) => 
-              (messages as string[]).map(msg => `${field}: ${msg}`)
+            detailedErrors = Object.entries(responseData.errors).flatMap(
+              ([field, messages]) =>
+                (messages as string[]).map((msg) => `${field}: ${msg}`),
             );
           }
         }
@@ -764,8 +813,9 @@ export default function CreateProjectByBatch({
         if (error.data) {
           errorMessage = error.data.message || errorMessage;
           if (error.data.errors) {
-            detailedErrors = Object.entries(error.data.errors).flatMap(([field, messages]) => 
-              (messages as string[]).map(msg => `${field}: ${msg}`)
+            detailedErrors = Object.entries(error.data.errors).flatMap(
+              ([field, messages]) =>
+                (messages as string[]).map((msg) => `${field}: ${msg}`),
             );
           }
         }
@@ -775,8 +825,11 @@ export default function CreateProjectByBatch({
 
       const apiErrorResponse: ApiErrorResponse = {
         message: errorMessage,
-        errors: detailedErrors.length > 0 ? { "Validation": detailedErrors } : undefined,
-        statusCode: statusCode
+        errors:
+          detailedErrors.length > 0
+            ? { Validation: detailedErrors }
+            : undefined,
+        statusCode: statusCode,
       };
 
       setApiError(apiErrorResponse);
@@ -787,7 +840,6 @@ export default function CreateProjectByBatch({
         color: "red",
         autoClose: false,
       });
-
     } finally {
       setIsLoading(false);
     }
@@ -841,8 +893,8 @@ export default function CreateProjectByBatch({
     setShowPreview(false);
     setApiError(null);
     setValidationErrors([]);
-    setViewMode('basic');
-    
+    setViewMode("basic");
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -852,10 +904,11 @@ export default function CreateProjectByBatch({
     const sampleData: ExcelRow[] = [
       {
         "Project Name": "ILP Repo Management System",
-        "Technology": "React, .NET, PostgreSQL",
+        Technology: "React, .NET, PostgreSQL",
         "Team Lead": "Alex Jose Philip",
         "Scrum Master": "Nino Jagadish",
-        "Team Members": "Carol George, Maria Mathew, Jacob Holmes, Garvin Haines",
+        "Team Members":
+          "Carol George, Maria Mathew, Jacob Holmes, Garvin Haines",
         "Code Mentor": "John Smith",
         "Code Mentor Email": "john.smith@company.com",
         "Project Mentor": "Sarah Johnson",
@@ -863,11 +916,11 @@ export default function CreateProjectByBatch({
         "BA Mentor": "Mike Davis",
         "BA Mentor Email": "mike.davis@company.com",
         "POC Names": "Client Manager,Technical Lead",
-        "POC Emails": "client.manager@company.com,tech.lead@company.com"
+        "POC Emails": "client.manager@company.com,tech.lead@company.com",
       },
       {
         "Project Name": "E-Commerce Platform",
-        "Technology": "Angular, Spring Boot, MongoDB",
+        Technology: "Angular, Spring Boot, MongoDB",
         "Team Lead": "Emma Wilson",
         "Scrum Master": "David Brown",
         "Team Members": "Lisa Taylor, Kevin Martin, Amy Clark, Ryan Lee",
@@ -878,8 +931,8 @@ export default function CreateProjectByBatch({
         "BA Mentor": "Thomas Anderson",
         "BA Mentor Email": "thomas.anderson@company.com",
         "POC Names": "Product Owner",
-        "POC Emails": "product.owner@company.com"
-      }
+        "POC Emails": "product.owner@company.com",
+      },
     ];
 
     const worksheet = XLSX.utils.json_to_sheet(sampleData);
@@ -901,16 +954,16 @@ export default function CreateProjectByBatch({
       { wch: 30 }, // POC Names
       { wch: 30 }, // POC Emails
     ];
-    worksheet['!cols'] = colWidths;
+    worksheet["!cols"] = colWidths;
 
     XLSX.writeFile(workbook, "project_batch_template.xlsx");
   };
 
   const toggleView = (): void => {
-    setViewMode(viewMode === 'basic' ? 'detailed' : 'basic');
+    setViewMode(viewMode === "basic" ? "detailed" : "basic");
   };
 
-  const currentColumns = viewMode === 'basic' ? basicColumns : detailedColumns;
+  const currentColumns = viewMode === "basic" ? basicColumns : detailedColumns;
 
   return (
     <div>
@@ -924,13 +977,23 @@ export default function CreateProjectByBatch({
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-red-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3 flex-1">
                   <h3 className="text-sm font-medium text-red-800">
-                    {apiError ? `API Error ${apiError.statusCode ? `(${apiError.statusCode})` : ''}` : "Validation Errors"}
+                    {apiError
+                      ? `API Error ${apiError.statusCode ? `(${apiError.statusCode})` : ""}`
+                      : "Validation Errors"}
                   </h3>
                   <div className="mt-2 text-sm text-red-700">
                     {apiError ? (
@@ -938,10 +1001,11 @@ export default function CreateProjectByBatch({
                         <p className="font-medium">{apiError.message}</p>
                         {apiError.errors && (
                           <ul className="mt-2 list-disc list-inside space-y-1">
-                            {Object.entries(apiError.errors).flatMap(([field, messages]) =>
-                              (messages as string[]).map((msg, idx) => (
-                                <li key={`${field}-${idx}`}>{msg}</li>
-                              ))
+                            {Object.entries(apiError.errors).flatMap(
+                              ([field, messages]) =>
+                                (messages as string[]).map((msg, idx) => (
+                                  <li key={`${field}-${idx}`}>{msg}</li>
+                                )),
                             )}
                           </ul>
                         )}
@@ -974,7 +1038,9 @@ export default function CreateProjectByBatch({
                       ? "bg-brand-50 "
                       : "bg-white "
                 } ${isLoading || isLoadingTrainees ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={isLoading || isLoadingTrainees ? undefined : handleUploadClick}
+                onClick={
+                  isLoading || isLoadingTrainees ? undefined : handleUploadClick
+                }
               >
                 <input
                   ref={fileInputRef}
@@ -986,11 +1052,22 @@ export default function CreateProjectByBatch({
                 />
 
                 <div className="flex flex-col items-center">
-                  {(isLoading || isLoadingTrainees) ? (
+                  {isLoading || isLoadingTrainees ? (
                     <div className="w-10 h-10 sm:w-12 sm:h-12 text-blue-600 animate-spin">
                       <svg fill="none" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"/>
-                        <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75"/>
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          className="opacity-25"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          className="opacity-75"
+                        />
                       </svg>
                     </div>
                   ) : (
@@ -1119,13 +1196,25 @@ export default function CreateProjectByBatch({
                   disabled={isLoading}
                   className="w-full sm:w-auto px-6 py-2 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {validationErrors.length > 0 || apiError ? "Start Over" : "Cancel"}
+                  {validationErrors.length > 0 || apiError
+                    ? "Start Over"
+                    : "Cancel"}
                 </button>
                 <button
                   onClick={handleSaveProjects}
-                  disabled={!uploadedFile || projectsData.length === 0 || isLoading || validationErrors.length > 0 || isLoadingTrainees}
+                  disabled={
+                    !uploadedFile ||
+                    projectsData.length === 0 ||
+                    isLoading ||
+                    validationErrors.length > 0 ||
+                    isLoadingTrainees
+                  }
                   className={`w-full sm:w-auto px-6 py-2 rounded-md font-medium transition-colors text-sm sm:text-base ${
-                    uploadedFile && projectsData.length > 0 && !isLoading && validationErrors.length === 0 && !isLoadingTrainees
+                    uploadedFile &&
+                    projectsData.length > 0 &&
+                    !isLoading &&
+                    validationErrors.length === 0 &&
+                    !isLoadingTrainees
                       ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
@@ -1137,7 +1226,8 @@ export default function CreateProjectByBatch({
               {validationErrors.length > 0 && (
                 <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                   <p className="text-sm text-yellow-800">
-                    ⚠️ Please fix all validation errors before saving projects. No projects will be saved until all errors are resolved.
+                    ⚠️ Please fix all validation errors before saving projects.
+                    No projects will be saved until all errors are resolved.
                   </p>
                 </div>
               )}
@@ -1150,7 +1240,8 @@ export default function CreateProjectByBatch({
             <div className="justify-start bg overflow-x-auto">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Projects Preview - {currentBatchName} ({projectsData.length} projects)
+                  Projects Preview - {currentBatchName} ({projectsData.length}{" "}
+                  projects)
                   {validationErrors.length > 0 && (
                     <span className="ml-2 text-sm text-red-600">
                       ({validationErrors.length} errors need to be fixed)
@@ -1161,10 +1252,10 @@ export default function CreateProjectByBatch({
                   onClick={toggleView}
                   className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                 >
-                  {viewMode === 'basic' ? "Show Details" : "Hide Details"}
+                  {viewMode === "basic" ? "Show Details" : "Hide Details"}
                 </button>
               </div>
-              
+
               <DataTable
                 key={`preview-${projectsData.length}-${viewMode}`}
                 showHeaderSection={false}

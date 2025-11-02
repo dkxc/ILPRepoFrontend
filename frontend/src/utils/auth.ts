@@ -1,5 +1,5 @@
 // This file provides utility functions to work with your AuthContext
-const AUTH_STORAGE_KEY = 'auth_data';
+const AUTH_STORAGE_KEY = "auth_data";
 
 interface AuthData {
   accessToken: string;
@@ -9,7 +9,7 @@ interface AuthData {
 
 export const getAuthToken = (): string | null => {
   const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-  
+
   if (!storedAuth) {
     return null;
   }
@@ -18,14 +18,14 @@ export const getAuthToken = (): string | null => {
     const parsed: AuthData = JSON.parse(storedAuth);
     return parsed.accessToken || null;
   } catch (error) {
-    console.error('Error parsing auth data:', error);
+    console.error("Error parsing auth data:", error);
     return null;
   }
 };
 
 export const getAuthData = (): AuthData | null => {
   const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-  
+
   if (!storedAuth) {
     return null;
   }
@@ -33,16 +33,20 @@ export const getAuthData = (): AuthData | null => {
   try {
     return JSON.parse(storedAuth);
   } catch (error) {
-    console.error('Error parsing auth data:', error);
+    console.error("Error parsing auth data:", error);
     return null;
   }
 };
 
-export const setAuthToken = (token: string, userId: number, roleName: number) => {
+export const setAuthToken = (
+  token: string,
+  userId: number,
+  roleName: number,
+) => {
   const authData: AuthData = {
     accessToken: token,
     userId,
-    roleName
+    roleName,
   };
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
 };
@@ -54,8 +58,8 @@ export const removeAuthToken = () => {
 export const getAuthHeaders = () => {
   const token = getAuthToken();
   return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 };
 

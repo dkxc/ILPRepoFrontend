@@ -55,7 +55,6 @@ const adminDropDownItems = [
   { to: "/profile", label: "My Profile", icon: UserRoundCog },
   { to: "/adminSettings", label: "Settings", icon: Settings },
   { to: "/signout", label: "Sign Out", icon: LogOut },
-   
 ];
 
 function App() {
@@ -68,14 +67,17 @@ function App() {
   useEffect(() => {
     if (isLoggedIn && authData) {
       const currentPath = window.location.pathname;
-      
+
       // If admin and on root path, redirect to admin dashboard
-      if (isAdmin() && currentPath === '/') {
-        navigate('/admindash');
+      if (isAdmin() && currentPath === "/") {
+        navigate("/admindash");
       }
       // If trainee/teamlead and on admin paths, redirect to home
-      else if (!isAdmin() && (currentPath === '/admindash' || currentPath.startsWith('/admin'))) {
-        navigate('/');
+      else if (
+        !isAdmin() &&
+        (currentPath === "/admindash" || currentPath.startsWith("/admin"))
+      ) {
+        navigate("/");
       }
     }
   }, [isLoggedIn, authData, navigate, isAdmin]);

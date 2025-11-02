@@ -1,23 +1,23 @@
-import ApiService from './apiService';
+import ApiService from "./apiService";
 
 export class ProjectService {
   // Get all projects
   static async getAllProjects() {
-    return ApiService.get('/Projects');
+    return ApiService.get("/Projects");
   }
 
   // Get single project by ID
   static async getProject(id: number) {
     return ApiService.get(`/Projects/${id}`);
   }
-  
-static async getBatchTrainees(id: number) {
-  return ApiService.get(`/Trainees/batch/${id}`);
-}
+
+  static async getBatchTrainees(id: number) {
+    return ApiService.get(`/Trainees/batch/${id}`);
+  }
 
   // Create new project
   static async createBatchProjects(data: any) {
-    return ApiService.post('/Projects/batch', data);
+    return ApiService.post("/Projects/batch", data);
   }
 
   // Update project

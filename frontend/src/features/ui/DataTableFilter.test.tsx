@@ -5,8 +5,12 @@ import DataTableFilter from "./DataTableFilter";
 // Mock MUI components
 vi.mock("@mui/material", () => ({
   Box: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  FormControl: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  InputLabel: ({ children, ...props }: any) => <label {...props}>{children}</label>,
+  FormControl: ({ children, ...props }: any) => (
+    <div {...props}>{children}</div>
+  ),
+  InputLabel: ({ children, ...props }: any) => (
+    <label {...props}>{children}</label>
+  ),
   Select: ({ value, onChange, label, children, ...props }: any) => (
     <select
       data-testid={`select-${label}`}
@@ -34,7 +38,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive"]}
           filterPlaceholder="Filter by status"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByTestId("select-Filter by status")).toBeInTheDocument();
@@ -47,7 +51,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive"]}
           filterPlaceholder="Select Status"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("Select Status")).toBeInTheDocument();
@@ -60,7 +64,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive", "Pending"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("Active")).toBeInTheDocument();
@@ -75,7 +79,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("None")).toBeInTheDocument();
@@ -90,7 +94,7 @@ describe("DataTableFilter", () => {
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-Filter");
@@ -108,7 +112,7 @@ describe("DataTableFilter", () => {
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-Filter");
@@ -124,7 +128,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-Filter") as HTMLSelectElement;
@@ -139,7 +143,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.queryByTestId("select-Filter")).not.toBeInTheDocument();
@@ -152,7 +156,7 @@ describe("DataTableFilter", () => {
           filterOptions={[]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByTestId("select-Filter")).toBeInTheDocument();
@@ -165,7 +169,7 @@ describe("DataTableFilter", () => {
           filterColumn="status"
           filterOptions={["Active"]}
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("Filter...")).toBeInTheDocument();
@@ -183,7 +187,7 @@ describe("DataTableFilter", () => {
         <DataTableFilter
           enableMultipleFilters={true}
           columnFilters={columnFilters}
-        />
+        />,
       );
 
       expect(screen.getByTestId("select-status")).toBeInTheDocument();
@@ -195,7 +199,7 @@ describe("DataTableFilter", () => {
         <DataTableFilter
           enableMultipleFilters={true}
           columnFilters={columnFilters}
-        />
+        />,
       );
 
       expect(screen.getByText("status")).toBeInTheDocument();
@@ -207,7 +211,7 @@ describe("DataTableFilter", () => {
         <DataTableFilter
           enableMultipleFilters={true}
           columnFilters={columnFilters}
-        />
+        />,
       );
 
       expect(screen.getByText("Active")).toBeInTheDocument();
@@ -222,7 +226,7 @@ describe("DataTableFilter", () => {
         <DataTableFilter
           enableMultipleFilters={true}
           columnFilters={columnFilters}
-        />
+        />,
       );
 
       const noneOptions = screen.getAllByText("None");
@@ -237,7 +241,7 @@ describe("DataTableFilter", () => {
           columnFilters={columnFilters}
           multipleFilters={{}}
           onMultipleFilterChange={onMultipleFilterChange}
-        />
+        />,
       );
 
       const statusSelect = screen.getByTestId("select-status");
@@ -256,7 +260,7 @@ describe("DataTableFilter", () => {
           columnFilters={columnFilters}
           multipleFilters={{ status: "Active" }}
           onMultipleFilterChange={onMultipleFilterChange}
-        />
+        />,
       );
 
       const prioritySelect = screen.getByTestId("select-priority");
@@ -276,7 +280,7 @@ describe("DataTableFilter", () => {
           columnFilters={columnFilters}
           multipleFilters={{ status: "Active" }}
           onMultipleFilterChange={onMultipleFilterChange}
-        />
+        />,
       );
 
       const statusSelect = screen.getByTestId("select-status");
@@ -293,11 +297,15 @@ describe("DataTableFilter", () => {
           enableMultipleFilters={true}
           columnFilters={columnFilters}
           multipleFilters={{ status: "Active", priority: "High" }}
-        />
+        />,
       );
 
-      const statusSelect = screen.getByTestId("select-status") as HTMLSelectElement;
-      const prioritySelect = screen.getByTestId("select-priority") as HTMLSelectElement;
+      const statusSelect = screen.getByTestId(
+        "select-status",
+      ) as HTMLSelectElement;
+      const prioritySelect = screen.getByTestId(
+        "select-priority",
+      ) as HTMLSelectElement;
 
       expect(statusSelect.value).toBe("Active");
       expect(prioritySelect.value).toBe("High");
@@ -305,10 +313,7 @@ describe("DataTableFilter", () => {
 
     it("handles empty columnFilters object", () => {
       render(
-        <DataTableFilter
-          enableMultipleFilters={true}
-          columnFilters={{}}
-        />
+        <DataTableFilter enableMultipleFilters={true} columnFilters={{}} />,
       );
 
       expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
@@ -319,7 +324,7 @@ describe("DataTableFilter", () => {
         <DataTableFilter
           enableMultipleFilters={true}
           columnFilters={{ status: ["Active", "Inactive"] }}
-        />
+        />,
       );
 
       expect(screen.getByTestId("select-status")).toBeInTheDocument();
@@ -335,7 +340,7 @@ describe("DataTableFilter", () => {
           filterColumn="status"
           filterOptions={["Active", "Inactive"]}
           columnFilters={{ priority: ["High", "Low"] }}
-        />
+        />,
       );
 
       expect(screen.queryByTestId("select-Filter...")).not.toBeInTheDocument();
@@ -350,7 +355,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive"]}
           filterPlaceholder="Filter"
           columnFilters={{ priority: ["High", "Low"] }}
-        />
+        />,
       );
 
       expect(screen.getByTestId("select-Filter")).toBeInTheDocument();
@@ -365,7 +370,7 @@ describe("DataTableFilter", () => {
           filterColumn="status"
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByTestId("select-Filter")).toBeInTheDocument();
@@ -378,7 +383,7 @@ describe("DataTableFilter", () => {
           filterColumn="status"
           filterOptions={["Active"]}
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("Filter...")).toBeInTheDocument();
@@ -389,7 +394,7 @@ describe("DataTableFilter", () => {
         <DataTableFilter
           enableMultipleFilters={true}
           columnFilters={{ status: ["Active"] }}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-status") as HTMLSelectElement;
@@ -397,11 +402,7 @@ describe("DataTableFilter", () => {
     });
 
     it("uses default columnFilters when not provided", () => {
-      render(
-        <DataTableFilter
-          enableMultipleFilters={true}
-        />
-      );
+      render(<DataTableFilter enableMultipleFilters={true} />);
 
       expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     });
@@ -412,7 +413,7 @@ describe("DataTableFilter", () => {
           filterColumn="status"
           filterOptions={["Active"]}
           filterPlaceholder="Filter"
-        />
+        />,
       );
 
       expect(screen.getByTestId("select-Filter")).toBeInTheDocument();
@@ -427,7 +428,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active/Pending", "In-Progress", "Done!"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("Active/Pending")).toBeInTheDocument();
@@ -439,13 +440,19 @@ describe("DataTableFilter", () => {
       render(
         <DataTableFilter
           filterColumn="status"
-          filterOptions={["This is a very long filter option name that should still work"]}
+          filterOptions={[
+            "This is a very long filter option name that should still work",
+          ]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
-      expect(screen.getByText("This is a very long filter option name that should still work")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "This is a very long filter option name that should still work",
+        ),
+      ).toBeInTheDocument();
     });
 
     it("handles numeric filter options", () => {
@@ -455,7 +462,7 @@ describe("DataTableFilter", () => {
           filterOptions={["1", "2", "3"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("1")).toBeInTheDocument();
@@ -470,7 +477,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Active", "Inactive"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       const activeOptions = screen.getAllByText("Active");
@@ -484,7 +491,7 @@ describe("DataTableFilter", () => {
           filterOptions={["", "Active"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("Active")).toBeInTheDocument();
@@ -499,7 +506,7 @@ describe("DataTableFilter", () => {
           filterOptions={["Active", "Inactive"]}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-Filter");
@@ -513,7 +520,7 @@ describe("DataTableFilter", () => {
         <DataTableFilter
           enableMultipleFilters={true}
           columnFilters={{ status: ["Active", "Inactive"] }}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-status");
@@ -531,7 +538,7 @@ describe("DataTableFilter", () => {
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-Filter");
@@ -556,7 +563,7 @@ describe("DataTableFilter", () => {
           filterPlaceholder="Status"
           enableMultipleFilters={false}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       const select = screen.getByTestId("select-Status");
@@ -585,7 +592,7 @@ describe("DataTableFilter", () => {
           }}
           multipleFilters={{}}
           onMultipleFilterChange={onMultipleFilterChange}
-        />
+        />,
       );
 
       // Set first filter
@@ -606,14 +613,17 @@ describe("DataTableFilter", () => {
     });
 
     it("handles filter with many options efficiently", () => {
-      const manyOptions = Array.from({ length: 100 }, (_, i) => `Option ${i + 1}`);
+      const manyOptions = Array.from(
+        { length: 100 },
+        (_, i) => `Option ${i + 1}`,
+      );
       render(
         <DataTableFilter
           filterColumn="status"
           filterOptions={manyOptions}
           filterPlaceholder="Filter"
           enableMultipleFilters={false}
-        />
+        />,
       );
 
       expect(screen.getByText("Option 1")).toBeInTheDocument();

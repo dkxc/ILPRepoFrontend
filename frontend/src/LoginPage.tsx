@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import axios from "axios";
 import experionLogo from "./assets/experionlogo.svg";
-import { useAuth } from './context/AuthContext';
-import { useNavigate, useLocation } from 'react-router';
+import { useAuth } from "./context/AuthContext";
+import { useNavigate, useLocation } from "react-router";
 
-const UserRoleAdmin = 0; 
+const UserRoleAdmin = 0;
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -18,14 +18,17 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const response = await axios.post('https://localhost:7224/api/Auth/login', {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://localhost:7224/api/Auth/login",
+        {
+          email,
+          password,
+        },
+      );
 
       const { accessToken, userId, roleName } = response.data.data;
       login({ accessToken, userId, roleName });
@@ -34,11 +37,10 @@ const LoginPage = () => {
       let destination;
 
       if (redirectPath) destination = redirectPath;
-      else if (roleName === UserRoleAdmin) destination = '/admindash';
-      else destination = '/';
+      else if (roleName === UserRoleAdmin) destination = "/admindash";
+      else destination = "/";
 
       navigate(destination, { replace: true });
-
     } catch (err: any) {
       if (err.response?.data?.data?.accessToken) {
         const { accessToken, userId, roleName } = err.response.data.data;
@@ -48,16 +50,16 @@ const LoginPage = () => {
         let destination;
 
         if (redirectPath) destination = redirectPath;
-        else if (roleName === UserRoleAdmin) destination = '/admindash';
-        else destination = '/';
+        else if (roleName === UserRoleAdmin) destination = "/admindash";
+        else destination = "/";
 
         navigate(destination, { replace: true });
         setIsLoading(false);
         return;
       }
 
-      if (err.response?.status === 401) setError('Invalid email or password.');
-      else setError('Server error. Please try again.');
+      if (err.response?.status === 401) setError("Invalid email or password.");
+      else setError("Server error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -66,13 +68,12 @@ const LoginPage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 text-gray-900">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
-        
         {/* ✅ Centered Logo */}
         <div className="flex flex-col items-center">
-          <img 
-            src={experionLogo} 
-            alt="Experion Logo" 
-            width={140} 
+          <img
+            src={experionLogo}
+            alt="Experion Logo"
+            width={140}
             className="mb-2"
           />
           <p className="text-sm text-gray-500 font-medium">
@@ -119,10 +120,23 @@ const LoginPage = () => {
           >
             {isLoading ? (
               <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4z"/>
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4z"
+                />
               </svg>
-            ) : "Sign In"}
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
       </div>

@@ -39,7 +39,10 @@ export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 // ============= PROJECT CARD COMPONENT =============
 const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
-  ({ className, type, title, value, isActive = false, onCardClick, ...props }, ref) => {
+  (
+    { className, type, title, value, isActive = false, onCardClick, ...props },
+    ref,
+  ) => {
     const icon = logos[type];
 
     return (
@@ -47,26 +50,32 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
         ref={ref}
         onClick={onCardClick}
         className={`flex items-center gap-4 p-2 rounded-md border transition-all duration-200 cursor-pointer ${
-          isActive 
-            ? 'border-blue-500 bg-blue-50 shadow-lg scale-[1.02] ring-2 ring-blue-200 text-blue-600' 
-            : 'border-gray-200 bg-white hover:shadow-md hover:scale-[1.01] text-gray-400'
+          isActive
+            ? "border-blue-500 bg-blue-50 shadow-lg scale-[1.02] ring-2 ring-blue-200 text-blue-600"
+            : "border-gray-200 bg-white hover:shadow-md hover:scale-[1.01] text-gray-400"
         } ${className}`}
         {...props}
       >
-        <div className={`flex items-center justify-center transition-colors duration-200 ${
-          isActive ? 'text-blue-600' : 'text-gray-400'
-        }`}>
+        <div
+          className={`flex items-center justify-center transition-colors duration-200 ${
+            isActive ? "text-blue-600" : "text-gray-400"
+          }`}
+        >
           {icon}
         </div>
         <div className="flex flex-col">
-          <p className={`text-sm font-medium transition-colors duration-200 ${
-            isActive ? 'text-blue-600' : 'text-gray-500'
-          }`}>
+          <p
+            className={`text-sm font-medium transition-colors duration-200 ${
+              isActive ? "text-blue-600" : "text-gray-500"
+            }`}
+          >
             {title}
           </p>
-          <p className={`text-2xl font-semibold transition-colors duration-200 ${
-            isActive ? 'text-blue-700' : 'text-gray-800'
-          }`}>
+          <p
+            className={`text-2xl font-semibold transition-colors duration-200 ${
+              isActive ? "text-blue-700" : "text-gray-800"
+            }`}
+          >
             {value}
           </p>
         </div>
@@ -90,11 +99,12 @@ export default function Projects() {
   const transformApiData = (apiProjects: any[]): Project[] => {
     return apiProjects.map((project) => {
       // Status mapping: 0 = Not Live, 1 = Live, 2 = In Progress
-      const statusMap: { [key: number]: "In Progress" | "Live" | "Not Live" } = {
-        0: "Not Live",
-        1: "Live",
-        2: "In Progress",
-      };
+      const statusMap: { [key: number]: "In Progress" | "Live" | "Not Live" } =
+        {
+          0: "Not Live",
+          1: "Live",
+          2: "In Progress",
+        };
 
       return {
         id: project.id,
@@ -113,14 +123,17 @@ export default function Projects() {
     let isMounted = true;
 
     if (!isLoggedIn) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
     // Check if we have cached data that's still fresh
     const now = Date.now();
-    if (traineeProjectsCache && (now - traineeProjectsCache.timestamp) < CACHE_DURATION) {
-      console.log('📦 Loading from cache...');
+    if (
+      traineeProjectsCache &&
+      now - traineeProjectsCache.timestamp < CACHE_DURATION
+    ) {
+      console.log("📦 Loading from cache...");
       setProjectsData(traineeProjectsCache.projects);
       setLoading(false);
       return;
@@ -128,14 +141,14 @@ export default function Projects() {
 
     const fetchProjects = async () => {
       try {
-        console.log('🚀 Starting to fetch projects...');
+        console.log("🚀 Starting to fetch projects...");
         setLoading(true);
 
         const result = await ProjectService.getAllProjects();
-        console.log('📦 Raw API Result:', result);
+        console.log("📦 Raw API Result:", result);
 
         if (!isMounted) {
-          console.log('⚠️ Component unmounted, aborting');
+          console.log("⚠️ Component unmounted, aborting");
           return;
         }
 
@@ -143,7 +156,7 @@ export default function Projects() {
           console.log(`✅ Received ${result.data.length} projects`);
 
           const transformed = transformApiData(result.data);
-          console.log('🔄 Transformed Data:', transformed.length, 'projects');
+          console.log("🔄 Transformed Data:", transformed.length, "projects");
 
           // Update state
           setProjectsData(transformed);
@@ -151,19 +164,20 @@ export default function Projects() {
           // Store in cache
           traineeProjectsCache = {
             projects: transformed,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           };
-          console.log('💾 Data cached successfully');
+          console.log("💾 Data cached successfully");
 
           if (transformed.length > 0) {
             notifications.show({
               title: "Success",
-              message: result.message || `Loaded ${transformed.length} projects`,
+              message:
+                result.message || `Loaded ${transformed.length} projects`,
               color: "green",
             });
           }
         } else {
-          console.error('❌ Invalid response structure:', result);
+          console.error("❌ Invalid response structure:", result);
           notifications.show({
             title: "Error",
             message: result?.message || "Invalid response from server",
@@ -172,8 +186,8 @@ export default function Projects() {
         }
       } catch (error: any) {
         if (!isMounted) return;
-        
-        console.error('❌ Error fetching projects:', error);
+
+        console.error("❌ Error fetching projects:", error);
         notifications.show({
           title: "Error",
           message: error.message || "Failed to load projects",
@@ -181,7 +195,7 @@ export default function Projects() {
         });
       } finally {
         if (isMounted) {
-          console.log('✓ Fetch complete');
+          console.log("✓ Fetch complete");
           setLoading(false);
         }
       }
@@ -190,7 +204,7 @@ export default function Projects() {
     fetchProjects();
 
     return () => {
-      console.log('🧹 Cleanup: Component unmounting');
+      console.log("🧹 Cleanup: Component unmounting");
       isMounted = false;
     };
   }, [isLoggedIn]);
@@ -210,7 +224,7 @@ export default function Projects() {
   };
 
   const handleCardClick = (filterType: string) => {
-    console.log('Card clicked:', filterType);
+    console.log("Card clicked:", filterType);
     setActiveFilter(filterType);
     setSelectedBatch(null); // Reset batch filter when clicking status cards
   };
@@ -289,18 +303,20 @@ export default function Projects() {
     notLive: projectsData.filter((p) => p.status === "Not Live").length,
   };
 
-  const uniqueBatches = Array.from(new Set(projectsData.map(p => p.batch))).filter(b => b !== "N/A");
+  const uniqueBatches = Array.from(
+    new Set(projectsData.map((p) => p.batch)),
+  ).filter((b) => b !== "N/A");
 
   const getHeaderTitle = () => {
     if (selectedBatch) {
-      return `${selectedBatch} Projects${activeFilter !== "all" ? ` - ${activeFilter === "inProgress" ? "In Progress" : activeFilter === "live" ? "Live" : "Not Live"}` : ''}`;
+      return `${selectedBatch} Projects${activeFilter !== "all" ? ` - ${activeFilter === "inProgress" ? "In Progress" : activeFilter === "live" ? "Live" : "Not Live"}` : ""}`;
     }
-    
+
     if (activeFilter === "all") return "All Projects";
     if (activeFilter === "inProgress") return "Projects In Progress";
     if (activeFilter === "live") return "Live Projects";
     if (activeFilter === "notLive") return "Not Live Projects";
-    
+
     return "All Projects";
   };
 
@@ -309,7 +325,9 @@ export default function Projects() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="text-xl font-semibold text-gray-700 mb-2">Loading projects...</div>
+          <div className="text-xl font-semibold text-gray-700 mb-2">
+            Loading projects...
+          </div>
           <div className="text-sm text-gray-500">Please wait</div>
         </div>
       </div>
@@ -327,7 +345,7 @@ export default function Projects() {
           Projects
         </h1>
       </div>
-      
+
       {/* Project Cards with Clickable Filters */}
       <div className="grid grid-cols-4 gap-4 bg-slate-50 p-6 bg-w ml-4">
         <ProjectCard

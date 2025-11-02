@@ -68,7 +68,7 @@ export default function TraineeSettings() {
       console.log("Password update response:", response);
 
       // Check if the response has the custom format
-      if (response && typeof response === 'object' && 'status' in response) {
+      if (response && typeof response === "object" && "status" in response) {
         if (response.succeeded) {
           toast.success("Password updated successfully!");
           setPasswordData({ current: "", new: "", confirm: "" });
@@ -82,7 +82,9 @@ export default function TraineeSettings() {
       }
     } catch (error: any) {
       console.error("Password update error:", error);
-      toast.error(error.message || "Failed to update password. Please try again.");
+      toast.error(
+        error.message || "Failed to update password. Please try again.",
+      );
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -176,7 +178,7 @@ export default function TraineeSettings() {
                         </div>
                       ))}
 
-                      <Button 
+                      <Button
                         onClick={handleSavePassword}
                         disabled={isUpdatingPassword}
                       >
