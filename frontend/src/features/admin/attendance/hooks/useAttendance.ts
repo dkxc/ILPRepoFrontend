@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import {
   useAttendanceQuery,
   useUpdateAttendanceMutation,
+  useUploadAttendanceMutation,
 } from "./useAttendanceQueries";
 import type { ProcessedTraineeData } from "../types/AttendanceRecord.types";
 import type { BulkUpdateStatus } from "../types/AttendanceQuery.types";
@@ -20,7 +21,10 @@ import {
 } from "date-fns";
 import { toast } from "sonner";
 import { exportToXLSX } from "../components/AttendanceTable/utils/AttendanceExport.utils";
-import { exportTemplateXLSX } from "../components/AttendanceImportSlideout/utils/AttendanceImportSlideout.utils";
+import {
+  exportTemplateXLSX,
+  parseAttendanceFile,
+} from "../components/AttendanceImportSlideout/utils/AttendanceImportSlideout.utils";
 
 const now = today(getLocalTimeZone());
 const MAX_DATE_RANGE_DAYS = 90;
@@ -54,6 +58,7 @@ export function useAttendance(batchId: number) {
     error: queryError,
   } = useAttendanceQuery(batchId, filters);
   const updateMutation = useUpdateAttendanceMutation();
+  const uploadMutation = useUploadAttendanceMutation();
 
   useEffect(() => {
     if (updateMutation.isSuccess)
@@ -65,6 +70,27 @@ export function useAttendance(batchId: number) {
     updateMutation.isError,
     updateMutation.data,
     updateMutation.error,
+  ]);
+
+  useEffect(() => {
+    if (uploadMutation.isSuccess) {
+      const { updatedRecordCount, newTraineesCount } = uploadMutation.data;
+      toast.success(
+        `Import successful! ${updatedRecordCount} records updated, ${newTraineesCount} new trainees added.`,
+      );
+      setImportOpen(false);
+    }
+    if (uploadMutation.isError) {
+      const cause = uploadMutation.error?.cause as any;
+      const errorMessage =
+        cause?.message || "Import failed. Please check the file and try again.";
+      toast.error(`Import failed: ${errorMessage}`);
+    }
+  }, [
+    uploadMutation.isSuccess,
+    uploadMutation.isError,
+    uploadMutation.data,
+    uploadMutation.error,
   ]);
 
   // Derived State and Data Processing
@@ -216,10 +242,17 @@ export function useAttendance(batchId: number) {
     exportTemplateXLSX(sortedData);
   };
 
-  const onImportFile = (file: File) => {
-    console.log("Importing file:", file);
-    toast.success(`File "${file.name}" selected. (Feature coming soon)`);
-    setImportOpen(false);
+  const onImportFile = async (file: File) => {
+    try {
+      const parsedData = await parseAttendanceFile(file);
+      if (parsedData.length === 0) {
+        toast.error("The selected file is empty or contains no valid data.");
+        return;
+      }
+      uploadMutation.mutate({ batchId, data: parsedData });
+    } catch (error: any) {
+      toast.error(`File parsing failed: ${error.message}`);
+    }
   };
 
   return {
@@ -231,6 +264,7 @@ export function useAttendance(batchId: number) {
       isRangeTooLarge,
       isMultiDateRange,
       isUpdating: updateMutation.isPending,
+      isUploading: uploadMutation.isPending,
       queryStatus,
       queryError,
     },

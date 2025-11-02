@@ -35,6 +35,23 @@ export type UpdateSuccessResponseType = {
   updateRecordCount: number;
 };
 
+// For POST: /api/attendance/batch/{batchId}/upload-json
+export type UploadJsonItem = {
+  traineeName: string;
+  date: string; // "yyyy-MM-dd"
+  forenoon: AttendanceStatus;
+  afternoon: AttendanceStatus;
+};
+
+export type UploadJsonQueryType = UploadJsonItem[];
+
+export type ImportSuccessResponseType = {
+  status: "success";
+  message: string;
+  updatedRecordCount: number;
+  newTraineesCount: number;
+};
+
 // API Errors
 export type ApiErrorResponse = {
   statusCode: number;

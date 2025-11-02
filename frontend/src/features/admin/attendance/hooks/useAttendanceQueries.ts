@@ -2,8 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   GetQueryType,
   GetResponseType,
+  ImportSuccessResponseType,
   UpdateQueryType,
   UpdateSuccessResponseType,
+  UploadJsonQueryType,
 } from "../types/AttendanceQuery.types";
 import apiClient from "@lib/api/apiClient";
 
@@ -54,6 +56,37 @@ export function useUpdateAttendanceMutation() {
       });
     },
 
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["attendance", variables.batchId],
+      });
+    },
+  });
+}
+
+/**
+ * Custom hook to create a mutation for uploading an attendance file.
+ */
+/**
+ * Custom hook to create a mutation for uploading parsed attendance data.
+ */
+export function useUploadAttendanceMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ImportSuccessResponseType,
+    Error,
+    { batchId: number; data: UploadJsonQueryType }
+  >({
+    mutationFn: ({ batchId, data }) => {
+      return apiClient(`/api/attendance/batch/${batchId}/upload-json`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["attendance", variables.batchId],

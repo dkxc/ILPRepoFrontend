@@ -99,6 +99,6 @@ export function exportToXLSX(
   // Download
   const startDate = dateValue?.start.toString() ?? "start";
   const endDate = dateValue?.end.toString() ?? "end";
-  const fileName = `attendance-records-${startDate}-to-${endDate}.xlsx`;
+  const fileName = `Attendance_Records_${startDate}_to_${endDate}.xlsx`;
   writeFile(wb, fileName);
 }

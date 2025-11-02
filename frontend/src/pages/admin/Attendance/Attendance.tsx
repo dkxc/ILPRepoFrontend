@@ -61,6 +61,7 @@ function Attendance() {
       </div>
       <AttendanceImportSlideout
         isOpen={state.isImportOpen}
+        isImporting={state.isUploading}
         onClose={handlers.closeImport}
         onImport={handlers.onImportFile}
         onViewTemplate={handlers.onDownloadTemplate}
