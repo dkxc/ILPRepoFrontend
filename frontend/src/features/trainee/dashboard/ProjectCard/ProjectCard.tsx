@@ -261,6 +261,7 @@ function ProjectCard({
             isOpen={showStepper}
             onClose={() => setShowStepper(false)}
             onSubmit={() => setShowStepper(false)}
+            projectId={project?.id}
           />,
           document.body,
         )}
