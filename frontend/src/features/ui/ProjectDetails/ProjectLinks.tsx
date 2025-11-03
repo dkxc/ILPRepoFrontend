@@ -5,9 +5,6 @@ import { getAllProjectLinks, updateProjectLink } from "./api";
 import type { ProjectLink } from "./api";
 
 interface ProjectLinksProps {
-  id?: number;
-  repositoryUrl: string;
-  figmaUrl: string;
   canEdit?: boolean;
   projectId: string;
 }
@@ -151,11 +148,11 @@ function ProjectLinks({ canEdit = false, projectId }: ProjectLinksProps) {
                 >
                   <div className="flex items-center gap-3 flex-1">
                     <a
-                      href={link.linkUrl}
+                      href={link.linkUrl || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-700 hover:text-brand hover:bg-gray-50 px-2 py-1 rounded transition-colors font-medium truncate max-w-[150px]"
-                      title={link.linkUrl}
+                      title={link.linkUrl || "No URL provided"}
                       style={{ textDecoration: "none" }}
                     >
                       {link.linkTypeName}
@@ -173,10 +170,10 @@ function ProjectLinks({ canEdit = false, projectId }: ProjectLinksProps) {
                   <div className="flex items-center gap-2">
                     {canEdit && (
                       <button
-                        className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                        className="p-1 hover:bg-blue-100 rounded transition-colors shrink-0"
                         onClick={() => {
                           setSelectedLink(link);
-                          setEditLinkUrl(link.linkUrl);
+                          setEditLinkUrl(link.linkUrl || "");
                           setIsEditing(true);
                         }}
                         title="Edit link"
@@ -185,8 +182,8 @@ function ProjectLinks({ canEdit = false, projectId }: ProjectLinksProps) {
                       </button>
                     )}
                     <button
-                      className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
-                      onClick={() => copyToClipboard(link.linkUrl)}
+                      className="p-1 hover:bg-gray-100 rounded transition-colors shrink-0"
+                      onClick={() => copyToClipboard(link.linkUrl || "")}
                       title="Copy link"
                     >
                       <Copy className="h-4 w-4 text-gray-600" />
