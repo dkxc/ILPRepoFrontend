@@ -5,7 +5,7 @@ import {
   type DragEvent,
   useEffect,
 } from "react";
-import * as XLSX from "xlsx/dist/xlsx.mini.min";
+import * as XLSX from "xlsx";
 
 interface Assessment {
   id: number;
@@ -33,6 +33,10 @@ interface ResultsUpProps {
   onUpload?: (assessment: Assessment) => void;
   showNotification?: (message: string, type: string) => void;
 }
+interface SheetData {
+  sheetName: string;
+  data: Record<string, any>[]; // each row is an object (key = column header)
+}
 
 export default function ResultsUp({
   batchId = "BATCH001",
@@ -44,7 +48,7 @@ export default function ResultsUp({
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [previewData, setPreviewData] = useState<SheetData[]>([]);
   const [uploadedDocuments, setUploadedDocuments] = useState<
     UploadedDocument[]
   >([]);
@@ -79,17 +83,23 @@ export default function ResultsUp({
     try {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { type: "array" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
 
-      const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
-        defval: "",
-      });
+      // Map through all sheets
+      const allSheetsData: SheetData[] = workbook.SheetNames.map(
+        (sheetName) => {
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(
+            worksheet,
+            { defval: "" },
+          );
+          return { sheetName, data: jsonData };
+        },
+      );
 
-      setPreviewData(jsonData);
+      setPreviewData(allSheetsData);
     } catch (error) {
       console.error("Error reading Excel file:", error);
-      alert("Error reading Excel file. Please check the file format.");
+      alert("Error reading Excel file. Please check the format.");
     }
   };
 
@@ -129,8 +139,67 @@ export default function ResultsUp({
   };
 
   const handleUploadClick = () => fileInputRef.current?.click();
+  const handleUpload = async () => {
+    if (!uploadedFile || previewData.length === 0) {
+      alert("Please upload a valid Excel file before saving.");
+      return;
+    }
 
-  const handleSave = () => {
+    try {
+      const hasMultipleSheets = previewData.length > 1;
+
+      // Determine API endpoint
+      let apiUrl = "";
+      if (selectedDocType === "Overall Assessment" || hasMultipleSheets) {
+        apiUrl = "https://localhost:7224/api/results/bulk";
+      } else {
+        apiUrl = "https://localhost:7224/api/results/phase";
+      }
+
+      // Construct payload matching backend structure
+      const payload = {
+        batchId: batchId,
+        documentType: selectedDocType,
+        documentName:
+          selectedDocType === "Others" ? customDocName : selectedDocType,
+        fileName: uploadedFile.name,
+        uploadedDate: new Date().toISOString(),
+        parsedSheets: previewData.map((sheet) => ({
+          sheetName: sheet.sheetName,
+          data: sheet.data,
+        })),
+      };
+
+      console.log("📤 Uploading to:", apiUrl);
+      console.log("Payload:", JSON.stringify(payload, null, 2));
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Server error:", errorText);
+        throw new Error(`Failed to upload data: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("✅ Upload successful:", result);
+
+      if (showNotification) showNotification("Upload successful!", "success");
+      alert("File data uploaded successfully!");
+    } catch (error) {
+      console.error("❌ Upload failed:", error);
+      if (showNotification) showNotification("Upload failed!", "error");
+      const message = error instanceof Error ? error.message : String(error);
+      alert(`Error uploading file: ${message}`);
+    }
+  };
+  const handleSave = async () => {
     if (!selectedDocType || !uploadedFile) {
       alert("Please select document type and upload a file");
       return;
@@ -159,18 +228,15 @@ export default function ResultsUp({
 
     setUploadedDocuments([...uploadedDocuments, newDocument]);
 
-    // Call onUpload if provided
-    if (onUpload) {
-      onUpload(newAssessment);
-    }
+    if (onUpload) onUpload(newAssessment);
 
-    // Show success message
+    // 🔹 Upload parsed Excel data to backend
+    await handleUpload();
+
     alert("File saved successfully!");
-    if (showNotification) {
+    if (showNotification)
       showNotification("Assessment saved successfully!", "success");
-    }
 
-    // Reset
     setSelectedDocType("");
     setCustomDocName("");
     setUploadedFile(null);
@@ -481,7 +547,7 @@ export default function ResultsUp({
         </div>
 
         {/* Preview Section */}
-        {uploadedFile && previewData.length > 0 && (
+        {/* {uploadedFile && previewData.length > 0 && (
           <div
             ref={previewRef}
             className="mt-10 mr-4 md:mr-10 sm:mt-8 px-2 sm:px-0"
@@ -529,6 +595,89 @@ export default function ResultsUp({
                 )}
               </div>
             </div>
+          </div>
+        )} */}
+
+        {/* {previewData.length > 0 && (
+  <div ref={previewRef} className="mt-6 space-y-8">
+    {previewData.map((sheet, index) => (
+      <div key={index} className="border rounded-lg p-4 bg-gray-50">
+        <h3 className="text-lg font-semibold mb-2">{sheet.sheetName}</h3>
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr>
+              {Object.keys(sheet.data[0] || {}).map((key) => (
+                <th
+                  key={key}
+                  className="border border-gray-300 bg-gray-100 px-2 py-1 text-left"
+                >
+                  {key}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sheet.data.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {Object.values(row).map((value, cellIndex) => (
+                  <td key={cellIndex} className="border border-gray-300 px-2 py-1">
+                    {String(value)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ))}
+  </div>
+)} */}
+
+        {/* Preview Section */}
+        {previewData.length > 0 && (
+          <div
+            ref={previewRef}
+            className="mt-8 p-4 bg-gray-50 border rounded-md"
+          >
+            <h2 className="text-lg font-semibold mb-4">Preview Sheets</h2>
+            {previewData.map((sheet) => (
+              <div key={sheet.sheetName} className="mb-6">
+                <h3 className="text-md font-medium text-blue-700 mb-2">
+                  {sheet.sheetName}
+                </h3>
+                <table className="min-w-full border-collapse border border-gray-300 text-sm">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      {Object.keys(sheet.data[0] || {}).map((header) => (
+                        <th
+                          key={header}
+                          className="border border-gray-300 px-2 py-1 text-left"
+                        >
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sheet.data.slice(0, 5).map((row, i) => (
+                      <tr key={i}>
+                        {Object.values(row).map((value, j) => (
+                          <td
+                            key={j}
+                            className="border border-gray-300 px-2 py-1"
+                          >
+                            {value}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="text-xs text-gray-500 mt-1">
+                  Showing first 5 rows
+                </p>
+              </div>
+            ))}
           </div>
         )}
 
