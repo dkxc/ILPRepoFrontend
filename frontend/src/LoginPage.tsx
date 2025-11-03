@@ -4,8 +4,6 @@ import experionLogo from "./assets/experionlogo.svg";
 import { useAuth } from "./context/AuthContext";
 import { useNavigate, useLocation } from "react-router";
 
-const UserRoleAdmin = 0;
-
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,13 +29,14 @@ const LoginPage = () => {
       );
 
       const { accessToken, userId, roleName } = response.data.data;
+      console.log(accessToken, userId, roleName);
       login({ accessToken, userId, roleName });
 
       const redirectPath = location.state?.from?.pathname;
       let destination;
 
       if (redirectPath) destination = redirectPath;
-      else if (roleName === UserRoleAdmin) destination = "/admindash";
+      else if (roleName === "Admin") destination = "/admindash";
       else destination = "/";
 
       navigate(destination, { replace: true });
@@ -50,7 +49,7 @@ const LoginPage = () => {
         let destination;
 
         if (redirectPath) destination = redirectPath;
-        else if (roleName === UserRoleAdmin) destination = "/admindash";
+        else if (roleName === "Admin") destination = "/admindash";
         else destination = "/";
 
         navigate(destination, { replace: true });

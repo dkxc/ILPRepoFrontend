@@ -24,7 +24,7 @@ export const getAuthToken = (): string | null => {
 };
 
 export const getAuthData = (): AuthData | null => {
-  const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+  const storedAuth = sessionStorage.getItem(AUTH_STORAGE_KEY);
 
   if (!storedAuth) {
     return null;
@@ -48,11 +48,11 @@ export const setAuthToken = (
     userId,
     roleName,
   };
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
+  sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
 };
 
 export const removeAuthToken = () => {
-  localStorage.removeItem(AUTH_STORAGE_KEY);
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
 };
 
 export const getAuthHeaders = () => {

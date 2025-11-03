@@ -35,6 +35,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = "auth_data";
 
+// Helper function to convert string role to enum
+const roleStringToEnum = (roleString: string): UserRole => {
+  switch (roleString) {
+    case "Admin":
+      return UserRole.Admin;
+    case "Trainee":
+      return UserRole.Trainee;
+    case "TeamLead":
+      return UserRole.TeamLead;
+    default:
+      console.warn(`Unknown role: ${roleString}, defaulting to Trainee`);
+      return UserRole.Trainee;
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,6 +103,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (response.ok) {
           console.log("✅ Token valid → User logged in again");
+          // Ensure roleName is converted to enum if it's a string
+          if (typeof parsed.roleName === "string") {
+            parsed.roleName = roleStringToEnum(parsed.roleName);
+          }
           setAuthData(parsed);
         } else {
           console.warn("⚠️ Token expired/invalid. Clearing auth...");
@@ -106,10 +125,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     validateToken();
   }, []);
 
-  const login = (data: AuthData) => {
+  const login = (data: AuthData | any) => {
     console.log("🔐 Saving auth to sessionStorage & context");
-    setAuthData(data);
-    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+    console.log("🔐 Original data:", data);
+
+    // Convert string role to enum if necessary
+    const normalizedData: AuthData = {
+      ...data,
+      roleName:
+        typeof data.roleName === "string"
+          ? roleStringToEnum(data.roleName)
+          : data.roleName,
+    };
+
+    console.log("🔐 Normalized data:", normalizedData);
+
+    setAuthData(normalizedData);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(normalizedData));
   };
 
   const logout = () => {
@@ -118,7 +150,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
-  const isAdmin = () => authData?.roleName === UserRole.Admin;
+  const isAdmin = () => {
+    console.log("🔍 isAdmin check:", authData?.roleName, UserRole.Admin);
+    return authData?.roleName === UserRole.Admin;
+  };
   const isTrainee = () => authData?.roleName === UserRole.Trainee;
   const isTeamLead = () => authData?.roleName === UserRole.TeamLead;
 
@@ -147,3 +182,6 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// Export the conversion function for use in other files
+export { roleStringToEnum };
