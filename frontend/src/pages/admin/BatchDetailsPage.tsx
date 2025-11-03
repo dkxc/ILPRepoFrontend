@@ -680,6 +680,9 @@ export default function BatchDetailsPage() {
               deadline: "",
               templateFile: null,
               submissionType: "pdf" as const,
+              isMultiple: false,
+              isBroadcast: false,
+              documentTypeId: 0,
             },
             {
               id: 2,
@@ -687,6 +690,9 @@ export default function BatchDetailsPage() {
               deadline: "",
               templateFile: null,
               submissionType: "xlsx" as const,
+              isMultiple: false,
+              isBroadcast: false,
+              documentTypeId: 0,
             },
             {
               id: 3,
@@ -694,6 +700,9 @@ export default function BatchDetailsPage() {
               deadline: "",
               templateFile: null,
               submissionType: "excel" as const,
+              isMultiple: false,
+              isBroadcast: false,
+              documentTypeId: 0,
             },
           ]}
           initialLinks={[
