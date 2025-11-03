@@ -1,13 +1,61 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 type RecentBatchesProps = {
   selectedBatchId: string;
   setSelectedBatchId: (id: string) => void;
 };
 
-import { sampleBatches } from "../../../features/admin/dashboard/BatchSelect";
+interface Phase {
+  phaseType: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+}
 
-// CalendarGrid component (adapted from TotalTrainingHours) — shows popup on hover
+interface BatchDetail {
+  batchId: number;
+  batchName: string;
+  batchStatus: string;
+  batchType: string;
+  startDate: string;
+  endDate: string;
+  noOfTrainees: number;
+  dayOfBatch: number;
+  phases: Phase[];
+}
+
+// Dummy batch list (for now; replace with API call later)
+// Fetch all batches for dropdown
+// const {
+//   data: batches,
+//   isLoading: isBatchesLoading,
+//   isError: isBatchesError,
+// } = useQuery({
+//   queryKey: ["batches"],
+//   queryFn: async () => {
+//     const res = await fetch("https://localhost:7224/api/AdminDashboard/batches");
+//     if (!res.ok) throw new Error("Failed to fetch batch list");
+//     return res.json();
+//   },
+// });
+
+// Fetch batch details from backend API
+const fetchBatchDetails = async (batchId: string): Promise<BatchDetail> => {
+  const res = await fetch(
+    `https://localhost:7224/api/AdminDashboard/batch-details/${batchId}`,
+  );
+  if (!res.ok) throw new Error("Failed to load batch details");
+  return res.json();
+};
+
+const fetchAllBatches = async () => {
+  const res = await fetch("https://localhost:7224/api/AdminDashboard/batches");
+  if (!res.ok) throw new Error("Failed to fetch batch list");
+  return res.json();
+};
+
+// CalendarGrid component (used for the right-side calendar)
 function CalendarGrid({
   year,
   month,
@@ -15,7 +63,7 @@ function CalendarGrid({
   setHoverDate,
 }: {
   year: number;
-  month: number; // 1-12
+  month: number;
   hoverDate: Date | null;
   setHoverDate: (d: Date | null) => void;
 }) {
@@ -73,6 +121,7 @@ function CalendarGrid({
                 </div>
                 <ul className="text-xs space-y-1.5">
                   {[
+                    // Example schedule (static)
                     { time: "09:00", topic: "JavaScript Fundamentals" },
                     { time: "14:30", topic: "State Management" },
                     { time: "16:00", topic: "Hands-on Workshop" },
@@ -93,17 +142,43 @@ function CalendarGrid({
   );
 }
 
+// Main component
 export default function RecentBatches({
   selectedBatchId,
   setSelectedBatchId,
 }: RecentBatchesProps) {
-  const selected =
-    sampleBatches.find((b) => b.id === selectedBatchId) || sampleBatches[0];
-
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
 
-  // month navigation is handled by currentMonth; CalendarGrid computes layout for the month
+  const {
+    data: batches,
+    isLoading: isBatchesLoading,
+    isError: isBatchesError,
+  } = useQuery({
+    queryKey: ["batches"],
+    queryFn: fetchAllBatches,
+  });
+
+  // ✅ When batches are fetched, set first batch as default
+  useEffect(() => {
+    if (batches && batches.length > 0 && !selectedBatchId) {
+      setSelectedBatchId(batches[0].id.toString());
+    }
+  }, [batches, selectedBatchId, setSelectedBatchId]);
+
+  // Fetch selected batch details
+  const {
+    data: batchDetails,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["batchDetails", selectedBatchId],
+    queryFn: () => fetchBatchDetails(selectedBatchId),
+    enabled: !!selectedBatchId,
+  });
+
+  // Fetch all batches for dropdown
+
   const goToPreviousMonth = () =>
     setCurrentMonth(
       (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1),
@@ -116,169 +191,129 @@ export default function RecentBatches({
   return (
     <div className="bg-gray-50">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left: Batch details (md:col-span-2) */}
+        {/* LEFT: Batch details */}
         <div className="md:col-span-2 rounded-md p-4 bg-white">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-bold text-gray-600">
-                {selected.title}
+          {isLoading && (
+            <p className="text-gray-500 text-sm">Loading batch details...</p>
+          )}
+          {isError && (
+            <p className="text-red-600 text-sm">Error loading batch data.</p>
+          )}
+
+          {batchDetails && (
+            <>
+              <h2 className="text-xl font-bold text-gray-600 mb-4">
+                {batchDetails.batchName}
               </h2>
-              {selected.subtitle && (
-                <div className="text-sm text-gray-500">{selected.subtitle}</div>
-              )}
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 mb-4">
-            <div>
-              <div className="text-sm text-gray-600 mb-1">Batch Status</div>
-              <div>
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm ${
-                    (selected.status || "ongoing").toLowerCase() === "ongoing"
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-purple-100 text-purple-700"
-                  }`}
-                >
-                  {selected.status || "Ongoing"}
-                </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Batch Status</div>
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-sm ${
+                      batchDetails.batchStatus.toLowerCase() === "ongoing"
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-purple-100 text-purple-700"
+                    }`}
+                  >
+                    {batchDetails.batchStatus}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">
+                    No. of Trainees
+                  </div>
+                  <div className="text-base font-medium text-gray-900">
+                    {batchDetails.noOfTrainees}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Day of Batch</div>
+                  <div className="text-base font-medium text-gray-900">
+                    {batchDetails.dayOfBatch}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Start Date</div>
+                  <div className="text-base font-medium text-gray-900">
+                    {new Date(batchDetails.startDate).toLocaleDateString()}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">End Date</div>
+                  <div className="text-base font-medium text-gray-900">
+                    {new Date(batchDetails.endDate).toLocaleDateString()}
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <div className="text-sm text-gray-600 mb-1">No. of Trainees</div>
-              <div className="text-base font-medium text-gray-900">
-                {selected.trainees || 36}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm text-gray-600 mb-1">Day</div>
-              <div className="text-base font-medium text-gray-900">47</div>
-            </div>
-
-            <div>
-              <div className="text-sm text-gray-600 mb-1">Start Date</div>
-              <div className="text-base font-medium text-gray-900">
-                {selected.startDate || "23/08/2025"}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm text-gray-600 mb-1">End Date</div>
-              <div className="text-base font-medium text-gray-900">
-                {selected.endDate || "23/08/2025"}
-              </div>
-            </div>
-
-            {/* <div>
-              <div className="text-sm text-gray-600 mb-1">Tech Stacks</div>
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">React</span>
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">Angular</span>
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">.Net</span>
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">Python</span>
-              </div>
-            </div> */}
-          </div>
-
-          <div className=" overflow-hidden bg-white">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
-                    Phases
-                  </th>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
-                    Start Date
-                  </th>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
-                    End Date
-                  </th>
-                  <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
-                    Days
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {[
-                  // Using actual sequential dates for phases
-                  {
-                    phase: "E-Learning",
-                    start: "23/08/2025",
-                    end: "03/09/2025",
-                    days: 12,
-                  },
-                  {
-                    phase: "Tech - Fundamentals",
-                    start: "04/09/2025",
-                    end: "16/09/2025",
-                    days: 13,
-                  },
-                  {
-                    phase: "Business Orientation",
-                    start: "17/09/2025",
-                    end: "01/10/2025",
-                    days: 15,
-                  },
-                  {
-                    phase: "Specialization",
-                    start: "02/10/2025",
-                    end: "26/11/2025",
-                    days: 25,
-                  },
-                ].map((phaseData) => {
-                  // Convert dates to compare
-                  const startDate = new Date(
-                    phaseData.start.split("/").reverse().join("-"),
-                  );
-                  const endDate = new Date(
-                    phaseData.end.split("/").reverse().join("-"),
-                  );
-                  const currentDate = currentMonth; // Using the selected month date
-
-                  // Check if this phase is current
-                  const isCurrentPhase =
-                    currentDate >= startDate && currentDate <= endDate;
-
-                  return (
-                    <tr
-                      key={phaseData.phase}
-                      className={`hover:bg-gray-50 ${isCurrentPhase ? "bg-green-100/40" : ""}`}
-                    >
-                      <td className="py-3 px-6 text-sm text-gray-900">
-                        {phaseData.phase}
-                      </td>
-                      <td className="py-3 px-6 text-sm text-gray-600">
-                        {phaseData.start}
-                      </td>
-                      <td className="py-3 px-6 text-sm text-gray-600">
-                        {phaseData.end}
-                      </td>
-                      <td className="py-3 px-6 text-sm text-gray-600">
-                        {phaseData.days}
-                      </td>
+              {/* Phase Table */}
+              {batchDetails.phases && batchDetails.phases.length > 0 && (
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                        Phase
+                      </th>
+                      <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                        Start Date
+                      </th>
+                      <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                        End Date
+                      </th>
+                      <th className="py-3 px-6 text-sm font-medium text-gray-600 text-left">
+                        Days
+                      </th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {batchDetails.phases.map((p) => (
+                      <tr key={p.phaseType}>
+                        <td className="py-3 px-6 text-sm text-gray-900">
+                          {p.phaseType}
+                        </td>
+                        <td className="py-3 px-6 text-sm text-gray-600">
+                          {new Date(p.startDate).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-6 text-sm text-gray-600">
+                          {new Date(p.endDate).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-6 text-sm text-gray-600">
+                          {p.days}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </>
+          )}
         </div>
 
-        {/* Right: dropdown above calendar (md:col-span-1) */}
-        <div className="md:col-span-1 rounded-xl bg-white  p-4">
+        {/* RIGHT: Dropdown and Calendar */}
+        <div className="md:col-span-1 rounded-xl bg-white p-4">
           <div className="flex justify-end mb-4">
             <select
-              value={selected.id}
+              value={selectedBatchId}
               onChange={(e) => setSelectedBatchId(e.target.value)}
               className="bg-gray-50 rounded px-3 py-1.5 text-sm border border-gray-200 min-w-[200px]"
             >
-              {sampleBatches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.title}
-                </option>
-              ))}
+              {/* Show loading, error, or fetched batches */}
+              {isBatchesLoading ? (
+                <option>Loading batches...</option>
+              ) : isBatchesError ? (
+                <option>Error loading batches</option>
+              ) : (
+                batches?.map((b: { id: number; name: string }) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
@@ -304,13 +339,6 @@ export default function RecentBatches({
               </button>
             </div>
 
-            {/* <div className="grid grid-cols-7 text-center mb-1">
-              {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
-                <div key={day} className="text-xs text-gray-500 font-medium">{day}</div>
-              ))}
-            </div> */}
-
-            {/* Use CalendarGrid component for the month days and hover popups */}
             <CalendarGrid
               year={currentMonth.getFullYear()}
               month={currentMonth.getMonth() + 1}

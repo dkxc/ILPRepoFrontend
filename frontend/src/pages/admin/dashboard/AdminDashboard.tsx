@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import AdminDashboardCard from "../../../features/admin/dashboard/AdminDashboardCard";
 import RecentBatches from "./RecentBatches";
 import DashboardProjects from "./DashboardProjects";
@@ -13,41 +13,52 @@ interface DashboardSummaryData {
   totalProjects: number;
 }
 
-function Dashboard() {
-  const [summary, setSummary] = useState<DashboardSummaryData>({
-    totalBatches: 0,
-    totalProjects: 0,
-  });
+// Define a function to fetch data
+const fetchDashboardSummary = async (): Promise<DashboardSummaryData> => {
+  const res = await fetch("https://localhost:7224/api/AdminDashboard/summary");
+  if (!res.ok) {
+    throw new Error("Failed to fetch dashboard summary");
+  }
+  return res.json();
+};
 
+function Dashboard() {
   const [selected, setSelected] = useState<string | null>("batches");
   const [selectedBatchId, setSelectedBatchId] = useState<string>("1");
 
   // Fetch data from backend API
-  useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        const res = await axios.get<DashboardSummaryData>(
-          "https://localhost:7224/api/AdminDashboard/summary",
-        );
-        setSummary(res.data);
-      } catch (err) {
-        console.error("Error fetching dashboard summary:", err);
-      }
-    };
-    fetchSummary();
-  }, []);
+  const {
+    data: summary,
+    isLoading,
+    isError,
+  } = useQuery<DashboardSummaryData>({
+    queryKey: ["dashboardSummary"],
+    queryFn: fetchDashboardSummary,
+  });
 
+  // Handle loading and error states
+  if (isLoading)
+    return (
+      <div className="p-6 text-center text-gray-500">Loading dashboard...</div>
+    );
+
+  if (isError)
+    return (
+      <div className="p-6 text-center text-red-500">
+        Failed to load dashboard data.
+      </div>
+    );
   const topCards = [
     {
       id: "batches",
       title: "All Batches",
-      value: <span className="text-2xl">{summary.totalBatches}</span>,
+      value: <span className="text-2xl">{summary?.totalBatches ?? 0}</span>,
       icon: <img src={batchIcon} alt="Batches" />,
     },
     {
       id: "projects",
       title: "Projects",
-      value: <span className="text-2xl">{summary.totalProjects}</span>,
+      value: <span className="text-2xl">{summary?.totalProjects ?? 0}</span>,
       icon: <img src={projectIcon} alt="Projects" />,
     },
     {
