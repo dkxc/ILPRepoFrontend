@@ -252,7 +252,12 @@ export default function Projects() {
 
   const handleRowClick = (row: Project) => {
     console.log("Clicked project:", row);
-    navigate(`/projectsDetailsTrainee/${row.id}`);
+    navigate("/projectsDetailsTrainee", {
+      state: {
+        projectId: row.id,
+        projectData: row,
+      },
+    });
   };
 
   // ============= TABLE COLUMNS =============

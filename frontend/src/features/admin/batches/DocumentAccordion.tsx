@@ -280,6 +280,13 @@ export default function DocumentUpload({
   const { id: urlBatchId } = useParams<{ id: string }>();
   const batchId = propBatchId || urlBatchId;
 
+  // Loading states for data fetching
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
+  const [isLoadingLinks, setIsLoadingLinks] = useState(true);
+  const [isLoadingDocumentTypes, setIsLoadingDocumentTypes] = useState(true);
+  const [isLoadingLinkTypes, setIsLoadingLinkTypes] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // (defaultLinkTypes removed, not used)
   const [documentRows, setDocumentRows] =
     useState<DocumentRow[]>(initialDocuments);
@@ -305,6 +312,7 @@ export default function DocumentUpload({
   // Fetch link types from backend on mount
   useEffect(() => {
     async function fetchLinkTypes() {
+      setIsLoadingLinkTypes(true);
       try {
         const response = await axios.get(
           "https://localhost:7224/api/Links/types",
@@ -324,6 +332,8 @@ export default function DocumentUpload({
           { id: 3, name: "Figma Design" },
           { id: 4, name: "Documentation" },
         ]);
+      } finally {
+        setIsLoadingLinkTypes(false);
       }
     }
     fetchLinkTypes();
@@ -371,6 +381,7 @@ export default function DocumentUpload({
 
   // Helper function to fetch document types
   const fetchDocumentTypes = async () => {
+    setIsLoadingDocumentTypes(true);
     try {
       const types = await getDocumentTypes();
       console.log("Document types from API:", types);
@@ -388,6 +399,8 @@ export default function DocumentUpload({
         message: "Failed to load document types",
         color: "red",
       });
+    } finally {
+      setIsLoadingDocumentTypes(false);
     }
   };
 
@@ -492,6 +505,7 @@ export default function DocumentUpload({
   useEffect(() => {
     // Fetch document requirements
     if (batchId) {
+      setIsLoadingDocuments(true);
       getDocumentRequirements(batchId)
         .then((docs) => {
           if (docs && Array.isArray(docs)) {
@@ -500,13 +514,16 @@ export default function DocumentUpload({
             setDocumentRows(mockDocuments);
           }
         })
-        .catch(() => setDocumentRows(mockDocuments));
+        .catch(() => setDocumentRows(mockDocuments))
+        .finally(() => setIsLoadingDocuments(false));
     } else {
       setDocumentRows(mockDocuments);
+      setIsLoadingDocuments(false);
     }
 
     // Fetch batch links using the new API
     if (batchId) {
+      setIsLoadingLinks(true);
       getBatchLinks(batchId)
         .then((links) => {
           if (links) {
@@ -515,9 +532,11 @@ export default function DocumentUpload({
             setLinkRows(mockLinks);
           }
         })
-        .catch(() => setLinkRows(mockLinks));
+        .catch(() => setLinkRows(mockLinks))
+        .finally(() => setIsLoadingLinks(false));
     } else {
       setLinkRows(mockLinks);
+      setIsLoadingLinks(false);
     }
   }, [batchId]);
 
@@ -546,6 +565,8 @@ export default function DocumentUpload({
       });
       return;
     }
+
+    setIsSubmitting(true);
     try {
       const url = "https://localhost:7224/api/Links/assign-to-batch";
       const payload = {
@@ -597,6 +618,8 @@ export default function DocumentUpload({
         message: `Failed to assign link type. ${err instanceof Error ? err.message : "Unknown error"}`,
         color: "red",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1009,6 +1032,7 @@ export default function DocumentUpload({
 
   const handleCreateDocument = async () => {
     if (selectedDocumentTypeId && selectedDeadline && batchId) {
+      setIsSubmitting(true);
       try {
         const requirementData: CreateDocumentRequirementRequest = {
           documentTypeId: selectedDocumentTypeId,
@@ -1041,6 +1065,8 @@ export default function DocumentUpload({
           message: "Failed to add document requirement",
           color: "red",
         });
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -1058,6 +1084,7 @@ export default function DocumentUpload({
   };
 
   const handleDeleteRow = async (id: number) => {
+    setIsSubmitting(true);
     try {
       const documentToDelete = documentRows.find((doc) => doc.id === id);
       if (!documentToDelete || !batchId) {
@@ -1101,6 +1128,8 @@ export default function DocumentUpload({
         message: "Failed to delete document requirement",
         color: "red",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1401,56 +1430,118 @@ export default function DocumentUpload({
             >
               {activeTab === "documents" && (
                 <>
-                  <DataTable
-                    columns={documentColumns}
-                    data={documentRows}
-                    showHeaderSection={true}
-                    headerTitle="Documents"
-                    enableSearch={true}
-                    enablePagination={true}
-                    pageSize={5}
-                    pageSizeOptions={[5, 10, 25]}
-                    highlightOnHover={true}
-                    withBorder={true}
-                    rowStyle={{
-                      fontSize: "16px",
-                      height: "56px",
-                      lineHeight: "1",
-                    }}
-                    headerStyle={{
-                      fontWeight: 500,
-                      fontSize: "16px",
-                      height: "40px",
-                      background: "#F8F9FA",
-                    }}
-                  />
+                  {isLoadingDocuments ? (
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="h-6 bg-gray-200 rounded animate-pulse mb-4 w-32"></div>
+                        <div className="border border-gray-200 rounded-lg overflow-hidden">
+                          <div className="bg-gray-100 p-3 border-b">
+                            <div className="flex space-x-4">
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                            </div>
+                          </div>
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="p-3 border-b border-gray-100"
+                            >
+                              <div className="flex space-x-4">
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <DataTable
+                      columns={documentColumns}
+                      data={documentRows}
+                      showHeaderSection={true}
+                      headerTitle="Documents"
+                      enableSearch={true}
+                      enablePagination={true}
+                      pageSize={5}
+                      pageSizeOptions={[5, 10, 25]}
+                      highlightOnHover={true}
+                      withBorder={true}
+                      rowStyle={{
+                        fontSize: "16px",
+                        height: "56px",
+                        lineHeight: "1",
+                      }}
+                      headerStyle={{
+                        fontWeight: 500,
+                        fontSize: "16px",
+                        height: "40px",
+                        background: "#F8F9FA",
+                      }}
+                    />
+                  )}
                 </>
               )}
               {activeTab === "links" && (
                 <>
-                  <DataTable
-                    columns={linkColumns}
-                    data={linkTableRows}
-                    showHeaderSection={true}
-                    headerTitle="Links"
-                    enableSearch={true}
-                    enablePagination={true}
-                    pageSize={5}
-                    pageSizeOptions={[5, 10, 25]}
-                    highlightOnHover={true}
-                    withBorder={true}
-                    rowStyle={{
-                      fontSize: "16px",
-                      height: "56px",
-                      lineHeight: "1",
-                    }}
-                    headerStyle={{
-                      fontWeight: 500,
-                      fontSize: "16px",
-                      height: "40px",
-                      background: "#F8F9FA",
-                    }}
-                  />
+                  {isLoadingLinks ? (
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="h-6 bg-gray-200 rounded animate-pulse mb-4 w-24"></div>
+                        <div className="border border-gray-200 rounded-lg overflow-hidden">
+                          <div className="bg-gray-100 p-3 border-b">
+                            <div className="flex space-x-4">
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse w-28"></div>
+                            </div>
+                          </div>
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="p-3 border-b border-gray-100"
+                            >
+                              <div className="flex space-x-4">
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                                <div className="h-4 bg-gray-200 rounded animate-pulse w-28"></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <DataTable
+                      columns={linkColumns}
+                      data={linkTableRows}
+                      showHeaderSection={true}
+                      headerTitle="Links"
+                      enableSearch={true}
+                      enablePagination={true}
+                      pageSize={5}
+                      pageSizeOptions={[5, 10, 25]}
+                      highlightOnHover={true}
+                      withBorder={true}
+                      rowStyle={{
+                        fontSize: "16px",
+                        height: "56px",
+                        lineHeight: "1",
+                      }}
+                      headerStyle={{
+                        fontWeight: 500,
+                        fontSize: "16px",
+                        height: "40px",
+                        background: "#F8F9FA",
+                      }}
+                    />
+                  )}
                 </>
               )}
             </div>
@@ -1780,29 +1871,35 @@ export default function DocumentUpload({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Document Type
               </label>
-              <select
-                value={selectedDocumentTypeId || ""}
-                onChange={(e) =>
-                  setSelectedDocumentTypeId(
-                    e.target.value ? Number(e.target.value) : null,
-                  )
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select a document type...</option>
-                {documentTypes
-                  .filter(
-                    (docType) =>
-                      !documentRows.some(
-                        (doc) => doc.documentTypeId === docType.id,
-                      ),
-                  )
-                  .map((docType) => (
-                    <option key={docType.id} value={docType.id}>
-                      {docType.name}
-                    </option>
-                  ))}
-              </select>
+              {isLoadingDocumentTypes ? (
+                <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100">
+                  <div className="h-5 bg-gray-200 rounded animate-pulse w-32"></div>
+                </div>
+              ) : (
+                <select
+                  value={selectedDocumentTypeId || ""}
+                  onChange={(e) =>
+                    setSelectedDocumentTypeId(
+                      e.target.value ? Number(e.target.value) : null,
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select a document type...</option>
+                  {documentTypes
+                    .filter(
+                      (docType) =>
+                        !documentRows.some(
+                          (doc) => doc.documentTypeId === docType.id,
+                        ),
+                    )
+                    .map((docType) => (
+                      <option key={docType.id} value={docType.id}>
+                        {docType.name}
+                      </option>
+                    ))}
+                </select>
+              )}
             </div>
 
             <div className="mb-4">
@@ -1835,11 +1932,20 @@ export default function DocumentUpload({
                 Cancel
               </button>
               <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 onClick={handleCreateDocument}
-                disabled={!selectedDocumentTypeId || !selectedDeadline}
+                disabled={
+                  !selectedDocumentTypeId || !selectedDeadline || isSubmitting
+                }
               >
-                Add Document
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Adding...
+                  </>
+                ) : (
+                  "Add Document"
+                )}
               </button>
             </div>
           </div>
