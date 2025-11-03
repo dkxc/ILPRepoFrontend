@@ -6,10 +6,6 @@ export default [
     route("signout", "./LogOut.tsx"),
     index("./pages/trainee/Dashboard/Dashboard.tsx"),
     route("ilpprojects", "./pages/trainee/ILPProjects.tsx"),
-    route(
-      "projectsDetailsTrainee",
-      "./pages/trainee/projectsDetailsTrainee.tsx",
-    ),
     route("results", "./pages/trainee/Results.tsx"),
 
     route("admindash", "./pages/admin/dashboard/AdminDashboard.tsx"),
@@ -23,12 +19,17 @@ export default [
     route("profile", "./pages/trainee/TraineeProfile.tsx"),
 
     route("projects", "./pages/admin/Projects.tsx"),
-    route("projectsDetailsAdmin", "./pages/admin/ProjectDetailsAdmin.tsx"),
+    route("projectsDetailsAdmin/:id", "./pages/admin/ProjectDetailsAdmin.tsx"),
     route("adminSettings", "./pages/admin/AdminSettings.tsx"),
     route("curriculumAdmin", "./pages/admin/Curriculum.tsx"),
     route("upload-results", "./pages/admin/ResultsUp.tsx"),
     route("upload-curriculum", "./pages/admin/CurriculumUp.tsx"),
 
     route("attendance", "./pages/admin/Attendance/Attendance.tsx"),
+
+    route(
+      "projectsDetailsTrainee/:id",
+      "./pages/trainee/projectsDetailsTrainee.tsx",
+    ),
   ]),
 ] satisfies RouteConfig;

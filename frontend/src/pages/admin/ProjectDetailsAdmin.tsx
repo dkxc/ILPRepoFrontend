@@ -1,4 +1,4 @@
-import { useLocation, Navigate } from "react-router";
+import { useParams, Navigate } from "react-router";
 import { useEffect, useState } from "react";
 import BatchMetadata from "../../features/ui/ProjectDetails/BatchMetadata";
 import TechStack from "../../features/ui/ProjectDetails/TechStack";
@@ -13,18 +13,15 @@ import {
 import type { TeamMember } from "../../features/ui/ProjectDetails/TeamList";
 
 function ProjectDetails() {
-  const location = useLocation();
-  const { projectId, projectData: selectedProject } = location.state || {};
+  const { id } = useParams<{ id: string }>();
   const [projectDetails, setProjectDetails] =
     useState<ProjectDetailsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Redirect back to projects if no project ID is provided
-  if (!projectId) {
+  if (!id) {
     return <Navigate to="/projects" replace />;
   }
-
-  const id = projectId.toString();
 
   // Fetch project details from API
   useEffect(() => {
@@ -45,8 +42,15 @@ function ProjectDetails() {
     fetchProjectDetails();
   }, [id]);
 
-  // Team members data
-  const teamMembers: TeamMember[] = [
+  // Team members data - use API data when available, fallback to mock data
+  const teamMembers: TeamMember[] = projectDetails?.trainees?.map(
+    (trainee, index) => ({
+      id: index + 1,
+      name: trainee.name,
+      role: "Trainee", // Default role since API doesn't provide roles
+      mail: trainee.email,
+    }),
+  ) || [
     {
       id: 1,
       name: "Alice Johnson",
@@ -69,28 +73,29 @@ function ProjectDetails() {
     },
   ];
 
-  // Use the API data when available, fallback to selectedProject or defaults
+  // Use the API data when available, fallback to defaults
   const projectData = {
-    id: projectDetails?.id || selectedProject?.id || Number(id),
-    projectName:
-      projectDetails?.projectName || selectedProject?.name || `Project ${id}`,
-    name:
-      projectDetails?.batchName ||
-      selectedProject?.batch ||
-      "ILP 2024-25 BATCH 1", // Batch name from API
-    trainees: projectDetails?.teamMembers?.length || teamMembers.length, // Updated to use teamMembers
-    status: projectDetails?.status || selectedProject?.status || "Ongoing", // Already a string
-    techStack: projectDetails?.technology
-      ?.split(",")
-      .map((tech) => tech.trim()) || [
-      "React",
-      ".NET",
-      "TypeScript",
-      "PostgreSQL",
-      "Node.js",
-    ], // Updated to use technology
-    repositoryUrl: "https://github.com/dkxc/ILPRepo",
+    id: projectDetails?.id || Number(id),
+    projectName: projectDetails?.projectName || `Project ${id}`,
+    name: `Project ${projectDetails?.id || id}`, // Use project ID as batch name since API doesn't have batchName
+    trainees: projectDetails?.trainees?.length || teamMembers.length,
+    status: projectDetails?.status || "Ongoing",
+    techStack: projectDetails?.technologyStack
+      ? projectDetails.technologyStack.split(",").map((tech) => tech.trim())
+      : ["React", ".NET", "TypeScript", "PostgreSQL", "Node.js"],
+    repositoryUrl:
+      projectDetails?.projectLinks?.find(
+        (link) =>
+          link.linkTypeName.toLowerCase().includes("repository") ||
+          link.linkTypeName.toLowerCase().includes("repo") ||
+          link.linkTypeName.toLowerCase().includes("git"),
+      )?.linkUrl || "https://github.com/dkxc/ILPRepo",
     figmaUrl:
+      projectDetails?.projectLinks?.find(
+        (link) =>
+          link.linkTypeName.toLowerCase().includes("figma") ||
+          link.linkTypeName.toLowerCase().includes("design"),
+      )?.linkUrl ||
       "https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0",
   };
 
@@ -120,7 +125,7 @@ function ProjectDetails() {
         <div className="flex gap-4 mb-6">
           <div
             style={{ width: "30%" }}
-            className="flex-shrink-0 flex flex-col gap-4"
+            className="shrink-0 flex flex-col gap-4"
           >
             <TechStack
               id={projectData.id}
@@ -128,15 +133,9 @@ function ProjectDetails() {
               canEdit={true}
               projectId={id || "unknown"}
             />
-            <ProjectLinks
-              id={projectData.id}
-              repositoryUrl={projectData.repositoryUrl}
-              figmaUrl={projectData.figmaUrl}
-              canEdit={true}
-              projectId={id || "unknown"}
-            />
+            <ProjectLinks canEdit={true} projectId={id || "unknown"} />
           </div>
-          <div style={{ width: "70%" }} className="flex-shrink-0">
+          <div style={{ width: "70%" }} className="shrink-0">
             <ProjectDocuments
               canUpload={true}
               canNotify={true}

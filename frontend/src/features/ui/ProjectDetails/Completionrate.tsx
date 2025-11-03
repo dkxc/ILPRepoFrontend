@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ResponsivePie } from "@nivo/pie";
-import { getCompletionRate } from "./api";
+import { getDetailedCompletionRate, type DetailedCompletionRate } from "./api";
 
 interface SubmissionRateProps {
   rate?: number;
@@ -16,18 +16,22 @@ function SubmissionRate({
   projectId,
 }: SubmissionRateProps) {
   const [rateData, setRateData] = useState({ rate: rate || 75, title: title });
+  const [detailedData, setDetailedData] =
+    useState<DetailedCompletionRate | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCompletionRate = async () => {
       setLoading(true);
-      const apiData = await getCompletionRate(projectId);
+      const apiData = await getDetailedCompletionRate(projectId);
 
       if (apiData) {
         setRateData({ rate: apiData.rate, title: apiData.title || title });
+        setDetailedData(apiData);
       } else {
         // Use props or default data as fallback
         setRateData({ rate: rate || 75, title: title });
+        setDetailedData(null);
       }
       setLoading(false);
     };
@@ -76,11 +80,70 @@ function SubmissionRate({
             enableArcLabels={false}
             enableArcLinkLabels={false}
             legends={[]}
+            tooltip={({ datum }) => (
+              <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-w-md w-80">
+                <div className="font-semibold text-gray-800 mb-2">
+                  {datum.id === "completed"
+                    ? "Submitted Documents"
+                    : "Not Submitted Documents"}
+                </div>
+                <div className="text-sm text-gray-600 mb-3">
+                  {datum.id === "completed"
+                    ? `${detailedData?.submittedCount || 0} documents submitted`
+                    : `${detailedData?.notSubmittedDocuments?.length || 0} documents pending`}
+                </div>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {datum.id === "completed"
+                    ? detailedData?.submittedDocuments?.map((doc, idx) => (
+                        <div key={idx} className="flex items-center text-xs">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 shrink-0"></div>
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-700">
+                              {doc.documentName}
+                            </div>
+                            {doc.submissionDate && (
+                              <div className="text-gray-500">
+                                Submitted:{" "}
+                                {new Date(
+                                  doc.submissionDate,
+                                ).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    : detailedData?.notSubmittedDocuments?.map((doc, idx) => (
+                        <div key={idx} className="flex items-center text-xs">
+                          <div
+                            className={`w-2 h-2 rounded-full mr-2 shrink-0 ${
+                              doc.isOverdue ? "bg-red-500" : "bg-yellow-500"
+                            }`}
+                          ></div>
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-700">
+                              {doc.documentName}
+                            </div>
+                            {doc.dueDate && (
+                              <div
+                                className={`${doc.isOverdue ? "text-red-600" : "text-gray-500"}`}
+                              >
+                                Due:{" "}
+                                {new Date(doc.dueDate).toLocaleDateString()}
+                                {doc.isOverdue && " (Overdue)"}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                </div>
+              </div>
+            )}
           />
         </div>
         <div className="flex items-center justify-center mt-2">
           <span className="text-sm font-semibold text-gray-700">
-            Completed: {rateData.rate}%
+            Completed: {rateData.rate}% ({detailedData?.submittedCount || 0}/
+            {detailedData?.totalCount || 0})
           </span>
         </div>
       </div>
