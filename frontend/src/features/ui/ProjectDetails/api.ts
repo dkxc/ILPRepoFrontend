@@ -26,12 +26,21 @@ export interface DocumentSubmission {
 export interface ProjectDetailsData {
   id: number;
   projectName: string;
-  status: number;
+  status: string; // Changed from number to string based on API response
   progress: number;
-  technologyStack: string;
-  trainees: Trainee[];
-  projectLinks: ProjectLink[];
-  documentSubmissions: DocumentSubmission[];
+  technology: string; // Changed from technologyStack to technology
+  batchId: number;
+  batchName: string;
+  teamMembers: string[]; // Changed from Trainee[] to string[] based on API response
+  mentors: Array<{
+    id: number;
+    name: string;
+    email: string;
+    mentorType: string;
+  }>;
+  // Keep these for backward compatibility if other components need them
+  projectLinks?: ProjectLink[];
+  documentSubmissions?: DocumentSubmission[];
 }
 
 export interface ApiResponse<T> {
@@ -127,10 +136,10 @@ export const getBatchMetadata = async (
     if (!projectDetails) return null;
 
     return {
-      name: `Project ${projectDetails.id}`,
+      name: projectDetails.batchName || `Project ${projectDetails.id}`, // Use API batch name
       projectName: projectDetails.projectName,
-      trainees: projectDetails.trainees.length,
-      status: projectDetails.status.toString(),
+      trainees: projectDetails.teamMembers.length, // Updated to use teamMembers
+      status: projectDetails.status, // Already a string in the API
       progress: projectDetails.progress,
     };
   } catch (error) {
@@ -145,11 +154,11 @@ export const getTeamList = async (
     const projectDetails = await getProjectDetails(projectId || "default");
     if (!projectDetails) return null;
 
-    return projectDetails.trainees.map((trainee, index) => ({
+    return projectDetails.teamMembers.map((memberName, index) => ({
       id: index + 1,
-      name: trainee.name,
+      name: memberName, // teamMembers is now string[]
       role: "Trainee", // Default role
-      mail: trainee.email,
+      mail: `${memberName.toLowerCase().replace(/\s+/g, ".")}@company.com`, // Generate email from name
     }));
   } catch (error) {
     return handleError(error as AxiosError, "getTeamList");
@@ -181,7 +190,7 @@ export const getTechStack = async (
 
     return {
       id: projectDetails.id,
-      techStack: projectDetails.technologyStack
+      techStack: projectDetails.technology
         .split(",")
         .map((tech) => tech.trim()),
     };
@@ -203,14 +212,14 @@ export const getProjectLinks = async (
     const projectDetails = await getProjectDetails(projectId || "default");
     if (!projectDetails) return null;
 
-    const repositoryLink = projectDetails.projectLinks.find(
+    const repositoryLink = projectDetails.projectLinks?.find(
       (link) =>
         link.linkTypeName.toLowerCase().includes("repository") ||
         link.linkTypeName.toLowerCase().includes("repo") ||
         link.linkTypeName.toLowerCase().includes("git"),
     );
 
-    const figmaLink = projectDetails.projectLinks.find(
+    const figmaLink = projectDetails.projectLinks?.find(
       (link) =>
         link.linkTypeName.toLowerCase().includes("figma") ||
         link.linkTypeName.toLowerCase().includes("design"),
@@ -658,7 +667,7 @@ export const getAllProjectLinks = async (
     const projectDetails = await getProjectDetails(projectId || "default");
     if (!projectDetails) return null;
 
-    let allLinks = projectDetails.projectLinks;
+    let allLinks = projectDetails.projectLinks || [];
 
     // For testing pagination: If there are fewer than 3 links, add some test links
     if (allLinks.length < 3) {
@@ -702,12 +711,14 @@ export const getDocuments = async (
     const projectDetails = await getProjectDetails(projectId || "default");
     if (!projectDetails) return null;
 
-    return projectDetails.documentSubmissions.map((doc) => ({
-      id: doc.id.toString(),
-      name: doc.documentName,
-      filename: doc.fileName,
-      status: doc.submissionLink ? "Submitted" : ("Not Submitted" as const),
-    }));
+    return (
+      projectDetails.documentSubmissions?.map((doc) => ({
+        id: doc.id.toString(),
+        name: doc.documentName,
+        filename: doc.fileName,
+        status: doc.submissionLink ? "Submitted" : ("Not Submitted" as const),
+      })) || []
+    );
   } catch (error) {
     return handleError(error as AxiosError, "getDocuments");
   }
@@ -751,13 +762,15 @@ export const getUploadedDocuments = async (
     const projectDetails = await getProjectDetails(projectId || "default");
     if (!projectDetails) return null;
 
-    return projectDetails.documentSubmissions.map((doc) => ({
-      id: doc.id,
-      filename: doc.fileName,
-      type: doc.fileType || doc.documentName,
-      uploadDate: new Date(doc.submissionDate).toLocaleDateString("en-CA"), // YYYY-MM-DD format
-      fileUrl: doc.submissionLink,
-    }));
+    return (
+      projectDetails.documentSubmissions?.map((doc) => ({
+        id: doc.id,
+        filename: doc.fileName,
+        type: doc.fileType || doc.documentName,
+        uploadDate: new Date(doc.submissionDate).toLocaleDateString("en-CA"), // YYYY-MM-DD format
+        fileUrl: doc.submissionLink,
+      })) || []
+    );
   } catch (error) {
     return handleError(error as AxiosError, "getUploadedDocuments");
   }

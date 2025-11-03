@@ -6,12 +6,18 @@ import ProjectLinks from "../../features/ui/ProjectDetails/ProjectLinks";
 import ProjectDocuments from "../../features/ui/ProjectDetails/DocumentUpload";
 import TeamList from "../../features/ui/ProjectDetails/TeamList";
 import SubmissionRate from "../../features/ui/ProjectDetails/Completionrate";
+import {
+  getProjectDetails,
+  type ProjectDetailsData,
+} from "../../features/ui/ProjectDetails/api";
 import ErrorBoundary from "../../components/ErrorBoundary";
 
 function ProjectDetails() {
   const location = useLocation();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
+  const [projectDetails, setProjectDetails] =
+    useState<ProjectDetailsData | null>(null);
   const { projectId, projectData: selectedProject } = location.state || {};
 
   // Redirect back to projects if no project ID is provided
@@ -19,32 +25,59 @@ function ProjectDetails() {
     return <Navigate to="/ilpprojects" replace />;
   }
 
-  // You can fetch project data based on the ID here
-  // For now, using the existing hardcoded data
-  const projectData = useMemo(
-    () => ({
-      id: Number(projectId),
-      projectName: `Project ${projectId}`,
-      name: "ILP 2024-25 BATCH 1",
-      trainees: 7,
-      status: "Ongoing",
-      techStack: ["React", ".NET", "TypeScript", "PostgreSQL", "Node.js"],
-      repositoryUrl: "https://github.com/dkxc/ILPRepo",
-      figmaUrl:
-        "https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0",
-    }),
-    [projectId],
-  );
-
-  // Handle component mounting and navigation states
+  // Fetch project details from API
   useEffect(() => {
-    setIsLoading(false);
+    const fetchProjectDetails = async () => {
+      setIsLoading(true);
+      try {
+        const details = await getProjectDetails(projectId.toString());
+        if (details) {
+          setProjectDetails(details);
+        }
+      } catch (error) {
+        console.error("Error fetching project details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjectDetails();
 
     return () => {
       // Cleanup any pending promises or subscriptions
       console.debug("ProjectDetails component unmounting, cleaning up...");
     };
   }, [projectId]);
+
+  // Use the API data when available, fallback to selectedProject or defaults
+  const projectData = useMemo(
+    () => ({
+      id: projectDetails?.id || Number(projectId),
+      projectName:
+        projectDetails?.projectName ||
+        selectedProject?.name ||
+        `Project ${projectId}`,
+      name:
+        projectDetails?.batchName ||
+        selectedProject?.batch ||
+        "ILP 2024-25 BATCH 1", // Batch name from API
+      trainees: projectDetails?.teamMembers?.length || 7, // Updated to use teamMembers
+      status: projectDetails?.status || selectedProject?.status || "Ongoing", // Already a string
+      techStack: projectDetails?.technology
+        ?.split(",")
+        .map((tech) => tech.trim()) || [
+        "React",
+        ".NET",
+        "TypeScript",
+        "PostgreSQL",
+        "Node.js",
+      ], // Updated to use technology
+      repositoryUrl: "https://github.com/dkxc/ILPRepo",
+      figmaUrl:
+        "https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0",
+    }),
+    [projectId, selectedProject, projectDetails],
+  );
 
   // Show loading state during navigation
   if (navigation.state === "loading" || isLoading) {
