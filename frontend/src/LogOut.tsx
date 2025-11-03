@@ -8,7 +8,7 @@ export default function LogOut() {
 
   useEffect(() => {
     const AUTH_STORAGE_KEY = "auth_data";
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
 
     navigate("/login"); // Redirect to login page
   }, [navigate]);

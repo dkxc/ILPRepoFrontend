@@ -8,7 +8,7 @@ interface AuthData {
 }
 
 export const getAuthToken = (): string | null => {
-  const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+  const storedAuth = sessionStorage.getItem(AUTH_STORAGE_KEY);
 
   if (!storedAuth) {
     return null;

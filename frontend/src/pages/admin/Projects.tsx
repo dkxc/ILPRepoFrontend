@@ -490,7 +490,7 @@ export default function Projects() {
     let isMounted = true;
 
     if (!isLoggedIn) {
-      <LogIn />;
+      navigate("/login");
     }
 
     const now = Date.now();

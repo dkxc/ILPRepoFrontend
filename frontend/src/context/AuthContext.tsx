@@ -42,10 +42,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log("🔍 Checking stored auth...");
 
-    const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+    const storedAuth = sessionStorage.getItem(AUTH_STORAGE_KEY);
 
     if (!storedAuth) {
-      console.log("❌ No auth data found in localStorage.");
+      console.log("❌ No auth data found in sessionStorage.");
       setLoading(false);
       return;
     }
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       parsed = JSON.parse(storedAuth);
     } catch (err) {
       console.error("❌ Failed to parse stored auth JSON:", err);
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
       setLoading(false);
       return;
     }
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (!token) {
       console.log("❌ No token inside stored auth. Clearing...");
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
       setLoading(false);
       return;
     }
@@ -91,12 +91,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setAuthData(parsed);
         } else {
           console.warn("⚠️ Token expired/invalid. Clearing auth...");
-          localStorage.removeItem(AUTH_STORAGE_KEY);
+          sessionStorage.removeItem(AUTH_STORAGE_KEY);
           setAuthData(null);
         }
       } catch (error) {
         console.error("🚫 Error validating token:", error);
-        localStorage.removeItem(AUTH_STORAGE_KEY);
+        sessionStorage.removeItem(AUTH_STORAGE_KEY);
         setAuthData(null);
       } finally {
         setLoading(false);
@@ -107,15 +107,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (data: AuthData) => {
-    console.log("🔐 Saving auth to localStorage & context");
+    console.log("🔐 Saving auth to sessionStorage & context");
     setAuthData(data);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
   };
 
   const logout = () => {
-    console.log("🚪 Logging out & clearing localStorage");
+    console.log("🚪 Logging out & clearing sessionStorage");
     setAuthData(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
   const isAdmin = () => authData?.roleName === UserRole.Admin;
