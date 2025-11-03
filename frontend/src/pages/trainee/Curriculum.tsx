@@ -21,7 +21,7 @@ import type {
   CurriculumEvent,
   Holiday,
 } from "../../features/ui/calendar/types.ts";
-import { monthNames } from "../../features/ui/calendar/CalendarUtils.tsx";
+import { monthNames } from "../../features/ui/calendar/CalendarUtils.ts";
 
 // Mock curriculum events data
 const curriculumEvents: CurriculumEvent[] = [
