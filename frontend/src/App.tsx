@@ -22,6 +22,7 @@ import HeaderBar from "./features/ui/header/HeaderBar";
 import HeaderItem from "./features/ui/header/HeaderItem";
 import SearchBar from "./features/ui/header/search/SearchBar";
 
+import { useState, Suspense } from "react";
 import { Toaster } from "sonner";
 
 import { cn } from "./lib/utils";
@@ -30,10 +31,16 @@ import { useTheme } from "./hooks/useTheme";
 import LoginPage from "./LoginPage";
 import { useAuth } from "./context/AuthContext";
 import { useEffect } from "react";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
-  { to: "/ilpprojects", label: "ILP Projects", icon: FolderGit2 },
+  {
+    to: "/ilpprojects",
+    label: "ILP Projects",
+    icon: FolderGit2,
+    activePatterns: ["/projectsDetailsTrainee"],
+  },
   { to: "/results", label: "Results", icon: ChartNoAxesCombined },
   { to: "/curriculum", label: "Curriculum", icon: ChartLine },
 ];
@@ -41,7 +48,12 @@ const navItems = [
 const adminNavItems = [
   { to: "/admindash", label: "Home", icon: House, end: true },
   { to: "/batches", label: "Batches", icon: UsersRound },
-  { to: "/projects", label: "Projects", icon: FolderGit2 },
+  {
+    to: "/projects",
+    label: "Projects",
+    icon: FolderGit2,
+    activePatterns: ["/projectsDetailsAdmin"],
+  },
   { to: "/attendance", label: "Attendance", icon: UsersRound },
 ];
 
@@ -140,7 +152,20 @@ function App() {
           />
 
           <main className="flex-1 bg-background overflow-y-auto">
-            <Outlet />
+            <ErrorBoundary>
+              <Suspense
+                fallback={
+                  <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                      <p className="text-gray-600">Loading...</p>
+                    </div>
+                  </div>
+                }
+              >
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
           </main>
         </div>
       </div>
