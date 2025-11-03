@@ -17,6 +17,43 @@ import {
   X,
 } from "lucide-react";
 import { notifications } from "@mantine/notifications";
+
+// Utility function to format date to dd-mm-yyyy
+const formatDateToDDMMYYYY = (dateString: string): string => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
+// Utility function to convert dd-mm-yyyy back to yyyy-mm-dd for input fields
+const formatDateToInputValue = (dateString: string): string => {
+  if (!dateString) return "";
+
+  // If already in yyyy-mm-dd format, return as is
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return dateString;
+  }
+
+  // If in dd-mm-yyyy format, convert to yyyy-mm-dd
+  if (dateString.match(/^\d{2}-\d{2}-\d{4}$/)) {
+    const [day, month, year] = dateString.split("-");
+    return `${year}-${month}-${day}`;
+  }
+
+  // Try to parse as date and format
+  const date = new Date(dateString);
+  if (!isNaN(date.getTime())) {
+    return date.toISOString().split("T")[0];
+  }
+
+  return dateString;
+};
 import type { ColumnDef } from "../../ui/Table";
 import Button from "../../ui/Button";
 import DataTable from "../../ui/Table";
@@ -430,7 +467,7 @@ export default function DocumentUpload({
     return apiDocs.map((doc, index) => ({
       id: index + 1, // Use index since API doesn't provide unique ID
       documentName: doc.documentTypeName,
-      deadline: doc.dueDate.split("T")[0], // Convert to YYYY-MM-DD format
+      deadline: doc.dueDate.split("T")[0], // Store in YYYY-MM-DD format internally, display as DD-MM-YYYY
       templateFile: null,
       submissionType: SubmissionType.PDF, // Default to PDF, can be enhanced later
       isMultiple: false, // Default values since not provided in API
@@ -1181,12 +1218,14 @@ export default function DocumentUpload({
         editingRowId === row.id ? (
           <input
             type="date"
-            value={editDraft?.deadline ?? row.deadline}
+            value={formatDateToInputValue(editDraft?.deadline ?? row.deadline)}
             onChange={(e) => handleDeadlineChange(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         ) : (
-          <span>{row.deadline || "No deadline"}</span>
+          <span>
+            {row.deadline ? formatDateToDDMMYYYY(row.deadline) : "No deadline"}
+          </span>
         ),
     },
     {
@@ -1777,6 +1816,11 @@ export default function DocumentUpload({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 min={new Date().toISOString().split("T")[0]}
               />
+              {selectedDeadline && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Selected: {formatDateToDDMMYYYY(selectedDeadline)}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end gap-2">
