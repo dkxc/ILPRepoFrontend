@@ -6,12 +6,14 @@ interface InfoItem {
   label: string;
   value: string;
   gridCols?: "single" | "double";
+  readOnly?: boolean;
 }
 
 interface ContactItem {
   type: "phone" | "email" | "text";
   label: string;
   value: string;
+  readOnly?: boolean;
 }
 
 interface InfoCardProps {
@@ -149,11 +151,30 @@ function InfoCard({
                     </div>
                   )}
                   <span
-                    className="text-sm font-semibold"
-                    style={{ color: "#565E6C" }}
+                    className={`text-sm font-semibold ${
+                      contact.readOnly ? "text-gray-500" : ""
+                    }`}
+                    style={{ color: contact.readOnly ? "#9CA3AF" : "#565E6C" }}
                   >
                     {contact.value}
                   </span>
+                  {contact.readOnly && (
+                    <div className="text-gray-400" title="Read-only field">
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        />
+                      </svg>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

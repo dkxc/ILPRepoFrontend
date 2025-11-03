@@ -3,15 +3,17 @@ import Button from "../../ui/Button";
 import { Card } from "@mantine/core";
 import { CardContent } from "@mui/material";
 import StatusBadge from "../../ui/StatusBadge";
-import { Pencil, MoreVertical, Calendar } from "lucide-react";
+import { Upload, Pencil, MoreVertical, Calendar } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 
 interface BatchDetailsCardProps {
+  batchId: number;
   batchName: string;
   startDate: string;
   endDate: string;
   batchType: string;
+  status: "Not Started" | "Ongoing" | "Completed";
   totalTrainees: number;
   totalTrainingHours: number;
   techStack: string;
@@ -21,26 +23,19 @@ interface BatchDetailsCardProps {
 }
 
 const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
+  batchId,
   batchName,
   startDate,
   endDate,
   batchType,
+  status,
   totalTrainees,
   totalTrainingHours,
   techStack,
   onEdit,
   onAddTrainee,
+  onUploadTrainees,
 }) => {
-  const computeStatus = (): "Not Started" | "Ongoing" | "Completed" => {
-    const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    if (now < start) return "Not Started";
-    if (now >= start && now <= end) return "Ongoing";
-    return "Completed";
-  };
-
-  const [status] = useState(computeStatus());
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -96,7 +91,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Card className="p-0 border border-[#F8F9FA] rounded-md bg-white w-full">
+    <Card className="p-0 border border-[#F8F9FA] rounded-[6px] bg-white w-full">
       <div className="pt-5 px-3">
         <div className="flex items-start justify-between ml-4 mb-4">
           <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
@@ -123,7 +118,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
             </button>
             <Button
               variant="default"
-              className="bg-white! hover:bg-gray-100! text-blue-600! border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
+              className="!bg-white hover:!bg-gray-100 !text-blue-600 border border-blue-600 font-normal px-2 py-1 rounded-lg shadow-sm h-7 w-auto"
               onClick={onAddTrainee}
             >
               + Add
@@ -131,10 +126,10 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
 
             <Button
               variant="default"
-              className="bg-gray-200! hover:bg-gray-300! text-gray-700 font-medium px-2 py-1 rounded-lg shadow-sm h-7 w-auto flex items-center justify-center"
+              className="!bg-gray-200 hover:!bg-gray-300 text-gray-700 font-medium px-2 py-1 rounded-lg shadow-sm h-7 w-auto flex items-center justify-center"
               onClick={onEdit}
             >
-              <Pencil size={16} className="text-blue-600 hover:bg-gray-100!" />
+              <Pencil size={16} className="text-blue-600 hover:!bg-gray-100" />
             </Button>
 
             {/* 3-dot dropdown button */}
@@ -158,7 +153,7 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
                   {[
                     {
                       label: "Upload Trainee Data",
-                      action: () => navigate("/upload-trainee-data"),
+                      action: () => navigate(`/upload-trainee-data/${batchId}`),
                     },
                     {
                       label: "Upload Curriculum",
