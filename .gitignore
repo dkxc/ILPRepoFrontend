@@ -76,6 +76,9 @@ frontend/.pnpm-store/
 # Ignore hosting provider dirs
 frontend/.vercel
 
+# Ignore specific files
+frontend/package-lock.json
+
 
 # ===================================================================
 # Backend Specific Rules

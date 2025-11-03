@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "../../features/ui/Button";
 import { AnimatedConfirmButton } from "../../features/ui/custombuttons/AnimatedConfirmButton";
 import { toast } from "sonner";
+import ApiService from "../../services/apiService";
+// import ApiService from "../../services/ApiService";
 
 interface Sections {
   password: boolean;
@@ -34,6 +36,8 @@ export default function TraineeSettings() {
     confirm: false,
   });
 
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
   const toggleSection = (section: keyof Sections) => {
     setSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
@@ -42,13 +46,48 @@ export default function TraineeSettings() {
     setPasswordData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSavePassword = () => {
+  const handleSavePassword = async () => {
     if (passwordData.new !== passwordData.confirm) {
       toast.error("New passwords do not match!");
       return;
     }
-    toast.success("Password updated successfully!");
-    setPasswordData({ current: "", new: "", confirm: "" });
+
+    if (!passwordData.current || !passwordData.new) {
+      toast.error("Please fill in all password fields!");
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+
+    try {
+      const response = await ApiService.put("/User/update-password", {
+        currentPassword: passwordData.current,
+        newPassword: passwordData.new,
+      });
+
+      console.log("Password update response:", response);
+
+      // Check if the response has the custom format
+      if (response && typeof response === "object" && "status" in response) {
+        if (response.succeeded) {
+          toast.success("Password updated successfully!");
+          setPasswordData({ current: "", new: "", confirm: "" });
+        } else {
+          toast.error(response.message || "Failed to update password");
+        }
+      } else {
+        // Standard response format
+        toast.success("Password updated successfully!");
+        setPasswordData({ current: "", new: "", confirm: "" });
+      }
+    } catch (error: any) {
+      console.error("Password update error:", error);
+      toast.error(
+        error.message || "Failed to update password. Please try again.",
+      );
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const onResetLayoutConfirm = () => {
@@ -117,6 +156,7 @@ export default function TraineeSettings() {
                               }
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder={`Enter ${field} password`}
+                              disabled={isUpdatingPassword}
                             />
                             <button
                               onClick={() =>
@@ -126,6 +166,7 @@ export default function TraineeSettings() {
                                 }))
                               }
                               className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                              disabled={isUpdatingPassword}
                             >
                               {showPasswords[field] ? (
                                 <EyeOff className="w-5 h-5" />
@@ -137,9 +178,12 @@ export default function TraineeSettings() {
                         </div>
                       ))}
 
-                      <Button onClick={handleSavePassword}>
+                      <Button
+                        onClick={handleSavePassword}
+                        disabled={isUpdatingPassword}
+                      >
                         <Save className="w-4 h-4" />
-                        Update Password
+                        {isUpdatingPassword ? "Updating..." : "Update Password"}
                       </Button>
                     </div>
                   </motion.div>

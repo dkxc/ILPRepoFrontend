@@ -8,6 +8,9 @@ import {
   Trash2,
   Save,
 } from "lucide-react";
+import { toast } from "sonner";
+import ApiService from "../../services/apiService";
+// import ApiService from "../../services/ApiService";
 
 interface Sections {
   password: boolean;
@@ -70,6 +73,8 @@ export default function AdminSettings() {
     confirm: false,
   });
 
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
   const [admins, setAdmins] = useState<Admin[]>([
     { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Admin" },
   ]);
@@ -77,8 +82,11 @@ export default function AdminSettings() {
   const [newAdmin, setNewAdmin] = useState({
     name: "",
     email: "",
+    password: "",
     role: "Admin",
   });
+
+  const [isAddingAdmin, setIsAddingAdmin] = useState(false);
 
   const [trainees, setTrainees] = useState<Trainee[]>([
     {
@@ -120,22 +128,107 @@ export default function AdminSettings() {
     setPasswordData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSavePassword = () => {
+  const handleSavePassword = async () => {
     if (passwordData.new !== passwordData.confirm) {
-      alert("New passwords do not match!");
+      toast.error("New passwords do not match!");
       return;
     }
-    alert("Password updated successfully!");
-    setPasswordData({ current: "", new: "", confirm: "" });
+
+    if (!passwordData.current || !passwordData.new) {
+      toast.error("Please fill in all password fields!");
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+
+    try {
+      const response = await ApiService.put("/User/update-password", {
+        currentPassword: passwordData.current,
+        newPassword: passwordData.new,
+      });
+
+      console.log("Password update response:", response);
+
+      // Check if the response has the custom format
+      if (response && typeof response === "object" && "status" in response) {
+        if (response.succeeded) {
+          toast.success("Password updated successfully!");
+          setPasswordData({ current: "", new: "", confirm: "" });
+        } else {
+          toast.error(response.message || "Failed to update password");
+        }
+      } else {
+        // Standard response format
+        toast.success("Password updated successfully!");
+        setPasswordData({ current: "", new: "", confirm: "" });
+      }
+    } catch (error: any) {
+      console.error("Password update error:", error);
+      toast.error(
+        error.message || "Failed to update password. Please try again.",
+      );
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
-  const handleAddAdmin = () => {
-    if (!newAdmin.name || !newAdmin.email) {
-      alert("Please fill in all fields");
+  const handleAddAdmin = async () => {
+    if (!newAdmin.name || !newAdmin.email || !newAdmin.password) {
+      toast.error("Please fill in all fields");
       return;
     }
-    setAdmins([...admins, { ...newAdmin, id: Date.now() }]);
-    setNewAdmin({ name: "", email: "", role: "Admin" });
+
+    setIsAddingAdmin(true);
+
+    try {
+      const response = await ApiService.post("/User", {
+        username: newAdmin.name,
+        email: newAdmin.email,
+        password: newAdmin.password,
+        role: 0, // 0 = Admin
+        isActive: true,
+      });
+
+      console.log("Add admin response:", response);
+
+      // Check if the response has the custom format
+      if (response && typeof response === "object" && "status" in response) {
+        if (response.succeeded) {
+          toast.success("Admin added successfully!");
+          // Add to local state for display
+          setAdmins([
+            ...admins,
+            {
+              id: response.data?.id || Date.now(),
+              name: newAdmin.name,
+              email: newAdmin.email,
+              role: newAdmin.role,
+            },
+          ]);
+          setNewAdmin({ name: "", email: "", password: "", role: "Admin" });
+        } else {
+          toast.error(response.message || "Failed to add admin");
+        }
+      } else {
+        // Standard response format
+        toast.success("Admin added successfully!");
+        setAdmins([
+          ...admins,
+          {
+            id: response?.id || Date.now(),
+            name: newAdmin.name,
+            email: newAdmin.email,
+            role: newAdmin.role,
+          },
+        ]);
+        setNewAdmin({ name: "", email: "", password: "", role: "Admin" });
+      }
+    } catch (error: any) {
+      console.error("Add admin error:", error);
+      toast.error(error.message || "Failed to add admin. Please try again.");
+    } finally {
+      setIsAddingAdmin(false);
+    }
   };
 
   const handleRemoveAdmin = (id: number) => {
@@ -144,7 +237,7 @@ export default function AdminSettings() {
 
   const handleAddTrainee = () => {
     if (!newTrainee.name || !newTrainee.email || !newTrainee.days) {
-      alert("Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
     setTrainees([
@@ -156,6 +249,7 @@ export default function AdminSettings() {
       },
     ]);
     setNewTrainee({ name: "", email: "", days: 30 });
+    toast.success("Trainee access granted successfully!");
   };
 
   const handleRemoveTrainee = (id: number) => {
@@ -170,7 +264,7 @@ export default function AdminSettings() {
   };
 
   const handleSaveTimeline = () => {
-    alert("Timeline settings saved successfully!");
+    toast.success("Timeline settings saved successfully!");
   };
 
   const handleEmailConfigChange = (
@@ -184,7 +278,7 @@ export default function AdminSettings() {
   };
 
   const handleSaveEmailConfig = () => {
-    alert("Email configuration saved successfully!");
+    toast.success("Email configuration saved successfully!");
   };
 
   return (
@@ -236,6 +330,7 @@ export default function AdminSettings() {
                           }
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder={`Enter ${field} password`}
+                          disabled={isUpdatingPassword}
                         />
                         <button
                           onClick={() =>
@@ -245,6 +340,7 @@ export default function AdminSettings() {
                             }))
                           }
                           className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                          disabled={isUpdatingPassword}
                         >
                           {showPasswords[field] ? (
                             <EyeOff className="w-5 h-5" />
@@ -259,10 +355,11 @@ export default function AdminSettings() {
 
                 <button
                   onClick={handleSavePassword}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  disabled={isUpdatingPassword}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
                 >
                   <Save className="w-4 h-4" />
-                  Update Password
+                  {isUpdatingPassword ? "Updating..." : "Update Password"}
                 </button>
               </div>
             )}
@@ -325,7 +422,8 @@ export default function AdminSettings() {
                       setNewAdmin({ ...newAdmin, name: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Full Name"
+                    placeholder="Username"
+                    disabled={isAddingAdmin}
                   />
                   <input
                     type="email"
@@ -335,6 +433,17 @@ export default function AdminSettings() {
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Email Address"
+                    disabled={isAddingAdmin}
+                  />
+                  <input
+                    type="password"
+                    value={newAdmin.password}
+                    onChange={(e) =>
+                      setNewAdmin({ ...newAdmin, password: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Password"
+                    disabled={isAddingAdmin}
                   />
                   <select
                     value={newAdmin.role}
@@ -342,16 +451,17 @@ export default function AdminSettings() {
                       setNewAdmin({ ...newAdmin, role: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isAddingAdmin}
                   >
                     <option value="Admin">Admin</option>
-                    <option value="Super Admin">Super Admin</option>
                   </select>
                   <button
                     onClick={handleAddAdmin}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                    disabled={isAddingAdmin}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
                   >
                     <Plus className="w-4 h-4" />
-                    Add Admin
+                    {isAddingAdmin ? "Adding..." : "Add Admin"}
                   </button>
                 </div>
               </div>
@@ -500,42 +610,6 @@ export default function AdminSettings() {
                   </p>
                 </div>
 
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Session Timeout (minutes)
-                  </label>
-                  <input
-                    type="number"
-                    value={timeline.sessionTimeout}
-                    onChange={(e) =>
-                      handleTimelineChange('sessionTimeout', e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    min="5"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Duration of inactivity before session expires
-                  </p>
-                </div> */}
-
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Auto Logout After (minutes)
-                  </label>
-                  <input
-                    type="number"
-                    value={timeline.autoLogoutAfter}
-                    onChange={(e) =>
-                      handleTimelineChange('autoLogoutAfter', e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    min="10"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Maximum session duration before forced logout
-                  </p>
-                </div> */}
-
                 <button
                   onClick={handleSaveTimeline}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
@@ -570,20 +644,6 @@ export default function AdminSettings() {
 
             {sections.emailConfig && (
               <div className="px-6 pb-6 space-y-4">
-                {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-start gap-2">
-                    <Mail className="w-5 h-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-blue-900">
-                        Automatic Email Reminders
-                      </p>
-                      <p className="text-xs text-blue-700 mt-1">
-                        Emails will be sent automatically before project due dates. Use {'{days}'} in your message to insert the number of days remaining.
-                      </p>
-                    </div>
-                  </div>
-                </div> */}
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Days Before Due Date
@@ -632,9 +692,6 @@ export default function AdminSettings() {
                     rows={8}
                     placeholder="Enter your email message here. Use {days} to insert the number of days remaining."
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {/* Use {'{days}'} as a placeholder for the number of days remaining before the due date */}
-                  </p>
                 </div>
 
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">

@@ -74,7 +74,7 @@ export const attendanceHandlers = [
   }),
 
   http.post(
-    "/api/attendance/batch/:batchId/upload-json",
+    "/api/attendance/batch/:batchId/upload",
     async ({ params, request }) => {
       if (Number(params.batchId) !== MOCK_BATCH_ID) {
         return HttpResponse.json(

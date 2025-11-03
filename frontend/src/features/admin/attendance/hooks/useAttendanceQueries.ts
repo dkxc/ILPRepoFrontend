@@ -79,7 +79,7 @@ export function useUploadAttendanceMutation() {
     { batchId: number; data: UploadJsonQueryType }
   >({
     mutationFn: ({ batchId, data }) => {
-      return apiClient(`/api/attendance/batch/${batchId}/upload-json`, {
+      return apiClient(`/api/attendance/batch/${batchId}/upload`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
