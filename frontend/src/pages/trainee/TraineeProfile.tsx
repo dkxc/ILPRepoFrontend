@@ -1,19 +1,18 @@
 import { useState, useEffect } from "react";
 import { User, Briefcase, Phone, MapPin } from "lucide-react";
 import InfoCard from "../../features/ui/TraineeProfile/InfoCard";
-import EditModal from "../../features/ui/TraineeProfile/EditModel";
-import { useNavigate } from "react-router";
+import TraineeEditModal from "../../features/ui/TraineeProfile/TraineeEditModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { traineeService } from "../../services/traineeService";
 import { notifications } from "@mantine/notifications";
+import { useAuth } from "../../context/AuthContext";
 
 function TraineeProfile() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { authData } = useAuth();
 
-  // TODO: Replace with actual logged-in user ID from auth context
-  // For now, using a hardcoded user ID - in production, get this from auth
-  const loggedInUserId = 36; // This should come from authentication context
+  // Get logged-in user ID from auth context
+  const loggedInUserId = authData?.userId;
 
   // Fetch all trainees and filter by logged-in user ID
   const {
@@ -148,7 +147,7 @@ function TraineeProfile() {
 
       if (Array.isArray(traineesArray)) {
         const trainee = traineesArray.find(
-          (t: any) => t.userId === loggedInUserId,
+          (t: any) => t.userId === loggedInUserId
         );
 
         if (trainee) {
@@ -289,6 +288,7 @@ function TraineeProfile() {
       label: "Email",
       value: contactInfoData.email,
       gridCols: "single" as const,
+      readOnly: true, // Mark email as read-only
     },
     {
       type: "phone" as const,
@@ -326,7 +326,7 @@ function TraineeProfile() {
   const openModal = (
     type: "personal" | "contact" | "emergency" | "address" | "official",
     title: string,
-    data: any,
+    data: any
   ) => {
     setModalState({ opened: true, type, title, initialData: data });
   };
@@ -367,8 +367,7 @@ function TraineeProfile() {
     ) {
       const updatePayload: any = {
         id: actualTraineeId,
-        email:
-          modalState.type === "contact" ? data.email : contactInfoData.email,
+        email: contactInfoData.email, // Always use existing email (read-only for trainees)
         phoneNo:
           modalState.type === "contact"
             ? data.phoneNumber
@@ -386,7 +385,7 @@ function TraineeProfile() {
         updatePayload.healthCondition = data.healthConditions;
         updatePayload.personalInterest = data.personalInterests;
       } else if (modalState.type === "contact") {
-        updatePayload.email = data.email;
+        // Email is read-only for trainees, so don't update it
         updatePayload.phoneNo = data.phoneNumber;
         // Also update emergency contact fields from contact modal
         updatePayload.emergencyContactNo = data.emergencyContactNumber;
@@ -416,7 +415,7 @@ function TraineeProfile() {
         // Update both contact and emergency contact data
         setContactInfoData({
           phoneNumber: data.phoneNumber,
-          email: data.email,
+          email: contactInfoData.email, // Keep existing email, don't update from form
         });
         setEmergencyContactData({
           contactNumber: data.emergencyContactNumber,
@@ -431,6 +430,17 @@ function TraineeProfile() {
         break;
     }
   };
+
+  // Authentication check
+  if (!authData || !loggedInUserId) {
+    return (
+      <div className="max-w-6xl mx-auto p-4 flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">
+          Please log in to view your profile
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (isLoading) {
@@ -450,6 +460,37 @@ function TraineeProfile() {
           <div className="text-sm text-gray-600">
             {(error as Error).message}
           </div>
+          <button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["allTrainees"] })
+            }
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if trainee profile was found
+  if (!actualTraineeId) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+          <div className="text-lg text-gray-600">Profile not found</div>
+          <div className="text-sm text-gray-500">
+            Your trainee profile could not be found. Please contact your
+            administrator.
+          </div>
+          <button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["allTrainees"] })
+            }
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Refresh
+          </button>
         </div>
       </div>
     );
@@ -464,19 +505,38 @@ function TraineeProfile() {
             className="w-10 h-10 rounded-4xl flex items-center justify-center text-white font-semibold text-base"
             style={{ backgroundColor: "#2563EB" }}
           >
-            AS
+            {personalInfoData.fullName
+              ? personalInfoData.fullName
+                  .split(" ")
+                  .map((name) => name[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)
+              : "NA"}
           </div>
           <div>
             <h1 className="text-xl font-bold text-[#565E6C]">
               {personalInfoData.fullName}
             </h1>
 
-            {/* ✅ Static Active Badge */}
+            {/* Status Badge */}
             <div className="flex items-center mt-1">
-              <div className="flex items-center px-3 py-1 rounded-full bg-green-100">
-                <div className="w-2 h-2 rounded-full mr-2 bg-green-400"></div>
-                <span className="text-xs font-medium text-green-700">
-                  Active
+              <div
+                className={`flex items-center px-3 py-1 rounded-full ${
+                  isActive ? "bg-green-100" : "bg-gray-200"
+                }`}
+              >
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${
+                    isActive ? "bg-green-400" : "bg-gray-500"
+                  }`}
+                ></div>
+                <span
+                  className={`text-xs font-medium ${
+                    isActive ? "text-green-700" : "text-gray-700"
+                  }`}
+                >
+                  {isActive ? "Active" : "Inactive"}
                 </span>
               </div>
             </div>
@@ -523,7 +583,6 @@ function TraineeProfile() {
           onEdit={() =>
             openModal("contact", "Edit Contact & Emergency Information", {
               phoneNumber: contactInfoData.phoneNumber,
-              email: contactInfoData.email,
               emergencyContactNumber: emergencyContactData.contactNumber,
               emergencyContactRelationship: emergencyContactData.relationship,
             })
@@ -546,7 +605,7 @@ function TraineeProfile() {
 
       {/* === Modal Section === */}
       {modalState.opened && modalState.type && (
-        <EditModal
+        <TraineeEditModal
           opened={modalState.opened}
           onClose={closeModal}
           onSave={handleSave}
