@@ -161,7 +161,10 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
                     },
                     {
                       label: "Upload Project",
-                      action: () => navigate("/upload-project-data"),
+                      action: () =>
+                        navigate(
+                          `/upload-project-data?batchId=${batchId}&batchName=${encodeURIComponent(batchName)}`,
+                        ),
                     },
                     {
                       label: "Upload Results",
