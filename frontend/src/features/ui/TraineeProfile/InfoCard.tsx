@@ -75,7 +75,7 @@ function InfoCard({
     <Card
       className={cn(
         "w-full bg-white border border-gray-200 rounded-sm pb-3",
-        className
+        className,
       )}
     >
       {/* Header */}
@@ -120,7 +120,7 @@ function InfoCard({
                 key={index}
                 className={cn(
                   "space-y-0.5",
-                  item.gridCols === "double" ? "col-span-2" : "col-span-1"
+                  item.gridCols === "double" ? "col-span-2" : "col-span-1",
                 )}
               >
                 <div className="text-xs font-medium text-gray-500 pb-0.25">

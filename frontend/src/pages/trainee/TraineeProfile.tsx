@@ -147,7 +147,7 @@ function TraineeProfile() {
 
       if (Array.isArray(traineesArray)) {
         const trainee = traineesArray.find(
-          (t: any) => t.userId === loggedInUserId
+          (t: any) => t.userId === loggedInUserId,
         );
 
         if (trainee) {
@@ -326,7 +326,7 @@ function TraineeProfile() {
   const openModal = (
     type: "personal" | "contact" | "emergency" | "address" | "official",
     title: string,
-    data: any
+    data: any,
   ) => {
     setModalState({ opened: true, type, title, initialData: data });
   };
