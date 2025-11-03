@@ -3,6 +3,7 @@ import { Dropdown } from "@ui/dropdown/Dropdown";
 import { Download, UploadCloud } from "lucide-react";
 import DateRangePicker from "../DateRangePicker";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Select } from "@ui/select/Select";
 
 interface AttendanceHeaderProps {
   /** The current date range value. */
@@ -21,10 +22,29 @@ function AttendanceHeader({
   onImport,
   onExport,
 }: AttendanceHeaderProps) {
+  const items = [
+    {
+      id: "1",
+      label: "ILP Batch 2025-26",
+    },
+  ];
   return (
     <div className="flex items-center justify-between mb-4 px-4">
       <h1 className="text-xl font-semibold text-primary">Attendance Records</h1>
       <div className="flex items-center-safe gap-4">
+        <Select.ComboBox isRequired items={items} defaultSelectedKey="1">
+          {(item) => (
+            <Select.Item
+              id={item.id}
+              supportingText={item.supportingText}
+              isDisabled={item.isDisabled}
+              icon={item.icon}
+              avatarUrl={item.avatarUrl}
+            >
+              {item.label}
+            </Select.Item>
+          )}
+        </Select.ComboBox>
         <DateRangePicker
           shouldCloseOnSelect
           value={dateValue}
