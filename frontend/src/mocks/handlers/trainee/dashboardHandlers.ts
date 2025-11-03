@@ -1,7 +1,7 @@
 import { delay, http, HttpResponse } from "msw";
 
 export const userProfile = {
-  firstName: "Name",
+  firstName: "Merlin",
   projectId: 21231,
   batchId: 12345,
 };
