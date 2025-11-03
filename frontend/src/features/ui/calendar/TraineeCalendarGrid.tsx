@@ -1,5 +1,6 @@
-// components/CalendarGrid.tsx
+// components/TraineeCalendarGrid.tsx
 
+import { CheckCircle, XCircle } from "lucide-react";
 import type { CurriculumEvent } from "./types";
 import {
   dayNames,
@@ -7,27 +8,28 @@ import {
   getFirstDayOfMonth,
   colorClasses,
 } from "./CalendarUtils";
-// components/CalendarGrid.tsx (Updated with wider layout)
 
-// components/CalendarGrid.tsx (Fixed - Wider and better holiday styling)
-
-type CalendarGridProps = {
+type TraineeCalendarGridProps = {
   currentMonth: number;
   currentYear: number;
   selectedDay: number | null;
   onDayClick: (day: number) => void;
   getDayEvents: (day: number) => CurriculumEvent[];
+  getDayAttendance: (
+    day: number,
+  ) => { fn: "P" | "A"; an: "P" | "A" } | undefined;
   isHolidayDay: (day: number, month: number, year: number) => boolean;
 };
 
-const CalendarGrid = ({
+const TraineeCalendarGrid = ({
   currentMonth,
   currentYear,
   selectedDay,
   onDayClick,
   getDayEvents,
+  getDayAttendance,
   isHolidayDay,
-}: CalendarGridProps) => {
+}: TraineeCalendarGridProps) => {
   const today = new Date();
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
@@ -52,6 +54,37 @@ const CalendarGrid = ({
     }
   }
 
+  const renderAttendanceIcon = (attendance: {
+    fn: "P" | "A";
+    an: "P" | "A";
+  }) => {
+    // Full Absent
+    if (attendance.fn === "A" && attendance.an === "A") {
+      return (
+        <div title="Absent" className="absolute top-2 right-2">
+          <XCircle className="w-4 h-4 text-red-500" />
+        </div>
+      );
+    }
+    // Full Present
+    if (attendance.fn === "P" && attendance.an === "P") {
+      return (
+        <div title="Present" className="absolute top-2 right-2">
+          <CheckCircle className="w-4 h-4 text-green-500" />
+        </div>
+      );
+    }
+    // Partial Present
+    return (
+      <div
+        title={attendance.fn === "A" ? "Present Afternoon" : "Present Forenoon"}
+        className="absolute top-2 right-2"
+      >
+        <CheckCircle className="w-4 h-4 text-yellow-500" />
+      </div>
+    );
+  };
+
   return (
     <div className="bg-card rounded-xl shadow-lg p-6 h-[75vh] overflow-hidden flex flex-col">
       {/* Day headers */}
@@ -66,7 +99,7 @@ const CalendarGrid = ({
         ))}
       </div>
 
-      {/* Calendar grid - Much wider cells */}
+      {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-4 overflow-y-auto">
         {calendarDays.map((day, index) => {
           if (!day) {
@@ -74,13 +107,14 @@ const CalendarGrid = ({
           }
 
           const dayEvents = getDayEvents(day);
+          const attendance = getDayAttendance(day);
           const isTodayDay = isToday(day);
           const hasEvents = dayEvents.length > 0;
           const isHoliday = isHolidayDay(day, currentMonth, currentYear);
 
           // Determine border and background styling
           let cellClasses =
-            "min-h-[140px] p-3 rounded-xl transition-all cursor-pointer ";
+            "relative min-h-[140px] p-3 rounded-xl transition-all cursor-pointer ";
 
           if (isHoliday) {
             cellClasses += "border-2 border-red-500 bg-red-50 ";
@@ -112,7 +146,11 @@ const CalendarGrid = ({
               >
                 {day}
               </div>
-              <div className="space-y-1.5">
+
+              {/* Attendance Indicator */}
+              {attendance && renderAttendanceIcon(attendance)}
+
+              <div className="space-y-1.5 mt-1">
                 {dayEvents.slice(0, 2).map((event) => (
                   <div
                     key={event.id}
@@ -135,4 +173,4 @@ const CalendarGrid = ({
   );
 };
 
-export default CalendarGrid;
+export default TraineeCalendarGrid;

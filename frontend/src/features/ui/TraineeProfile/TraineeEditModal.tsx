@@ -59,7 +59,7 @@ const Field = ({
   </div>
 );
 
-const EditModal: React.FC<EditModalProps> = ({
+const TraineeEditModal: React.FC<EditModalProps> = ({
   opened,
   onClose,
   onSave,
@@ -75,6 +75,7 @@ const EditModal: React.FC<EditModalProps> = ({
     if (opened) setFormData(initialData);
   }, [opened, initialData]);
 
+  // Custom field configuration for trainee - excludes email from contact modal
   const fieldConfig: Record<string, any[]> = {
     personal: [
       [{ label: "Full Name", field: "fullName" }],
@@ -114,9 +115,9 @@ const EditModal: React.FC<EditModalProps> = ({
       ],
     ],
 
+    // Modified contact configuration - excludes email field for trainees
     contact: [
       [{ label: "Phone Number", field: "phoneNumber", type: "tel" }],
-      [{ label: "Email", field: "email", type: "email" }],
       [
         {
           label: "Emergency Contact Number",
@@ -157,14 +158,6 @@ const EditModal: React.FC<EditModalProps> = ({
 
   const validateForm = () => {
     const newErrors: any = {};
-
-    // Email validation
-    if (formData.email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        newErrors.email = "Invalid email format";
-      }
-    }
 
     // Phone number validation (10 digits)
     if (formData.phoneNumber) {
@@ -285,4 +278,4 @@ const EditModal: React.FC<EditModalProps> = ({
   );
 };
 
-export default EditModal;
+export default TraineeEditModal;

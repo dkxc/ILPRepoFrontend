@@ -1,11 +1,96 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Briefcase, Phone, MapPin } from "lucide-react";
 import InfoCard from "../../features/ui/TraineeProfile/InfoCard";
-import EditModal from "../../features/ui/TraineeProfile/EditModel";
-import { useNavigate } from "react-router";
+import TraineeEditModal from "../../features/ui/TraineeProfile/TraineeEditModal";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { traineeService } from "../../services/traineeService";
+import { notifications } from "@mantine/notifications";
+import { useAuth } from "../../context/AuthContext";
 
 function TraineeProfile() {
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { authData } = useAuth();
+
+  // Get logged-in user ID from auth context
+  const loggedInUserId = authData?.userId;
+
+  // Fetch all trainees and filter by logged-in user ID
+  const {
+    data: apiTraineesData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["allTrainees"],
+    queryFn: () => traineeService.getAllTrainees(),
+    staleTime: 30000,
+  });
+
+  // Store the actual trainee ID from backend (different from userId)
+  const [actualTraineeId, setActualTraineeId] = useState<number | null>(null);
+  const [isActive, setIsActive] = useState(true);
+
+  // Fetch trainee training details
+  const { data: apiTrainingDetails } = useQuery({
+    queryKey: ["trainingDetails", actualTraineeId],
+    queryFn: () => traineeService.getTraineeTrainingDetails(actualTraineeId!),
+    enabled: !!actualTraineeId,
+    staleTime: 30000,
+  });
+
+  // Update trainee mutation
+  const updateTraineeMutation = useMutation({
+    mutationFn: (data: any) => {
+      if (!actualTraineeId) {
+        throw new Error("Trainee ID not found");
+      }
+      return traineeService.updateTrainee(actualTraineeId, data);
+    },
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "Profile updated successfully",
+        color: "green",
+      });
+      queryClient.invalidateQueries({ queryKey: ["allTrainees"] });
+    },
+    onError: (error: any) => {
+      notifications.show({
+        title: "Error",
+        message: error.response?.data?.message || "Failed to update profile",
+        color: "red",
+      });
+    },
+  });
+
+  // Update training details mutation
+  const updateTrainingMutation = useMutation({
+    mutationFn: (data: any) => {
+      if (!actualTraineeId) {
+        throw new Error("Trainee ID not found");
+      }
+      return traineeService.updateTraineeTrainingDetails(actualTraineeId, data);
+    },
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "Training information updated successfully",
+        color: "green",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["trainingDetails", actualTraineeId],
+      });
+    },
+    onError: (error: any) => {
+      notifications.show({
+        title: "Error",
+        message:
+          error.response?.data?.message ||
+          "Failed to update training information",
+        color: "red",
+      });
+    },
+  });
+
   // Modal state
   const [modalState, setModalState] = useState({
     opened: false,
@@ -15,14 +100,10 @@ function TraineeProfile() {
       | "emergency"
       | "address"
       | "official"
-      | "status"
       | null,
     title: "",
     initialData: {} as any,
   });
-
-  // Trainee active/inactive status
-  const [isActive, setIsActive] = useState(true);
 
   // State for all data
   const [personalInfoData, setPersonalInfoData] = useState({
@@ -59,6 +140,75 @@ function TraineeProfile() {
     permanentAddress: "45 Park Avenue, Chennai, Tamil Nadu 600001",
   });
 
+  // Update state when API data is loaded
+  useEffect(() => {
+    if (apiTraineesData && loggedInUserId) {
+      const traineesArray = (apiTraineesData as any).data || apiTraineesData;
+
+      if (Array.isArray(traineesArray)) {
+        const trainee = traineesArray.find(
+          (t: any) => t.userId === loggedInUserId,
+        );
+
+        if (trainee) {
+          // Store the actual trainee ID from backend
+          setActualTraineeId(trainee.id);
+
+          // Update personal info
+          setPersonalInfoData({
+            fullName: trainee.username || "N/A",
+            bloodGroup: trainee.bloodGroup || "N/A",
+            adhaarId: trainee.aadhaarId || "N/A",
+            healthConditions: trainee.healthCondition || "None",
+            personalInterests: trainee.personalInterest || "N/A",
+          });
+
+          // Update contact info
+          setContactInfoData({
+            phoneNumber: trainee.phoneNo || "N/A",
+            email: trainee.email || "N/A",
+          });
+
+          // Update emergency contact
+          setEmergencyContactData({
+            contactNumber: trainee.emergencyContactNo || "N/A",
+            relationship: trainee.emergencyContactRelationship || "N/A",
+          });
+
+          // Update address info
+          setAddressInfoData({
+            currentAddress: trainee.currentAddress || "N/A",
+            contactNumber: trainee.contactNumber || trainee.phoneNo || "N/A",
+            permanentAddress: trainee.address || "N/A",
+          });
+
+          // Update trainee status
+          setIsActive(trainee.status === "Active");
+        }
+      }
+    }
+  }, [apiTraineesData, loggedInUserId]);
+
+  // Update official/training info when API data is loaded
+  useEffect(() => {
+    if (apiTrainingDetails) {
+      const trainingData =
+        (apiTrainingDetails as any).data || apiTrainingDetails;
+
+      if (trainingData) {
+        setOfficialInfoData({
+          batch: trainingData.batchName || "N/A",
+          techStack: officialInfoData.techStack, // Keep existing as API doesn't provide this
+          projectsInvolved: officialInfoData.projectsInvolved, // Keep existing as API doesn't provide this
+          buddy: trainingData.buddyName || "N/A",
+          ojtMentor: trainingData.ojtMentor || "N/A",
+          duAllocation: trainingData.duAllocated || "N/A",
+          location: trainingData.location || "N/A",
+        });
+      }
+    }
+  }, [apiTrainingDetails]);
+
   // Card data formatting
   const personalInfo = [
     {
@@ -67,13 +217,13 @@ function TraineeProfile() {
       gridCols: "single" as const,
     },
     {
-      label: "Blood Group",
-      value: personalInfoData.bloodGroup,
+      label: "Aadhaar ID",
+      value: personalInfoData.adhaarId,
       gridCols: "single" as const,
     },
     {
-      label: "Aadhaar ID",
-      value: personalInfoData.adhaarId,
+      label: "Blood Group",
+      value: personalInfoData.bloodGroup,
       gridCols: "single" as const,
     },
     {
@@ -138,6 +288,7 @@ function TraineeProfile() {
       label: "Email",
       value: contactInfoData.email,
       gridCols: "single" as const,
+      readOnly: true, // Mark email as read-only
     },
     {
       type: "phone" as const,
@@ -173,13 +324,7 @@ function TraineeProfile() {
 
   // Modal handlers
   const openModal = (
-    type:
-      | "personal"
-      | "contact"
-      | "emergency"
-      | "address"
-      | "official"
-      | "status",
+    type: "personal" | "contact" | "emergency" | "address" | "official",
     title: string,
     data: any,
   ) => {
@@ -190,6 +335,75 @@ function TraineeProfile() {
     setModalState({ opened: false, type: null, title: "", initialData: {} });
 
   const handleSave = (data: any) => {
+    // Handle training/official information update
+    if (actualTraineeId && modalState.type === "official") {
+      const trainingPayload: any = {};
+
+      // Only include fields that have changed and are not "N/A"
+      if (data.buddy && data.buddy !== "N/A") {
+        trainingPayload.buddyName = data.buddy;
+      }
+      if (data.duAllocation && data.duAllocation !== "N/A") {
+        trainingPayload.duName = data.duAllocation;
+      }
+      if (data.ojtMentor && data.ojtMentor !== "N/A") {
+        trainingPayload.ojtMentor = data.ojtMentor;
+      }
+      if (data.location && data.location !== "N/A") {
+        trainingPayload.location = data.location;
+      }
+
+      console.log("Training update payload:", trainingPayload);
+      updateTrainingMutation.mutate(trainingPayload);
+    }
+
+    // Prepare API payload based on modal type
+    if (
+      actualTraineeId &&
+      (modalState.type === "personal" ||
+        modalState.type === "contact" ||
+        modalState.type === "emergency" ||
+        modalState.type === "address")
+    ) {
+      const updatePayload: any = {
+        id: actualTraineeId,
+        email: contactInfoData.email, // Always use existing email (read-only for trainees)
+        phoneNo:
+          modalState.type === "contact"
+            ? data.phoneNumber
+            : contactInfoData.phoneNumber,
+        status: (isActive ? "Active" : "Inactive") as
+          | "Active"
+          | "Inactive"
+          | "OnLeave",
+      };
+
+      // Map fields based on modal type
+      if (modalState.type === "personal") {
+        updatePayload.bloodGroup = data.bloodGroup;
+        updatePayload.aadhaarId = data.adhaarId;
+        updatePayload.healthCondition = data.healthConditions;
+        updatePayload.personalInterest = data.personalInterests;
+      } else if (modalState.type === "contact") {
+        // Email is read-only for trainees, so don't update it
+        updatePayload.phoneNo = data.phoneNumber;
+        // Also update emergency contact fields from contact modal
+        updatePayload.emergencyContactNo = data.emergencyContactNumber;
+        updatePayload.emergencyContactRelationship =
+          data.emergencyContactRelationship;
+      } else if (modalState.type === "emergency") {
+        updatePayload.emergencyContactNo = data.contactNumber;
+        updatePayload.emergencyContactRelationship = data.relationship;
+      } else if (modalState.type === "address") {
+        updatePayload.currentAddress = data.currentAddress;
+        updatePayload.contactNumber = data.contactNumber;
+        updatePayload.address = data.permanentAddress;
+      }
+
+      updateTraineeMutation.mutate(updatePayload);
+    }
+
+    // Update local state after API call
     switch (modalState.type) {
       case "personal":
         setPersonalInfoData(data);
@@ -198,7 +412,15 @@ function TraineeProfile() {
         setOfficialInfoData(data);
         break;
       case "contact":
-        setContactInfoData(data);
+        // Update both contact and emergency contact data
+        setContactInfoData({
+          phoneNumber: data.phoneNumber,
+          email: contactInfoData.email, // Keep existing email, don't update from form
+        });
+        setEmergencyContactData({
+          contactNumber: data.emergencyContactNumber,
+          relationship: data.emergencyContactRelationship,
+        });
         break;
       case "emergency":
         setEmergencyContactData(data);
@@ -209,6 +431,71 @@ function TraineeProfile() {
     }
   };
 
+  // Authentication check
+  if (!authData || !loggedInUserId) {
+    return (
+      <div className="max-w-6xl mx-auto p-4 flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">
+          Please log in to view your profile
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-6xl mx-auto p-4 flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">Loading profile...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+          <div className="text-lg text-red-600">Failed to load profile</div>
+          <div className="text-sm text-gray-600">
+            {(error as Error).message}
+          </div>
+          <button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["allTrainees"] })
+            }
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if trainee profile was found
+  if (!actualTraineeId) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+          <div className="text-lg text-gray-600">Profile not found</div>
+          <div className="text-sm text-gray-500">
+            Your trainee profile could not be found. Please contact your
+            administrator.
+          </div>
+          <button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["allTrainees"] })
+            }
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       {/* Header */}
@@ -218,27 +505,25 @@ function TraineeProfile() {
             className="w-10 h-10 rounded-4xl flex items-center justify-center text-white font-semibold text-base"
             style={{ backgroundColor: "#2563EB" }}
           >
-            AS
+            {personalInfoData.fullName
+              ? personalInfoData.fullName
+                  .split(" ")
+                  .map((name) => name[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)
+              : "NA"}
           </div>
           <div>
             <h1 className="text-xl font-bold text-[#565E6C]">
               {personalInfoData.fullName}
             </h1>
 
-            {/* ✅ Clickable Badge */}
+            {/* Status Badge */}
             <div className="flex items-center mt-1">
-              <button
-                onClick={() =>
-                  openModal(
-                    "status",
-                    isActive ? "Mark Inactive" : "Mark Active",
-                    {},
-                  )
-                }
-                className={`flex items-center px-3 py-1 rounded-full transition duration-200 ${
-                  isActive
-                    ? "bg-green-100 hover:bg-green-200"
-                    : "bg-gray-200 hover:bg-gray-300"
+              <div
+                className={`flex items-center px-3 py-1 rounded-full ${
+                  isActive ? "bg-green-100" : "bg-gray-200"
                 }`}
               >
                 <div
@@ -253,18 +538,10 @@ function TraineeProfile() {
                 >
                   {isActive ? "Active" : "Inactive"}
                 </span>
-              </button>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* View Results Button */}
-        <button
-          onClick={() => navigate("/results")}
-          className="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
-        >
-          View Results
-        </button>
       </div>
 
       {/* === Row 1 === */}
@@ -286,13 +563,10 @@ function TraineeProfile() {
           title={
             <div className="flex items-center space-x-2">
               <Briefcase className="w-4 h-4 text-blue-500" />
-              <span>Official Information</span>
+              <span>Training Details</span>
             </div>
           }
           items={officialInfo}
-          onEdit={() =>
-            openModal("official", "Edit Official Information", officialInfoData)
-          }
         />
       </div>
 
@@ -308,8 +582,9 @@ function TraineeProfile() {
           items={contactAndEmergencyInfo}
           onEdit={() =>
             openModal("contact", "Edit Contact & Emergency Information", {
-              ...contactInfoData,
-              ...emergencyContactData,
+              phoneNumber: contactInfoData.phoneNumber,
+              emergencyContactNumber: emergencyContactData.contactNumber,
+              emergencyContactRelationship: emergencyContactData.relationship,
             })
           }
         />
@@ -329,55 +604,16 @@ function TraineeProfile() {
       </div>
 
       {/* === Modal Section === */}
-      {modalState.opened &&
-        modalState.type &&
-        (modalState.type === "status" ? (
-          // ✅ Status Confirmation Modal
-          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-            <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
-              <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                {isActive
-                  ? "Mark trainee as Inactive?"
-                  : "Mark trainee as Active?"}
-              </h2>
-              <p className="text-sm text-gray-600 mb-6">
-                {isActive
-                  ? "This will mark the trainee as inactive. They will no longer appear in the active trainees list."
-                  : "This will mark the trainee as active again."}
-              </p>
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={closeModal}
-                  className="px-3 py-1 text-sm bg-gray-200 rounded-lg hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    setIsActive(!isActive);
-                    closeModal();
-                  }}
-                  className={`px-3 py-1 text-sm rounded-lg text-white ${
-                    isActive
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-green-500 hover:bg-green-600"
-                  }`}
-                >
-                  {isActive ? "Mark Inactive" : "Mark Active"}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <EditModal
-            opened={modalState.opened}
-            onClose={closeModal}
-            onSave={handleSave}
-            title={modalState.title}
-            type={modalState.type}
-            initialData={modalState.initialData}
-          />
-        ))}
+      {modalState.opened && modalState.type && (
+        <TraineeEditModal
+          opened={modalState.opened}
+          onClose={closeModal}
+          onSave={handleSave}
+          title={modalState.title}
+          type={modalState.type}
+          initialData={modalState.initialData}
+        />
+      )}
     </div>
   );
 }

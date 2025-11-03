@@ -1,30 +1,33 @@
+// import { useState } from "react";
+// import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+
+// import {
+//   getDaysInMonth,
+//   getFirstDayOfMonth,
+
+//   dayNames,
+// } from "../../features/ui/calendar/CalendarUtils";
+import CalendarGrid from "../../features/ui/calendar/CalendarGrid";
+
+import EventSidebar from "../../features/ui/calendar/EventSideBar";
+// TraineeCurriculumCalendar.tsx
+
 import { useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import TraineeCalendarGrid from "../../features/ui/calendar/TraineeCalendarGrid";
+import TraineeEventSidebar from "../../features/ui/calendar/TraineeEventSidebar";
+import MonthPicker from "../../features/ui/calendar//MonthPicker";
 import type {
   CurriculumEvent,
-  SelectedDay,
-} from "../../features/ui/Calendar-utils";
-import {
-  getDaysInMonth,
-  getFirstDayOfMonth,
-  monthNames,
-  dayNames,
-  colorClasses,
-} from "../../features/ui/Calendar-utils";
-
-import { EventSidebar } from "../../features/ui/calendar/EventSideBar";
+  Holiday,
+} from "../../features/ui/calendar/types.ts";
+import { monthNames } from "../../features/ui/calendar/CalendarUtils.tsx";
 
 // Mock curriculum events data
 const curriculumEvents: CurriculumEvent[] = [
   {
     id: "1",
-    title: "Scrum Agile, Scrum Agile",
+    title: "Scrum Agile",
     start: new Date(2025, 9, 15, 9, 0),
     end: new Date(2025, 9, 15, 18, 0),
     color: "blue",
@@ -33,7 +36,7 @@ const curriculumEvents: CurriculumEvent[] = [
   },
   {
     id: "2",
-    title: "Scrum Agile",
+    title: "JavaScript Advanced",
     start: new Date(2025, 9, 16, 10, 0),
     end: new Date(2025, 9, 16, 13, 0),
     color: "emerald",
@@ -43,7 +46,7 @@ const curriculumEvents: CurriculumEvent[] = [
   {
     id: "3",
     title: "HTML-CSS",
-    start: new Date(2025, 9, 17, 9, 0), //new Date(year, monthIndex, day, hours, minutes, seconds, milliseconds),
+    start: new Date(2025, 9, 17, 9, 0),
     end: new Date(2025, 9, 17, 11, 0),
     color: "indigo",
     instructor: "Hari Krishnan",
@@ -67,72 +70,36 @@ const curriculumEvents: CurriculumEvent[] = [
     instructor: "Mike Wilson",
     description: "Introduction to TypeScript",
   },
-
-  {
-    id: "6",
-    title: "TypeScript Basics",
-    start: new Date(2025, 9, 21, 9, 0),
-    end: new Date(2025, 9, 21, 12, 0),
-    color: "amber",
-    instructor: "Mike Wilson",
-    description: "Introduction to TypeScript",
-  },
-  {
-    id: "7",
-    title: "Database Design",
-    start: new Date(2025, 9, 22, 10, 0),
-    end: new Date(2025, 9, 22, 13, 0),
-    color: "red",
-    instructor: "Jane Smith",
-    description: "SQL and NoSQL databases",
-  },
-  {
-    id: "8",
-    title: "System Design",
-    start: new Date(2025, 9, 22, 10, 0),
-    end: new Date(2025, 9, 22, 13, 0),
-    color: "blue",
-    instructor: "Jane Smith",
-    description: "SQL and NoSQL databases",
-  },
-  {
-    id: "9",
-    title: "React Hooks Deep Dive",
-    start: new Date(2025, 9, 23, 9, 0),
-    end: new Date(2025, 9, 23, 12, 0),
-    color: "blue",
-    instructor: "John Doe",
-    description: "Advanced hooks patterns",
-  },
-  {
-    id: "10",
-    title: "Testing with Jest",
-    start: new Date(2025, 9, 24, 14, 0),
-    end: new Date(2025, 9, 24, 16, 0),
-    color: "orange",
-    instructor: "Sarah Johnson",
-    description: "Unit and integration testing",
-  },
 ];
+
 // Mock attendance data
 const attendanceData: Record<number, { fn: "P" | "A"; an: "P" | "A" }> = {
-  1: { fn: "P", an: "A" },
-  2: { fn: "P", an: "P" },
-  3: { fn: "A", an: "P" },
-  4: { fn: "A", an: "A" },
-  5: { fn: "P", an: "A" },
+  15: { fn: "P", an: "P" },
+  16: { fn: "P", an: "A" },
+  17: { fn: "A", an: "P" },
+  18: { fn: "A", an: "A" },
+  20: { fn: "P", an: "P" },
 };
 
-// Helper functions to replace date-fns
+// Mock holidays
+const holidays: Holiday[] = [
+  { day: 1, month: 9, year: 2025 },
+  { day: 25, month: 9, year: 2025 },
+];
 
 function TraineeCurriculumCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
 
-  const today = new Date();
-  const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-  const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
+  const isHolidayDay = (day: number, month: number, year: number): boolean => {
+    const date = new Date(year, month, day);
+    if (date.getDay() === 0) return true; // Sunday
+    return holidays.some(
+      (h) => h.day === day && h.month === month && h.year === year,
+    );
+  };
 
   const getDayEvents = (day: number) => {
     return curriculumEvents.filter((event) => {
@@ -143,6 +110,10 @@ function TraineeCurriculumCalendar() {
         eventDate.getFullYear() === currentYear
       );
     });
+  };
+
+  const getDayAttendance = (day: number) => {
+    return attendanceData[day];
   };
 
   const handlePreviousMonth = () => {
@@ -165,47 +136,45 @@ function TraineeCurriculumCalendar() {
     setSelectedDay(null);
   };
 
+  const handleMonthSelect = (month: number, year: number) => {
+    setCurrentMonth(month);
+    setCurrentYear(year);
+    setSelectedDay(null);
+  };
+
+  const handleGoToToday = () => {
+    const today = new Date();
+    setCurrentMonth(today.getMonth());
+    setCurrentYear(today.getFullYear());
+    setSelectedDay(today.getDate());
+  };
+
   const handleDayClick = (day: number) => {
-    const events = getDayEvents(day);
-    if (events.length > 0) {
-      setSelectedDay({ day, events });
-    }
+    setSelectedDay(day);
   };
 
-  const isToday = (day: number) => {
-    return (
-      day === today.getDate() &&
-      currentMonth === today.getMonth() &&
-      currentYear === today.getFullYear()
-    );
-  };
-
-  // Generate calendar days
-  const calendarDays: (number | null)[] = [];
-  const totalCells = Math.ceil((daysInMonth + firstDayOfMonth) / 7) * 7;
-
-  for (let i = 0; i < totalCells; i++) {
-    const day = i - firstDayOfMonth + 1;
-    if (day > 0 && day <= daysInMonth) {
-      calendarDays.push(day);
-    } else {
-      calendarDays.push(null);
-    }
-  }
+  const selectedDayEvents =
+    selectedDay !== null ? getDayEvents(selectedDay) : [];
+  const selectedDayAttendance =
+    selectedDay !== null ? getDayAttendance(selectedDay) : undefined;
+  const currentIsHoliday =
+    selectedDay !== null
+      ? isHolidayDay(selectedDay, currentMonth, currentYear)
+      : false;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background p-4 font-secondary">
+      <div className="max-w-[1800px] mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-card rounded-xl shadow-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <BookOpen className="w-8 h-8 text-blue-600" />
+              <BookOpen className="w-8 h-6 text-brand" />
               <div>
-                <h1 className="text-2xl font-bold text-slate-800">
+                <h1 className="text-xl font-bold text-text-base">
                   Training Curriculum
                 </h1>
-                <p className="text-slate-600 text-sm">
+                <p className="text-gray-600 text-sm">
                   View your upcoming sessions
                 </p>
               </div>
@@ -213,18 +182,19 @@ function TraineeCurriculumCalendar() {
             <div className="flex items-center gap-4">
               <button
                 onClick={handlePreviousMonth}
-                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                aria-label="Previous month"
+                className="p-2 rounded-lg hover:bg-brand-50 transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <h2 className="text-xl font-semibold text-slate-800 min-w-[200px] text-center">
+              <h2
+                onClick={() => setShowMonthPicker(true)}
+                className="text-xl font-semibold text-text-base min-w-[200px] text-center cursor-pointer hover:bg-brand-50 px-4 py-2 rounded-lg transition-colors"
+              >
                 {monthNames[currentMonth]} {currentYear}
               </h2>
               <button
                 onClick={handleNextMonth}
-                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                aria-label="Next month"
+                className="p-2 rounded-lg hover:bg-brand-50 transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -232,126 +202,41 @@ function TraineeCurriculumCalendar() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Calendar Grid */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 h-[75vh] overflow-hidden flex flex-col">
-            {/* Weekday Headers */}
-            <div className="grid grid-cols-7 mb-2 top-0 bg-white z-10 py-3 border-b border-slate-200">
-              {dayNames.map((day) => (
-                <div
-                  key={day}
-                  className="text-center text-sm font-semibold text-slate-600"
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-2 overflow-y-auto">
-              {calendarDays.map((day, index) => {
-                if (!day) {
-                  return <div key={index} className="min-h-[100px]"></div>;
-                }
-
-                const dayEvents = getDayEvents(day);
-                const isTodayDay = isToday(day);
-                const hasEvents = dayEvents.length > 0;
-
-                return (
-                  <div
-                    key={index}
-                    onClick={() => handleDayClick(day)}
-                    className={`
-                     relative min-h-[100px] p-2 border rounded-lg transition-all
-                      ${hasEvents ? "cursor-pointer hover:shadow-md hover:scale-105 bg-white" : "bg-white"}
-                      ${isTodayDay ? "ring-2 ring-blue-500" : "border-slate-200"}
-                    `}
-                  >
-                    <div
-                      className={`
-                      text-sm font-medium mb-1 w-7 h-7 rounded-full flex items-center justify-center
-                      ${isTodayDay ? "bg-blue-600 text-white" : "text-slate-700"}
-                    `}
-                    >
-                      {day}
-                    </div>
-                    {/* Attendance Dots */}
-
-                    {/* Attendance Indicator (top-right corner beside date number) */}
-                    {attendanceData[day] && (
-                      <div className="absolute top-3 right-3">
-                        {/* FULL ABSENT */}
-                        {attendanceData[day].fn === "A" &&
-                        attendanceData[day].an === "A" ? (
-                          <div title="Absent">
-                            <XCircle className="w-4 h-4 text-red-500" />
-                          </div>
-                        ) : /* FULL PRESENT */ attendanceData[day].fn === "P" &&
-                          attendanceData[day].an === "P" ? (
-                          <div title="Present">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                          </div>
-                        ) : (
-                          /* PARTIAL */
-                          <div
-                            title={
-                              attendanceData[day].fn === "A"
-                                ? "Present Afternoon"
-                                : "Present Forenoon"
-                            }
-                          >
-                            <CheckCircle className="w-4 h-4 text-yellow-500" />
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="space-y-1">
-                      {dayEvents.slice(0, 2).map((event) => (
-                        <div
-                          key={event.id}
-                          className={`text-xs p-1 rounded border ${colorClasses[event.color]} truncate`}
-                        >
-                          {event.title}
-                        </div>
-                      ))}
-                      {dayEvents.length > 2 && (
-                        <div className="text-xs text-slate-600 font-medium">
-                          +{dayEvents.length - 2} more
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <TraineeCalendarGrid
+              currentMonth={currentMonth}
+              currentYear={currentYear}
+              selectedDay={selectedDay}
+              onDayClick={handleDayClick}
+              getDayEvents={getDayEvents}
+              getDayAttendance={getDayAttendance}
+              isHolidayDay={isHolidayDay}
+            />
           </div>
-
-          {/* Event Details Sidebar */}
-          <EventSidebar
-            dateLabel={
-              selectedDay
-                ? `${monthNames[currentMonth]} ${selectedDay.day}, ${currentYear}`
-                : ""
-            }
-            events={selectedDay?.events || []}
-          />
+          <div className="lg:sticky lg:top-6 self-start h-fit">
+            <TraineeEventSidebar
+              dateLabel={
+                selectedDay !== null
+                  ? `${monthNames[currentMonth]} ${selectedDay}, ${currentYear}`
+                  : ""
+              }
+              events={selectedDayEvents}
+              attendance={selectedDayAttendance}
+              isHoliday={currentIsHoliday}
+            />
+          </div>
         </div>
-
-        {/* Legend */}
-        {/* <div className="bg-white rounded-xl shadow-lg p-4 mt-6">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Course Categories</h3>
-          <div className="flex flex-wrap gap-4">
-            {Object.entries(colorClasses).map(([color, className]) => (
-              <div key={color} className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded border ${className}`}></div>
-                <span className="text-sm text-slate-600 capitalize">{color}</span>
-              </div>
-            ))}
-          </div>
-        </div> */}
       </div>
+
+      <MonthPicker
+        isOpen={showMonthPicker}
+        onClose={() => setShowMonthPicker(false)}
+        currentMonth={currentMonth}
+        currentYear={currentYear}
+        onSelect={handleMonthSelect}
+        onGoToToday={handleGoToToday}
+      />
     </div>
   );
 }

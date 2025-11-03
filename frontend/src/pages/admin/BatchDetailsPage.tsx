@@ -1,27 +1,21 @@
-import { useState } from "react";
-import { ActionIcon } from "@mantine/core";
+import { useState, useEffect } from "react";
 import { notifications } from "@mantine/notifications";
-import DataTable from "../../features/ui/Table";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router";
 import BatchDetailsCard from "../../features/admin/batches/BatchDetailsCard";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
-import StatusBadge from "../../features/ui/StatusBadge";
 import AddTraineeModal from "../../features/admin/batches/AddTraineeModal";
-import EditDetailsModal from "../../features/admin/batches/EditDetailsModal"; // new modal component
-import { useParams, useNavigate } from "react-router";
-import { openDeleteModal } from "../../features/ui/DeleteConfirmModal";
-import {
-  Users,
-  Briefcase,
-  Building2,
-  LayoutDashboard,
-  Trash2,
-  Pencil,
-} from "lucide-react";
+import EditDetailsModal from "../../features/admin/batches/EditDetailsModal";
+import PhaseTabsAndTables from "../../features/admin/batches/PhaseTabsAndTables";
+import { batchService } from "../../services/batchService";
+import { traineeService } from "../../services/traineeService";
 import DocumentUpload from "../../features/admin/batches/DocumentAccordion";
 import ResultsAccordion from "./ResultsAccordion";
 
 interface Trainee {
   id: number;
+  traineeId?: number; // Store actual trainee ID from backend for updates
+  userId?: number; // User ID for navigation to profile page
   name: string;
   email: string;
   phoneNumber: string;
@@ -51,6 +45,7 @@ interface BatchUpdateData {
   startDate: string;
   endDate: string;
   batchType: string;
+  phases?: any[];
 }
 
 interface Specialization {
@@ -62,6 +57,7 @@ interface Specialization {
 
 interface BusinessOrientation {
   id: number;
+  boPhaseId?: number; // Store backend ID for updates
   traineeName: string;
   buddy: string;
   du: string;
@@ -69,19 +65,83 @@ interface BusinessOrientation {
 
 interface DUData {
   id: number;
+  traineeDuId?: number; // Store backend ID for updates
   traineeName: string;
   duAllocated: string;
   location: string;
   ojtMentor: string;
 }
 
-export default function BatchDetailsPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+interface ResultsData {
+  id: number;
+  traineeName: string;
+  techFundamentalScore: string;
+  specializationScore: string;
+  boScore: string;
+  overallScore: string;
+}
 
+export default function BatchDetailsPage() {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const batchId = id ? parseInt(id) : null;
+
+  const [selectedStatus] = useState<string | null>(null);
   const [isAddTraineeModalOpen, setIsAddTraineeModalOpen] = useState(false);
   const [isEditBatchModalOpen, setIsEditBatchModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [activePhase, setActivePhase] = useState("Trainees");
+
+  // Fetch batch details from API
+  const {
+    data: apiBatch,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["batch", batchId],
+    queryFn: () => batchService.getBatchById(batchId!),
+    enabled: !!batchId,
+    staleTime: 30000,
+  });
+
+  // Fetch batch types for ID lookup during update
+  const { data: apiBatchTypes } = useQuery({
+    queryKey: ["batchTypes"],
+    queryFn: batchService.getAllBatchTypes,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch trainees for this batch
+  const { data: apiTrainees, refetch: refetchTrainees } = useQuery({
+    queryKey: ["trainees", batchId],
+    queryFn: () => traineeService.getTraineesByBatch(batchId!),
+    enabled: !!batchId,
+    staleTime: 0, // Don't cache - always fetch fresh data
+  });
+
+  // Fetch BO Phases for this batch
+  const { data: apiBoPhases } = useQuery({
+    queryKey: ["boPhases", batchId],
+    queryFn: () => traineeService.getBoPhasesByBatch(batchId!),
+    enabled: !!batchId,
+    staleTime: 30000,
+  });
+
+  // Fetch Trainee DUs for this batch
+  const { data: apiTraineeDus } = useQuery({
+    queryKey: ["traineeDus", batchId],
+    queryFn: () => traineeService.getTraineeDusByBatch(batchId!),
+    enabled: !!batchId,
+    staleTime: 30000,
+  });
+
+  // Fetch Specialization Phase for this batch
+  const { data: apiSpecialization } = useQuery({
+    queryKey: ["specialization", batchId],
+    queryFn: () => batchService.getSpecializationPhaseByBatch(batchId!),
+    enabled: !!batchId,
+    staleTime: 30000,
+  });
 
   const [currentBatch, setCurrentBatch] = useState<Batch>({
     id: 1,
@@ -92,213 +152,502 @@ export default function BatchDetailsPage() {
     status: "Ongoing",
     totalTrainees: 5,
     totalTrainingHours: 48,
-    techStack: "React, Angular, .Net, Python, Django",
+    techStack: "Loading...",
   });
 
-  const [trainees, setTrainees] = useState<Trainee[]>([
-    {
-      id: 1,
-      name: "John Dover",
-      email: "john.dover@gmail.com",
-      phoneNumber: "9043568213",
-      status: "Inactive",
-    },
-    {
-      id: 2,
-      name: "Mary Varghese",
-      email: "mary.varghese@gmail.com",
-      phoneNumber: "9845623178",
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "Jake Gruton",
-      email: "jake.gruton@gmail.com",
-      phoneNumber: "9876543210",
-      status: "Active",
-    },
-    {
-      id: 4,
-      name: "Anjali Nair",
-      email: "anjali.nair@gmail.com",
-      phoneNumber: "9865321478",
-      status: "Active",
-    },
-    {
-      id: 5,
-      name: "Vijay Kumar",
-      email: "vijay.kumar@gmail.com",
-      phoneNumber: "9056741235",
-      status: "Inactive",
-    },
-  ]);
+  // State to track available phases in the batch
+  const [availablePhases, setAvailablePhases] = useState<string[]>([]);
 
-  // Specialization, Business Orientation, DU data (stateful for editing)
+  // Update currentBatch when API data is loaded
+  useEffect(() => {
+    if (apiBatch) {
+      // Handle wrapped response format
+      const batchData = (apiBatch as any).data || apiBatch;
+
+      if (!batchData || !batchData.startDate || !batchData.endDate) {
+        return;
+      }
+
+      // Map backend status to frontend format
+      // Backend can return status as string or integer (0=NotStarted, 1=Active, 2=Completed)
+      let status: "Not Started" | "Ongoing" | "Completed" = "Not Started";
+
+      // Handle integer status values
+      if (batchData.status === 0 || batchData.status === "NotStarted") {
+        status = "Not Started";
+      } else if (
+        batchData.status === 1 ||
+        batchData.status === "Active" ||
+        batchData.status === "Ongoing"
+      ) {
+        status = "Ongoing";
+      } else if (batchData.status === 2 || batchData.status === "Completed") {
+        status = "Completed";
+      }
+
+      // Calculate training hours from dates
+      const start = new Date(batchData.startDate);
+      const end = new Date(batchData.endDate);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const trainingHours = diffDays * 8;
+
+      setCurrentBatch({
+        id: batchData.id,
+        batchName: batchData.batchName,
+        startDate: batchData.startDate?.split("T")?.[0] || batchData.startDate,
+        endDate: batchData.endDate?.split("T")?.[0] || batchData.endDate,
+        batchType: batchData.batchTypeName || "Unknown",
+        status,
+        totalTrainees: 0, // Will be updated when trainees are loaded
+        totalTrainingHours: trainingHours,
+        techStack: "Loading...", // Will be updated from specialization data
+      });
+
+      // Extract available phases from batch data
+      if (batchData.phases && Array.isArray(batchData.phases)) {
+        const phaseNames = batchData.phases
+          .map((phase: any) => phase.phaseType || phase.phaseTypeName)
+          .filter((name: string) => name);
+        setAvailablePhases(phaseNames);
+      }
+    }
+  }, [apiBatch]);
+
+  const [trainees, setTrainees] = useState<Trainee[]>([]);
+
+  // Update trainees when API data is loaded
+  useEffect(() => {
+    if (apiTrainees) {
+      // Handle wrapped response format
+      const traineesArray = (apiTrainees as any).data || apiTrainees;
+
+      if (Array.isArray(traineesArray)) {
+        const mappedTrainees: Trainee[] = traineesArray.map((trainee: any) => {
+          // The trainee ID (trainee.id) is the primary key used for API updates
+          // userId is a different field (foreign key to User table) used for profile navigation
+          const traineeId = trainee.traineeId || trainee.id;
+
+          return {
+            id: traineeId, // Use trainee.id for display and updates
+            traineeId: traineeId, // Store explicitly for API calls
+            userId: trainee.userId, // Store userId for profile navigation
+            name: trainee.username || trainee.name || "Unknown",
+            email: trainee.email || "",
+            phoneNumber: trainee.phoneNo || trainee.phoneNumber || "",
+            status: trainee.status === "Active" ? "Active" : "Inactive",
+          };
+        });
+
+        // Sort trainees alphabetically by name by default
+        const sortedTrainees = mappedTrainees.sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+        );
+
+        setTrainees(sortedTrainees);
+      }
+    }
+  }, [apiTrainees]);
+
+  // Update batch totalTrainees count when trainees change
+  useEffect(() => {
+    setCurrentBatch((prev) => ({
+      ...prev,
+      totalTrainees: trainees.length,
+    }));
+  }, [trainees.length]);
+
   const [specializationData, setSpecializationData] = useState<
     Specialization[]
-  >([
-    {
-      id: 1,
-      traineeName: "John Dover",
-      techStack: "React, Node.js",
-      project: "Carbon Zero Portal",
-    },
-    {
-      id: 2,
-      traineeName: "Mary Varghese",
-      techStack: "Angular, .NET",
-      project: "Internal Dashboard",
-    },
-    {
-      id: 3,
-      traineeName: "Jake Gruton",
-      techStack: "Python, Django",
-      project: "AI Chat Support",
-    },
-    {
-      id: 4,
-      traineeName: "Anjali Nair",
-      techStack: "React Native",
-      project: "Mobile Analytics",
-    },
-  ]);
+  >([]);
+
+  // Update Specialization data when API data is loaded
+  useEffect(() => {
+    if (apiSpecialization) {
+      // Handle wrapped response format
+      const specArray = (apiSpecialization as any).data || apiSpecialization;
+
+      if (Array.isArray(specArray)) {
+        const mappedSpecialization: Specialization[] = specArray.map(
+          (spec: any) => ({
+            id: spec.traineeId || spec.id,
+            traineeName: spec.traineeName || "Unknown",
+            techStack: spec.techStack || "Not Assigned",
+            project: spec.project || "Not Assigned",
+          }),
+        );
+
+        // Sort by trainee name alphabetically
+        const sortedSpecialization = mappedSpecialization.sort((a, b) =>
+          a.traineeName.localeCompare(b.traineeName, undefined, {
+            sensitivity: "base",
+          }),
+        );
+
+        setSpecializationData(sortedSpecialization);
+
+        // Extract unique tech stacks from projects and update batch tech stack
+        const uniqueTechStacks = Array.from(
+          new Set(
+            specArray
+              .map((spec: any) => spec.techStack)
+              .filter(
+                (tech: string) =>
+                  tech && tech !== "Not Assigned" && tech.trim() !== "",
+              ),
+          ),
+        ).sort();
+
+        setCurrentBatch((prev) => ({
+          ...prev,
+          techStack:
+            uniqueTechStacks.length > 0
+              ? uniqueTechStacks.join(", ")
+              : "Not Assigned",
+        }));
+      }
+    }
+  }, [apiSpecialization]);
 
   const [businessOrientationData, setBusinessOrientationData] = useState<
     BusinessOrientation[]
-  >([
+  >([]);
+
+  // Update BO Phase data when API data is loaded
+  useEffect(() => {
+    if (apiBoPhases) {
+      // Handle wrapped response format
+      const boArray = (apiBoPhases as any).data || apiBoPhases;
+
+      if (Array.isArray(boArray)) {
+        const mappedBoPhases: BusinessOrientation[] = boArray.map(
+          (bo: any) => ({
+            id: bo.boPhaseId, // Use boPhaseId from API
+            boPhaseId: bo.boPhaseId, // Store backend ID for updates
+            traineeName: bo.traineeName || "Unknown",
+            buddy: bo.buddy || "", // API returns "buddy" field
+            du: bo.buddyDU || "", // API returns "buddyDU" field
+          }),
+        );
+
+        // Sort by trainee name alphabetically by default
+        const sortedBoPhases = mappedBoPhases.sort((a, b) =>
+          a.traineeName.localeCompare(b.traineeName, undefined, {
+            sensitivity: "base",
+          }),
+        );
+
+        setBusinessOrientationData(sortedBoPhases);
+      }
+    }
+  }, [apiBoPhases]);
+
+  const [duData, setDuData] = useState<DUData[]>([]);
+
+  // Update Trainee DU data when API data is loaded
+  useEffect(() => {
+    if (apiTraineeDus) {
+      // Handle wrapped response format
+      const duArray = (apiTraineeDus as any).data || apiTraineeDus;
+
+      if (Array.isArray(duArray)) {
+        const mappedDus: DUData[] = duArray.map((du: any, index: number) => ({
+          id: du.traineeDuId || du.id || index + 1,
+          traineeDuId: du.traineeDuId, // Store backend ID for updates
+          traineeName: du.traineeName || "Unknown",
+          duAllocated: du.duAllocated || du.duName || "",
+          location: du.location || "",
+          ojtMentor: du.ojtMentor || du.ojtMenter || "",
+        }));
+
+        // Sort by trainee name alphabetically by default
+        const sortedDus = mappedDus.sort((a, b) =>
+          a.traineeName.localeCompare(b.traineeName, undefined, {
+            sensitivity: "base",
+          }),
+        );
+
+        setDuData(sortedDus);
+      }
+    }
+  }, [apiTraineeDus]);
+
+  const [resultsData, setResultsData] = useState<ResultsData[]>([
     {
-      id: 1,
-      traineeName: "John Dover",
-      buddy: "Arun Kumar",
-      du: "Digital Engineering",
-    },
-    {
-      id: 2,
-      traineeName: "Mary Varghese",
-      buddy: "Sneha Thomas",
-      du: "Cloud Services",
+      id: 4,
+      traineeName: "Anjali Nair",
+      techFundamentalScore: "95",
+      specializationScore: "93",
+      boScore: "92",
+      overallScore: "93.33",
     },
     {
       id: 3,
       traineeName: "Jake Gruton",
-      buddy: "Rahul Nair",
-      du: "AI & Analytics",
+      techFundamentalScore: "78",
+      specializationScore: "82",
+      boScore: "85",
+      overallScore: "81.67",
     },
-    {
-      id: 4,
-      traineeName: "Anjali Nair",
-      buddy: "Meera Dev",
-      du: "Cybersecurity",
-    },
-  ]);
-
-  const [duData, setDuData] = useState<DUData[]>([
     {
       id: 1,
       traineeName: "John Dover",
-      duAllocated: "Digital Engineering",
-      location: "Kochi",
-      ojtMentor: "Rahul Nair",
+      techFundamentalScore: "85",
+      specializationScore: "90",
+      boScore: "88",
+      overallScore: "87.67",
     },
     {
       id: 2,
       traineeName: "Mary Varghese",
-      duAllocated: "Cloud Services",
-      location: "Trivandrum",
-      ojtMentor: "Sneha Thomas",
-    },
-    {
-      id: 3,
-      traineeName: "Jake Gruton",
-      duAllocated: "AI & Analytics",
-      location: "Bangalore",
-      ojtMentor: "Arjun Menon",
-    },
-    {
-      id: 4,
-      traineeName: "Anjali Nair",
-      duAllocated: "Cybersecurity",
-      location: "Kochi",
-      ojtMentor: "Meera Dev",
+      techFundamentalScore: "92",
+      specializationScore: "88",
+      boScore: "90",
+      overallScore: "90.00",
     },
   ]);
 
-  // ----- Edit Phase Modal State -----
   const [isEditPhaseModalOpen, setIsEditPhaseModalOpen] = useState(false);
   const [currentEditRow, setCurrentEditRow] = useState<any>(null);
   const [currentEditPhase, setCurrentEditPhase] = useState<
-    "Specialization" | "Business Orientation" | "DU" | null
+    | "Trainees"
+    | "Specialization"
+    | "Business Orientation"
+    | "DU"
+    | "Scores"
+    | null
   >(null);
-
-  const handleEditRow = (
-    row: any,
-    phase: "Specialization" | "Business Orientation" | "DU",
-  ) => {
-    setCurrentEditRow(row);
-    setCurrentEditPhase(phase);
-    setIsEditPhaseModalOpen(true);
-  };
+  const [modalErrors, setModalErrors] = useState<Record<string, string>>({});
 
   const handleSavePhaseEdit = (updatedRow: any) => {
-    if (currentEditPhase === "Specialization") {
-      setSpecializationData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
-      );
-    } else if (currentEditPhase === "Business Orientation") {
-      setBusinessOrientationData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
-      );
-    } else if (currentEditPhase === "DU") {
-      setDuData((prev) =>
-        prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
-      );
+    console.log("handleSavePhaseEdit called with:", updatedRow);
+    switch (currentEditPhase) {
+      case "Trainees": {
+        // Transform to UpdateTraineeDto format
+        // Use traineeId (actual backend ID) for the route parameter
+        const traineeId = updatedRow.traineeId || updatedRow.id;
+
+        // Find the original trainee data to preserve status (since it's not editable in modal)
+        const originalTrainee = trainees.find(
+          (t) => t.id === traineeId || t.traineeId === traineeId,
+        );
+
+        const updateData = {
+          // Don't include 'id' in body - backend uses [JsonIgnore] and gets it from route parameter
+          email: updatedRow.email,
+          phoneNo: updatedRow.phoneNumber,
+          // Preserve the original status since we don't edit it in the modal
+          status: (originalTrainee?.status || updatedRow.status) as
+            | "Active"
+            | "Inactive"
+            | "OnLeave",
+        };
+        console.log(
+          "Sending trainee update - ID:",
+          traineeId,
+          "Data:",
+          updateData,
+        );
+        updateTraineeMutation.mutate({ id: traineeId, data: updateData });
+        break;
+      }
+      case "Specialization":
+        // TODO: Add Specialization update API when available
+        setSpecializationData((prev) =>
+          prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
+        );
+        setIsEditPhaseModalOpen(false);
+        notifications.show({
+          title: "Success",
+          message: "Updated successfully (local only)",
+          color: "green",
+        });
+        break;
+      case "Business Orientation": {
+        // Transform to UpdateBoPhaseDto format
+        const boPhaseId = updatedRow.boPhaseId || updatedRow.id;
+        const updateData = {
+          boPhaseId: boPhaseId,
+          // Don't send traineeName - it's read-only and triggers duplicate checks
+          // Only send buddy and DU updates
+          buddyName: updatedRow.buddy,
+          duName: updatedRow.du,
+        };
+        updateBoMutation.mutate({ id: boPhaseId, data: updateData });
+        break;
+      }
+      case "DU": {
+        // Transform to UpdateTraineeDuDto format
+        const traineeDuId = updatedRow.traineeDuId || updatedRow.id;
+        const updateData = {
+          traineeDuId: traineeDuId,
+          // Don't send traineeName - backend should use traineeDuId to identify the record
+          duAllocated: updatedRow.duAllocated,
+          location: updatedRow.location,
+          ojtMentor: updatedRow.ojtMentor,
+        };
+        updateDuMutation.mutate({ id: traineeDuId, data: updateData });
+        break;
+      }
+      case "Scores":
+        // TODO: Add Scores update API when available
+        setResultsData((prev) =>
+          prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
+        );
+        setIsEditPhaseModalOpen(false);
+        notifications.show({
+          title: "Success",
+          message: "Updated successfully (local only)",
+          color: "green",
+        });
+        break;
     }
-    setIsEditPhaseModalOpen(false);
-    notifications.show({
-      title: "Success",
-      message: "Updated successfully",
-      color: "green",
-    });
   };
 
-  // ----- Other existing handlers -----
+  const queryClient = useQueryClient();
+
+  // Update batch mutation
+  const updateBatchMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      batchService.updateBatch(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["batch", batchId] });
+      queryClient.invalidateQueries({ queryKey: ["batches"] });
+      setIsEditBatchModalOpen(false);
+      notifications.show({
+        title: "Success",
+        message: "Batch updated successfully",
+        color: "green",
+      });
+    },
+    onError: (error: Error) => {
+      notifications.show({
+        title: "Error",
+        message: error.message || "Failed to update batch",
+        color: "red",
+      });
+    },
+  });
+
+  // Update trainee mutation
+  const updateTraineeMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      traineeService.updateTrainee(id, data),
+    onSuccess: async (response) => {
+      console.log("Update successful, response:", response);
+      console.log("Invalidating queries and refetching...");
+      // Invalidate and refetch to ensure UI updates
+      await queryClient.invalidateQueries({ queryKey: ["trainees", batchId] });
+      const refetchResult = await refetchTrainees(); // Explicitly refetch
+      console.log("Refetch result:", refetchResult?.data);
+      setModalErrors({}); // Clear any previous errors
+      setIsEditPhaseModalOpen(false);
+      notifications.show({
+        title: "Success",
+        message: "Trainee updated successfully",
+        color: "green",
+      });
+    },
+    onError: (error: any) => {
+      console.log("Update error:", error);
+      // Check if it's an email already exists error
+      if (
+        error.message &&
+        error.message.toLowerCase().includes("email already exists")
+      ) {
+        setModalErrors({ email: "Email already exists" });
+        // Don't show notification, just show inline error
+      } else {
+        notifications.show({
+          title: "Error",
+          message: error.message || "Failed to update trainee",
+          color: "red",
+        });
+      }
+    },
+  });
+
+  // Update BO Phase mutation
+  const updateBoMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      traineeService.updateBoPhase(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["boPhases", batchId] });
+      setIsEditPhaseModalOpen(false);
+      notifications.show({
+        title: "Success",
+        message: "Business Orientation updated successfully",
+        color: "green",
+      });
+    },
+    onError: (error: Error) => {
+      notifications.show({
+        title: "Error",
+        message: error.message || "Failed to update Business Orientation",
+        color: "red",
+      });
+    },
+  });
+
+  // Update Trainee DU mutation
+  const updateDuMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      traineeService.updateTraineeDu(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["traineeDus", batchId] });
+      setIsEditPhaseModalOpen(false);
+      notifications.show({
+        title: "Success",
+        message: "DU assignment updated successfully",
+        color: "green",
+      });
+    },
+    onError: (error: Error) => {
+      notifications.show({
+        title: "Error",
+        message: error.message || "Failed to update DU assignment",
+        color: "red",
+      });
+    },
+  });
+
   const handleEditBatch = () => setIsEditBatchModalOpen(true);
   const handleUpdateBatch = (updatedData: BatchUpdateData) => {
-    setCurrentBatch((prev) => ({ ...prev, ...updatedData }));
-    notifications.show({
-      title: "Success",
-      message: "Batch details updated successfully.",
-      color: "green",
-    });
-  };
+    if (!batchId) return;
 
-  const handleDelete = (trainee: Trainee) => {
-    openDeleteModal({
-      itemName: trainee.name,
-      itemType: "Trainee",
-      onConfirm: () => {
-        setTrainees((prev) => prev.filter((t) => t.id !== trainee.id));
-        setCurrentBatch((prev) => ({
-          ...prev,
-          totalTrainees: prev.totalTrainees - 1,
-        }));
-      },
-    });
+    // Find the batch type ID from the batch type name
+    const batchTypeArray = Array.isArray(apiBatchTypes)
+      ? apiBatchTypes
+      : (apiBatchTypes as any)?.$values || (apiBatchTypes as any)?.data || [];
+
+    const selectedBatchType = batchTypeArray.find(
+      (bt: any) => bt.name === updatedData.batchType,
+    );
+
+    // Process phases with ISO dates and ensure phaseTypeId is included
+    const processedPhases = updatedData.phases?.map((phase: any) => ({
+      phaseType: phase.phaseType,
+      phaseTypeId: phase.phaseTypeId,
+      startDate: `${phase.startDate}T12:00:00.000Z`,
+      endDate: `${phase.endDate}T12:00:00.000Z`,
+    }));
+
+    const payload = {
+      batchName: updatedData.batchName,
+      batchTypeId: selectedBatchType?.id || null,
+      // Convert dates to ISO format at noon UTC
+      startDate: `${updatedData.startDate}T12:00:00.000Z`,
+      endDate: `${updatedData.endDate}T12:00:00.000Z`,
+      phases: processedPhases || undefined, // Don't send empty array to preserve existing phases
+    };
+
+    console.log("Updating batch with payload:", payload);
+    updateBatchMutation.mutate({ id: batchId, data: payload });
   };
 
   const handleAddTrainee = (traineeData: TraineeFormData) => {
-    const newTrainee: Trainee = {
-      id: Math.max(...trainees.map((t) => t.id)) + 1,
-      name: traineeData.fullName,
-      email: traineeData.email,
-      phoneNumber: traineeData.phoneNumber,
-      status: "Inactive",
-    };
-    setTrainees((prev) => [...prev, newTrainee]);
-    setCurrentBatch((prev) => ({
-      ...prev,
-      totalTrainees: prev.totalTrainees + 1,
-    }));
+    // Trainee creation is handled by AddTraineeModal mutation
+    // The query will be invalidated automatically and trainees will refresh
     notifications.show({
       title: "Success",
       message: `${traineeData.fullName} has been added successfully.`,
@@ -306,317 +655,106 @@ export default function BatchDetailsPage() {
     });
   };
 
-  const handleRowClick = (row: Trainee) => navigate(`/batchDetails/${row.id}`);
+  const handleRowClick = (row: Trainee) =>
+    navigate(`/batchDetails/${row.userId}`);
 
-  const filteredData = trainees;
+  // Debug: Log trainees data when it changes
+  useEffect(() => {
+    console.log(
+      "Trainees state updated:",
+      trainees.map((t) => ({ id: t.id, name: t.name, status: t.status })),
+    );
+  }, [trainees]);
 
-  // --- Helper Functions ---
   const formatDateForDisplay = (isoDate: string) =>
     new Date(isoDate).toLocaleDateString("en-GB");
 
-  const getPhaseIcon = (phase: string) => {
-    switch (phase) {
-      case "Trainees":
-        return <Users size={16} />;
-      case "Specialization":
-        return <Briefcase size={16} />;
-      case "Business Orientation":
-        return <Building2 size={16} />;
-      case "DU":
-        return <LayoutDashboard size={16} />;
-      default:
-        return null;
-    }
-  };
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="p-4 flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">Loading batch details...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+          <div className="text-lg text-red-600">
+            Failed to load batch details
+          </div>
+          <div className="text-sm text-gray-600">
+            {(error as Error).message}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // No batch ID
+  if (!batchId) {
+    return (
+      <div className="p-4 flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">No batch selected</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 bg-gray-50 flex-grow mb-">
-      {/* Batch Details Card */}
+    <div className="p-4 bg-gray-50 flex-grow">
+      {/* Batch Card */}
       <div className="mb-4 flex justify-center relative">
         <BatchDetailsCard
+          batchId={currentBatch.id}
           batchName={currentBatch.batchName}
           startDate={formatDateForDisplay(currentBatch.startDate)}
           endDate={formatDateForDisplay(currentBatch.endDate)}
           batchType={currentBatch.batchType}
+          status={currentBatch.status}
           totalTrainees={trainees.length}
           totalTrainingHours={currentBatch.totalTrainingHours}
           techStack={currentBatch.techStack}
           onEdit={handleEditBatch}
           onAddTrainee={() => setIsAddTraineeModalOpen(true)}
-          onUploadTrainees={() => console.log("Upload trainees clicked")}
+          onUploadTrainees={() => setIsUploadModalOpen(true)}
         />
       </div>
 
-      {/* Phase Tabs */}
-      <div className="bg-white px-3 pt-2">
-        <div className="flex justify-between gap-3 bg-bg-results-tabs px-3 py-0 rounded-lg">
-          {["Trainees", "Specialization", "Business Orientation", "DU"].map(
-            (phase) => (
-              <button
-                key={phase}
-                onClick={() => setActivePhase(phase)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                  phase === activePhase
-                    ? "bg-blue-50 text-brand-600 my-1"
-                    : "text-gray-600 hover:bg-gray-100 my-1"
-                }`}
-              >
-                {getPhaseIcon(phase)}
-                <span>{phase}</span>
-              </button>
-            ),
-          )}
-        </div>
-      </div>
+      {/* Phase Tabs and Tables Component */}
+      <PhaseTabsAndTables
+        activePhase={activePhase}
+        setActivePhase={setActivePhase}
+        trainees={trainees}
+        specializationData={specializationData}
+        businessOrientationData={businessOrientationData}
+        duData={duData}
+        resultsData={resultsData}
+        availablePhases={availablePhases}
+        handleRowClick={handleRowClick}
+        handleEditRow={(row, phase) => {
+          setCurrentEditRow(row);
+          setCurrentEditPhase(
+            phase as
+              | "Specialization"
+              | "Trainees"
+              | "Business Orientation"
+              | "DU"
+              | "Scores",
+          );
+          setIsEditPhaseModalOpen(true);
+        }}
+      />
 
-      {/* Conditional Phase Table */}
-      {activePhase === "Trainees" && (
-        <DataTable
-          columns={[
-            { key: "name", header: "Name", sortable: true, width: "25%" },
-            {
-              key: "email",
-              header: "Email",
-              sortable: true,
-              width: "25%",
-              render: (value) => (
-                <a
-                  href={`mailto:${value}`}
-                  className="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  {value}
-                </a>
-              ),
-            },
-            {
-              key: "phoneNumber",
-              header: "Phone Number",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "status",
-              header: "Status",
-              sortable: true,
-              width: "15%",
-              render: (value) => (
-                <StatusBadge status={value as "Active" | "Inactive"} />
-              ),
-            },
-            {
-              key: "action",
-              header: "Action",
-              align: "center",
-              width: "10%",
-              render: (_, row) => (
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(row);
-                  }}
-                >
-                  <Trash2 size={18} />
-                </ActionIcon>
-              ),
-            },
-          ]}
-          data={filteredData}
-          showHeaderSection
-          headerTitle="All Trainees"
-          enableFilter
-          filterColumn="status"
-          filterOptions={["Active", "Inactive"]}
-          enableSearch
-          enablePagination
-          pageSize={5}
-          highlightOnHover
-          withBorder
-          onRowClick={handleRowClick}
-        />
-      )}
-
-      {/* Specialization Phase */}
-      {activePhase === "Specialization" && (
-        <DataTable
-          columns={[
-            {
-              key: "traineeName",
-              header: "Trainee Name",
-              sortable: true,
-              width: "30%",
-            },
-            {
-              key: "techStack",
-              header: "Tech Stack",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "project",
-              header: "Project Involved",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "action",
-              header: "Action",
-              width: "10%",
-              align: "center",
-              render: (_, row) => (
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  onClick={() => handleEditRow(row, "Specialization")}
-                >
-                  <Pencil size={18} />
-                </ActionIcon>
-              ),
-            },
-          ]}
-          data={specializationData}
-          showHeaderSection
-          headerTitle="Specialization Phase"
-          enableSearch
-          enablePagination
-          pageSize={5}
-          highlightOnHover
-          withBorder
-          enableMultipleFilters={true}
-          columnFilters={{
-            techStack: Array.from(
-              new Set(specializationData.map((d) => d.techStack)),
-            ),
-            project: Array.from(
-              new Set(specializationData.map((d) => d.project)),
-            ),
-          }}
-        />
-      )}
-
-      {/* Business Orientation Phase */}
-      {activePhase === "Business Orientation" && (
-        <DataTable
-          columns={[
-            {
-              key: "traineeName",
-              header: "Trainee Name",
-              sortable: true,
-              width: "30%",
-            },
-            {
-              key: "buddy",
-              header: "Buddy",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "du",
-              header: "DU",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "action",
-              header: "Action",
-              width: "10%",
-              align: "center",
-              render: (_, row) => (
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  onClick={() => handleEditRow(row, "Business Orientation")}
-                >
-                  <Pencil size={18} />
-                </ActionIcon>
-              ),
-            },
-          ]}
-          data={businessOrientationData}
-          showHeaderSection
-          headerTitle="Business Orientation"
-          enableSearch
-          enablePagination
-          pageSize={5}
-          highlightOnHover
-          withBorder
-          enableMultipleFilters={true}
-          columnFilters={{
-            buddy: Array.from(
-              new Set(businessOrientationData.map((d) => d.buddy)),
-            ),
-            du: Array.from(new Set(businessOrientationData.map((d) => d.du))),
-          }}
-        />
-      )}
-
-      {/* DU Phase */}
-      {activePhase === "DU" && (
-        <DataTable
-          columns={[
-            {
-              key: "traineeName",
-              header: "Trainee Name",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "duAllocated",
-              header: "DU Allocated",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "location",
-              header: "Location",
-              sortable: true,
-              width: "25%",
-            },
-            {
-              key: "ojtMentor",
-              header: "OJT Mentor",
-              sortable: true,
-              width: "15%",
-            },
-            {
-              key: "action",
-              header: "Action",
-              width: "10%",
-              align: "center",
-              render: (_, row) => (
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  onClick={() => handleEditRow(row, "DU")}
-                >
-                  <Pencil size={18} />
-                </ActionIcon>
-              ),
-            },
-          ]}
-          data={duData}
-          showHeaderSection
-          headerTitle="DU Phase"
-          enableSearch
-          enablePagination
-          pageSize={5}
-          highlightOnHover
-          withBorder
-          enableMultipleFilters={true}
-          columnFilters={{
-            duAllocated: Array.from(new Set(duData.map((d) => d.duAllocated))),
-            location: Array.from(new Set(duData.map((d) => d.location))),
-          }}
-        />
-      )}
-
-      {/* Batch Edit Modal */}
+      {/* Modals */}
       <BatchDetailsModal
         isOpen={isEditBatchModalOpen}
         onClose={() => setIsEditBatchModalOpen(false)}
         onSubmit={handleUpdateBatch}
         isEditing
+        batchId={batchId}
         initialData={{
           batchName: currentBatch.batchName,
           startDate: currentBatch.startDate,
@@ -625,17 +763,16 @@ export default function BatchDetailsPage() {
         }}
       />
 
-      {/* Add Trainee */}
       <AddTraineeModal
         isOpen={isAddTraineeModalOpen}
         onClose={() => setIsAddTraineeModalOpen(false)}
         onSubmit={handleAddTrainee}
+        batchId={batchId}
       />
 
-      {/* Edit Phase Modal */}
       {isEditPhaseModalOpen && currentEditRow && currentEditPhase && (
         <EditDetailsModal
-          isOpen={true}
+          isOpen
           onClose={() => {
             setIsEditPhaseModalOpen(false);
             setCurrentEditRow(null);
@@ -644,42 +781,76 @@ export default function BatchDetailsPage() {
           title={`Edit ${currentEditPhase} Data`}
           data={currentEditRow}
           fields={
-            currentEditPhase === "Specialization"
+            currentEditPhase === "Trainees"
               ? [
-                  { key: "traineeName", label: "Trainee Name" },
-                  { key: "techStack", label: "Tech Stack" },
-                  { key: "project", label: "Project Involved" },
+                  { key: "email", label: "Email" },
+                  { key: "phoneNumber", label: "Phone Number" },
                 ]
-              : currentEditPhase === "Business Orientation"
+              : currentEditPhase === "Specialization"
                 ? [
-                    { key: "traineeName", label: "Trainee Name" },
-                    { key: "buddy", label: "Buddy" },
-                    { key: "du", label: "DU" },
+                    {
+                      key: "traineeName",
+                      label: "Trainee Name",
+                      readOnly: true,
+                    },
+                    { key: "techStack", label: "Tech Stack" },
+                    { key: "project", label: "Project Involved" },
                   ]
-                : [
-                    // DU Phase
-                    { key: "traineeName", label: "Trainee Name" },
-                    { key: "duAllocated", label: "DU Allocated" },
-                    { key: "location", label: "Location" },
-                    { key: "ojtMentor", label: "OJT Mentor" },
-                  ]
+                : currentEditPhase === "Business Orientation"
+                  ? [
+                      {
+                        key: "traineeName",
+                        label: "Trainee Name",
+                        readOnly: true,
+                      },
+                      { key: "buddy", label: "Buddy" },
+                      { key: "du", label: "DU" },
+                    ]
+                  : currentEditPhase === "DU"
+                    ? [
+                        {
+                          key: "traineeName",
+                          label: "Trainee Name",
+                          readOnly: true,
+                        },
+                        { key: "duAllocated", label: "DU Allocated" },
+                        { key: "location", label: "Location" },
+                        { key: "ojtMentor", label: "OJT Mentor" },
+                      ]
+                    : [
+                        {
+                          key: "traineeName",
+                          label: "Trainee Name",
+                          readOnly: true,
+                        },
+                        {
+                          key: "techFundamentalScore",
+                          label: "Tech Fundamental Score",
+                        },
+                        {
+                          key: "specializationScore",
+                          label: "Specialization Score",
+                        },
+                        { key: "boScore", label: "BO Score" },
+                        { key: "overallScore", label: "Overall Score" },
+                      ]
           }
           onSave={handleSavePhaseEdit}
+          externalErrors={modalErrors}
         />
       )}
 
-      {/* Document & Link Requirements Accordion */}
+      {/* Document Upload */}
       <div className="mt-4">
         <DocumentUpload
           batchTitle="Document and Link Requirements"
-          batchId={id || currentBatch.id.toString()}
           initialDocuments={[
             {
               id: 1,
               documentName: "BRD",
               deadline: "",
               templateFile: null,
-              submissionType: "pdf" as const,
+              submissionType: "image",
               isMultiple: false,
               isBroadcast: false,
               documentTypeId: 0,
@@ -689,7 +860,7 @@ export default function BatchDetailsPage() {
               documentName: "UAT",
               deadline: "",
               templateFile: null,
-              submissionType: "xlsx" as const,
+              submissionType: "image",
               isMultiple: false,
               isBroadcast: false,
               documentTypeId: 0,
@@ -699,25 +870,24 @@ export default function BatchDetailsPage() {
               documentName: "Sprint Tracker",
               deadline: "",
               templateFile: null,
-              submissionType: "excel" as const,
+              submissionType: "image",
               isMultiple: false,
               isBroadcast: false,
               documentTypeId: 0,
             },
           ]}
           initialLinks={[
-            { id: 1, linkName: "GitHub Repo" },
-            { id: 2, linkName: "Deployment Link" },
+            { id: 1, linkName: "GitHub Repo", urlPrefix: "" },
+            { id: 2, linkName: "Deployment Link", urlPrefix: "" },
           ]}
-          onDocumentChange={(docs: any) => console.log("Updated Docs:", docs)}
-          onLinksChange={(links: any) => console.log("Updated Links:", links)}
+          onDocumentChange={(docs) => console.log("Updated Docs:", docs)}
+          onLinksChange={(links) => console.log("Updated Links:", links)}
         />
       </div>
+
       <div className="mt-4">
         <ResultsAccordion batchId={""} />
       </div>
-
-      {/* Results Accordion */}
     </div>
   );
 }

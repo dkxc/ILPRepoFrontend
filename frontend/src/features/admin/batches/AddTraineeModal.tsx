@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { X } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 import Button from "../../ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
+import { traineeService } from "../../../services/traineeService";
 
 export type UploadType = "Trainee Details" | "BO Details" | "DU Details";
 
@@ -11,6 +14,7 @@ export interface TraineeFormData {
   email?: string;
   phoneNumber?: string;
   traineeName?: string;
+  traineeEmail?: string; // Email for BO/DU Details
   buddy?: string;
   buddyDU?: string;
   duAllocated?: string;
@@ -24,6 +28,7 @@ export interface TraineeFormDataSubmit {
   email: string;
   phoneNumber: string;
   traineeName: string;
+  traineeEmail: string;
   buddy: string;
   buddyDU: string;
   duAllocated: string;
@@ -34,9 +39,10 @@ export interface TraineeFormDataSubmit {
 interface AddTraineeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TraineeFormDataSubmit, type: UploadType) => void;
+  onSubmit?: (data: TraineeFormDataSubmit, type: UploadType) => void;
   title?: string;
   initialData?: Partial<TraineeFormData> | null;
+  batchId?: number | null;
 }
 
 const Field = ({
@@ -78,11 +84,105 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
   onSubmit,
   title = "Add Details",
   initialData = null,
+  batchId,
 }) => {
   const [uploadType, setUploadType] = useState<UploadType>("Trainee Details");
   const [form, setForm] = useState<TraineeFormData>(initialData || {});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const modalRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+
+  // Mutation for creating trainee
+  const createTraineeMutation = useMutation({
+    mutationFn: traineeService.createTrainee,
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "Trainee created successfully",
+        color: "green",
+      });
+      queryClient.invalidateQueries({ queryKey: ["trainees"] });
+      handleClose();
+    },
+    onError: (error: any) => {
+      console.error("Create trainee error:", error);
+
+      // Parse error message for better user feedback
+      let errorMessage = "Failed to create trainee";
+
+      if (error.message) {
+        // Check for duplicate email constraint
+        if (
+          error.message.includes("duplicate key") &&
+          error.message.includes("email")
+        ) {
+          errorMessage =
+            "This email is already registered. Please use a different email.";
+        } else if (
+          error.message.includes("duplicate key") &&
+          error.message.includes("username")
+        ) {
+          errorMessage =
+            "This username is already taken. Please use a different username.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      notifications.show({
+        title: "Error Creating Trainee",
+        message: errorMessage,
+        color: "red",
+        autoClose: 5000,
+      });
+    },
+  });
+
+  // Mutation for creating BO phase
+  const createBoPhaseMutation = useMutation({
+    mutationFn: traineeService.createBoPhase,
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "BO details created successfully",
+        color: "green",
+      });
+      queryClient.invalidateQueries({ queryKey: ["boPhases"] });
+      handleClose();
+    },
+    onError: (error: any) => {
+      console.error("Create BO phase error:", error);
+      notifications.show({
+        title: "Error Creating BO Details",
+        message: error.message || "Failed to create BO details",
+        color: "red",
+        autoClose: 5000,
+      });
+    },
+  });
+
+  // Mutation for creating trainee DU
+  const createTraineeDuMutation = useMutation({
+    mutationFn: traineeService.createTraineeDu,
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "DU details created successfully",
+        color: "green",
+      });
+      queryClient.invalidateQueries({ queryKey: ["traineeDus"] });
+      handleClose();
+    },
+    onError: (error: any) => {
+      console.error("Create trainee DU error:", error);
+      notifications.show({
+        title: "Error Creating DU Details",
+        message: error.message || "Failed to create DU details",
+        color: "red",
+        autoClose: 5000,
+      });
+    },
+  });
 
   // Close on outside click
   useEffect(() => {
@@ -111,10 +211,14 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
       if (!form.phoneNumber?.trim()) e.phoneNumber = "Phone number is required";
     } else if (uploadType === "BO Details") {
       if (!form.traineeName?.trim()) e.traineeName = "Trainee Name is required";
+      if (!form.traineeEmail?.trim())
+        e.traineeEmail = "Trainee Email is required";
       if (!form.buddy?.trim()) e.buddy = "Buddy is required";
       if (!form.buddyDU?.trim()) e.buddyDU = "Buddy's DU is required";
     } else if (uploadType === "DU Details") {
       if (!form.traineeName?.trim()) e.traineeName = "Trainee Name is required";
+      if (!form.traineeEmail?.trim())
+        e.traineeEmail = "Trainee Email is required";
       if (!form.duAllocated?.trim()) e.duAllocated = "DU allocated is required";
       if (!form.location?.trim()) e.location = "Location is required";
       if (!form.ojtMentor?.trim()) e.ojtMentor = "OJT mentor is required";
@@ -134,6 +238,7 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
       email: form.email || "",
       phoneNumber: form.phoneNumber || "",
       traineeName: form.traineeName || "",
+      traineeEmail: form.traineeEmail || "",
       buddy: form.buddy || "",
       buddyDU: form.buddyDU || "",
       duAllocated: form.duAllocated || "",
@@ -141,8 +246,46 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
       ojtMentor: form.ojtMentor || "",
     };
 
-    onSubmit(safeData, uploadType);
-    handleClose();
+    // Call appropriate API based on upload type
+    if (uploadType === "Trainee Details") {
+      if (!batchId) {
+        notifications.show({
+          title: "Error",
+          message: "Batch ID is required to create a trainee",
+          color: "red",
+        });
+        return;
+      }
+
+      createTraineeMutation.mutate({
+        username: safeData.fullName,
+        email: safeData.email,
+        password: "DefaultPassword123!", // TODO: Handle password properly
+        batchId: batchId,
+        phoneNo: safeData.phoneNumber,
+        status: "Active",
+      });
+    } else if (uploadType === "BO Details") {
+      createBoPhaseMutation.mutate({
+        traineeName: safeData.traineeName,
+        email: safeData.traineeEmail,
+        buddyName: safeData.buddy,
+        duName: safeData.buddyDU,
+      });
+    } else if (uploadType === "DU Details") {
+      createTraineeDuMutation.mutate({
+        traineeName: safeData.traineeName,
+        email: safeData.traineeEmail,
+        duName: safeData.duAllocated, // Backend expects 'duName'
+        location: safeData.location,
+        ojtMenter: safeData.ojtMentor, // Backend has typo: 'ojtMenter'
+      });
+    }
+
+    // Call the optional onSubmit callback if provided
+    if (onSubmit) {
+      onSubmit(safeData, uploadType);
+    }
   };
 
   const handleClose = () => {
@@ -245,6 +388,14 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
                     error={errors.traineeName}
                   />
                   <Field
+                    label="Trainee Email"
+                    value={form.traineeEmail || ""}
+                    onChange={(v) => handleChange("traineeEmail", v)}
+                    type="email"
+                    placeholder="john@example.com"
+                    error={errors.traineeEmail}
+                  />
+                  <Field
                     label="Buddy"
                     value={form.buddy || ""}
                     onChange={(v) => handleChange("buddy", v)}
@@ -269,6 +420,14 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
                     onChange={(v) => handleChange("traineeName", v)}
                     placeholder="John Doe"
                     error={errors.traineeName}
+                  />
+                  <Field
+                    label="Trainee Email"
+                    value={form.traineeEmail || ""}
+                    onChange={(v) => handleChange("traineeEmail", v)}
+                    type="email"
+                    placeholder="john@example.com"
+                    error={errors.traineeEmail}
                   />
                   <Field
                     label="DU Allocated"
@@ -296,9 +455,17 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
 
               {/* Footer */}
               <div className="flex justify-end space-x-3 pt-4">
-                <Button variant="default" size="sm" onClick={handleClose}>
+                <button
+                  onClick={handleClose}
+                  disabled={
+                    createTraineeMutation.isPending ||
+                    createBoPhaseMutation.isPending ||
+                    createTraineeDuMutation.isPending
+                  }
+                  className="px-4 py-1 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   Cancel
-                </Button>
+                </button>
                 <Button type="submit" size="sm">
                   Add
                 </Button>

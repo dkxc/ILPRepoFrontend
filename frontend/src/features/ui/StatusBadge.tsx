@@ -12,9 +12,9 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
       case "Inactive":
         return "bg-gray-200 text-gray-600";
       case "Ongoing":
-        return "bg-green-100 text-green-700";
+        return "bg-orange-100 text-orange-700"; // changed to orange
       case "Completed":
-        return "bg-purple-100 text-purple-700";
+        return "bg-green-100 text-green-700"; // changed to green
       case "Not Started":
         return "bg-gray-200 text-gray-600";
       default:
