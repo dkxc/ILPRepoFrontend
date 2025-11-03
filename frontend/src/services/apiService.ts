@@ -22,7 +22,7 @@ class ApiService {
     // Handle 401 Unauthorized
     if (response.status === 401) {
       console.warn("⚠️ 401 Unauthorized - Redirecting to login");
-      localStorage.removeItem("auth_data");
+      sessionStorage.removeItem("auth_data");
       window.location.href = "/login";
       throw new Error("Unauthorized");
     }
