@@ -878,7 +878,12 @@ export default function Projects() {
   };
 
   const handleRowClick = (row: Project) => {
-    navigate(`/projectsDetailsAdmin/${row.id}`);
+    navigate("/projectsDetailsAdmin", {
+      state: {
+        projectId: row.id,
+        projectData: row, // Optionally pass the entire project data
+      },
+    });
   };
 
   const getTabIcon = (tab: string) => {

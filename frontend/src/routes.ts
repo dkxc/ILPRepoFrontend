@@ -5,7 +5,7 @@ export default [
     index("./pages/trainee/Dashboard/Dashboard.tsx"),
     route("ilpprojects", "./pages/trainee/ILPProjects.tsx"),
     route(
-      "projectsDetailsTrainee/:id",
+      "projectsDetailsTrainee",
       "./pages/trainee/projectsDetailsTrainee.tsx",
     ),
     route("results", "./pages/trainee/Results.tsx"),
@@ -21,7 +21,7 @@ export default [
     route("profile", "./pages/trainee/TraineeProfile.tsx"),
 
     route("projects", "./pages/admin/Projects.tsx"),
-    route("projectsDetailsAdmin/:id", "./pages/admin/ProjectDetailsAdmin.tsx"),
+    route("projectsDetailsAdmin", "./pages/admin/ProjectDetailsAdmin.tsx"),
     route("adminSettings", "./pages/admin/AdminSettings.tsx"),
     route("curriculumAdmin", "./pages/admin/Curriculum.tsx"),
     route("upload-results", "./pages/admin/ResultsUp.tsx"),

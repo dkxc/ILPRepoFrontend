@@ -168,7 +168,14 @@ export default function DashboardProjects({
                 <tr
                   key={p.id}
                   className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => navigate(`/projectsDetailsAdmin/${p.id}`)}
+                  onClick={() =>
+                    navigate("/projectsDetailsAdmin", {
+                      state: {
+                        projectId: p.id,
+                        projectData: p,
+                      },
+                    })
+                  }
                 >
                   <td className="py-3 px-6 text-sm text-gray-900">{p.name}</td>
                   <td className="py-3 px-6 text-sm text-gray-600">{p.lead}</td>

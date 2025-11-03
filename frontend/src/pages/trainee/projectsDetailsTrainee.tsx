@@ -1,4 +1,4 @@
-import { useParams, useNavigation } from "react-router";
+import { useLocation, useNavigation, Navigate } from "react-router";
 import { useEffect, useMemo, useState } from "react";
 import BatchMetadata from "../../features/ui/ProjectDetails/BatchMetadata";
 import TechStack from "../../features/ui/ProjectDetails/TechStack";
@@ -9,18 +9,15 @@ import SubmissionRate from "../../features/ui/ProjectDetails/Completionrate";
 import ErrorBoundary from "../../components/ErrorBoundary";
 
 function ProjectDetails() {
-  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
+  const { projectId, projectData: selectedProject } = location.state || {};
 
-  // Validate the ID parameter
-  const projectId = useMemo(() => {
-    if (!id || isNaN(Number(id))) {
-      console.warn("Invalid project ID:", id);
-      return "1"; // Default fallback
-    }
-    return id;
-  }, [id]);
+  // Redirect back to projects if no project ID is provided
+  if (!projectId) {
+    return <Navigate to="/ilpprojects" replace />;
+  }
 
   // You can fetch project data based on the ID here
   // For now, using the existing hardcoded data

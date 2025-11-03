@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useLocation, Navigate } from "react-router";
 import BatchMetadata from "../../features/ui/ProjectDetails/BatchMetadata";
 import TechStack from "../../features/ui/ProjectDetails/TechStack";
 import ProjectLinks from "../../features/ui/ProjectDetails/ProjectLinks";
@@ -8,7 +8,15 @@ import SubmissionRate from "../../features/ui/ProjectDetails/Completionrate";
 import type { TeamMember } from "../../features/ui/ProjectDetails/TeamList";
 
 function ProjectDetails() {
-  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const { projectId, projectData: selectedProject } = location.state || {};
+
+  // Redirect back to projects if no project ID is provided
+  if (!projectId) {
+    return <Navigate to="/projects" replace />;
+  }
+
+  const id = projectId.toString();
 
   // Team members data
   const teamMembers: TeamMember[] = [
@@ -34,8 +42,8 @@ function ProjectDetails() {
     },
   ];
 
-  // You can fetch project data based on the ID here
-  // For now, using the existing hardcoded data
+  // You can use the selectedProject data passed from Projects page or fetch based on the ID
+  // For now, using the existing hardcoded data but you can use selectedProject if needed
   const projectData = {
     id: 1,
     projectName: `Project ${id}`,
