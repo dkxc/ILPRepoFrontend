@@ -293,34 +293,41 @@ export default function DocumentUpload({
   }, []);
   const [showAddLinkTypeModal, setShowAddLinkTypeModal] = useState(false);
   const [newLinkTypeName, setNewLinkTypeName] = useState("");
-  
+
   // Document type management states
-  const [showAddDocumentTypeModal, setShowAddDocumentTypeModal] = useState(false);
-  const [showEditDocumentTypesModal, setShowEditDocumentTypesModal] = useState(false);
+  const [showAddDocumentTypeModal, setShowAddDocumentTypeModal] =
+    useState(false);
+  const [showEditDocumentTypesModal, setShowEditDocumentTypesModal] =
+    useState(false);
   const [newDocumentTypeName, setNewDocumentTypeName] = useState("");
-  const [newDocumentTypeTemplate, setNewDocumentTypeTemplate] = useState<File | null>(null);
+  const [newDocumentTypeTemplate, setNewDocumentTypeTemplate] =
+    useState<File | null>(null);
   const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
-  const [editingDocumentTypeId, setEditingDocumentTypeId] = useState<number | null>(null);
-  
+  const [editingDocumentTypeId, setEditingDocumentTypeId] = useState<
+    number | null
+  >(null);
+
   // Add document modal states
   const [showAddDocumentModal, setShowAddDocumentModal] = useState(false);
-  const [selectedDocumentTypeId, setSelectedDocumentTypeId] = useState<number | null>(null);
+  const [selectedDocumentTypeId, setSelectedDocumentTypeId] = useState<
+    number | null
+  >(null);
   const [selectedDeadline, setSelectedDeadline] = useState<string>("");
   const [isAddingDocumentType, setIsAddingDocumentType] = useState(false);
-  
+
   // Helper function to construct proper file URL
   const getFileUrl = (link: string) => {
-    if (!link) return '';
-    
+    if (!link) return "";
+
     // If link is already a full URL (http/https), use as-is
     // This handles Supabase URLs and other external URLs
-    if (link.startsWith('http://') || link.startsWith('https://')) {
+    if (link.startsWith("http://") || link.startsWith("https://")) {
       return link;
     }
-    
+
     // If link starts with '/', remove it to avoid double slashes
-    const cleanLink = link.startsWith('/') ? link.substring(1) : link;
-    
+    const cleanLink = link.startsWith("/") ? link.substring(1) : link;
+
     // Construct full URL with base API URL for relative paths
     return `https://localhost:7224/${cleanLink}`;
   };
@@ -329,20 +336,20 @@ export default function DocumentUpload({
   const fetchDocumentTypes = async () => {
     try {
       const types = await getDocumentTypes();
-      console.log('Document types from API:', types);
+      console.log("Document types from API:", types);
       if (types && types.length > 0) {
-        console.log('Sample document type links:');
+        console.log("Sample document type links:");
         types.forEach((type, index) => {
           console.log(`  ${index + 1}. ${type.name}: ${type.link}`);
         });
       }
       setDocumentTypes(types || []);
     } catch (error) {
-      console.error('Failed to fetch document types:', error);
+      console.error("Failed to fetch document types:", error);
       notifications.show({
-        title: 'Error',
-        message: 'Failed to load document types',
-        color: 'red',
+        title: "Error",
+        message: "Failed to load document types",
+        color: "red",
       });
     }
   };
@@ -351,10 +358,12 @@ export default function DocumentUpload({
   useEffect(() => {
     fetchDocumentTypes();
   }, []);
-  
+
   // Link editing states
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
-  const [editLinkDraft, setEditLinkDraft] = useState<{ linkName: string } | null>(null);
+  const [editLinkDraft, setEditLinkDraft] = useState<{
+    linkName: string;
+  } | null>(null);
 
   const [accordionOpen, setAccordionOpen] = useState(defaultOpen || false);
   const [activeTab, setActiveTab] = useState<"documents" | "links">(
@@ -396,30 +405,32 @@ export default function DocumentUpload({
   ];
 
   const mockLinks: LinkRow[] = [
-    { 
-      id: 1, 
-      linkName: "GitHub Repository", 
-      totalProjects: 0, 
-      submittedProjects: 0, 
-      pendingProjects: 0, 
-      completionPercentage: 0 
+    {
+      id: 1,
+      linkName: "GitHub Repository",
+      totalProjects: 0,
+      submittedProjects: 0,
+      pendingProjects: 0,
+      completionPercentage: 0,
     },
-    { 
-      id: 2, 
-      linkName: "Deployment Link", 
-      totalProjects: 0, 
-      submittedProjects: 0, 
-      pendingProjects: 0, 
-      completionPercentage: 0 
+    {
+      id: 2,
+      linkName: "Deployment Link",
+      totalProjects: 0,
+      submittedProjects: 0,
+      pendingProjects: 0,
+      completionPercentage: 0,
     },
   ];
 
   // Map API data to component format
-  const mapDocumentRequirementsToRows = (apiDocs: DocumentRequirementType[]): DocumentRow[] => {
+  const mapDocumentRequirementsToRows = (
+    apiDocs: DocumentRequirementType[],
+  ): DocumentRow[] => {
     return apiDocs.map((doc, index) => ({
       id: index + 1, // Use index since API doesn't provide unique ID
       documentName: doc.documentTypeName,
-      deadline: doc.dueDate.split('T')[0], // Convert to YYYY-MM-DD format
+      deadline: doc.dueDate.split("T")[0], // Convert to YYYY-MM-DD format
       templateFile: null,
       submissionType: SubmissionType.PDF, // Default to PDF, can be enhanced later
       isMultiple: false, // Default values since not provided in API
@@ -615,7 +626,7 @@ export default function DocumentUpload({
       const updatedLinks = linkRows.map((link) =>
         link.id === editingLinkId
           ? { ...link, linkName: editLinkDraft.linkName }
-          : link
+          : link,
       );
       updateLinks(updatedLinks);
       setEditingLinkId(null);
@@ -646,25 +657,25 @@ export default function DocumentUpload({
         template: newDocumentTypeTemplate || undefined,
       };
 
-      console.log('About to create document type with:', {
+      console.log("About to create document type with:", {
         name: documentTypeData.name,
         hasTemplate: !!documentTypeData.template,
         templateFile: documentTypeData.template,
         templateName: documentTypeData.template?.name,
-        templateSize: documentTypeData.template?.size
+        templateSize: documentTypeData.template?.size,
       });
 
       const newDocumentType = await createDocumentType(documentTypeData);
-      
+
       if (newDocumentType) {
         // Refresh document types list from server to ensure consistency
         await fetchDocumentTypes();
-        
+
         // Reset form
         setNewDocumentTypeName("");
         setNewDocumentTypeTemplate(null);
         setShowAddDocumentTypeModal(false);
-        
+
         notifications.show({
           title: "Success",
           message: `Document type "${newDocumentType.name}" added successfully`,
@@ -689,7 +700,11 @@ export default function DocumentUpload({
     }
   };
 
-  const handleUpdateDocumentType = async (id: number, name: string, template: File | null) => {
+  const handleUpdateDocumentType = async (
+    id: number,
+    name: string,
+    template: File | null,
+  ) => {
     try {
       const updateData: UpdateDocumentTypeRequest = {
         name: name.trim(),
@@ -697,13 +712,13 @@ export default function DocumentUpload({
       };
 
       const updatedDocumentType = await updateDocumentType(id, updateData);
-      
+
       if (updatedDocumentType) {
         // Refresh document types list from server to ensure consistency
         await fetchDocumentTypes();
-        
+
         setEditingDocumentTypeId(null);
-        
+
         notifications.show({
           title: "Updated",
           message: `Document type "${updatedDocumentType.name}" updated successfully`,
@@ -769,7 +784,7 @@ export default function DocumentUpload({
             </select>
           );
         }
-        
+
         const linkRow = row as LinkRow;
         if (editingLinkId === linkRow.id) {
           return (
@@ -782,8 +797,15 @@ export default function DocumentUpload({
             />
           );
         }
-        
-        return <span className="font-medium truncate block max-w-[200px]" title={linkRow.linkName}>{linkRow.linkName}</span>;
+
+        return (
+          <span
+            className="font-medium truncate block max-w-[200px]"
+            title={linkRow.linkName}
+          >
+            {linkRow.linkName}
+          </span>
+        );
       },
     },
     {
@@ -875,7 +897,7 @@ export default function DocumentUpload({
             </div>
           );
         }
-        
+
         const linkRow = row as LinkRow;
         if (editingLinkId === linkRow.id) {
           return (
@@ -900,7 +922,7 @@ export default function DocumentUpload({
             </div>
           );
         }
-        
+
         return (
           <div className="flex gap-1 justify-center">
             <button
@@ -909,8 +931,18 @@ export default function DocumentUpload({
               onClick={() => handleEditLink(linkRow.id)}
               title="Edit"
             >
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <svg
+                className="w-4 h-4 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
               </svg>
             </button>
             <button
@@ -934,7 +966,6 @@ export default function DocumentUpload({
 
   // State for new document type selection
 
-
   const handleAddDocument = () => {
     setShowAddDocumentModal(true);
   };
@@ -949,7 +980,7 @@ export default function DocumentUpload({
         };
 
         const result = await createDocumentRequirement(requirementData);
-        
+
         if (result) {
           // Refresh the document list
           const docs = await getDocumentRequirements(batchId);
@@ -991,7 +1022,7 @@ export default function DocumentUpload({
 
   const handleDeleteRow = async (id: number) => {
     try {
-      const documentToDelete = documentRows.find(doc => doc.id === id);
+      const documentToDelete = documentRows.find((doc) => doc.id === id);
       if (!documentToDelete || !batchId) {
         notifications.show({
           title: "Error",
@@ -1003,7 +1034,7 @@ export default function DocumentUpload({
 
       const response = await deleteDocumentRequirement(
         documentToDelete.documentTypeId,
-        parseInt(batchId)
+        parseInt(batchId),
       );
 
       if (response && response.succeeded) {
@@ -1015,7 +1046,8 @@ export default function DocumentUpload({
 
         notifications.show({
           title: "Deleted",
-          message: response.message || "Document requirement deleted successfully",
+          message:
+            response.message || "Document requirement deleted successfully",
           color: "green",
         });
       } else {
@@ -1093,7 +1125,12 @@ export default function DocumentUpload({
           </select>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="truncate block max-w-[200px]" title={row.documentName}>{row.documentName}</span>
+            <span
+              className="truncate block max-w-[200px]"
+              title={row.documentName}
+            >
+              {row.documentName}
+            </span>
             {row.isMultiple && (
               <span title="Multiple upload enabled">
                 <Layers className="w-4 h-4 text-blue-600" />
@@ -1430,7 +1467,9 @@ export default function DocumentUpload({
       {showAddDocumentTypeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">Add New Document Type</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Add New Document Type
+            </h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1449,25 +1488,33 @@ export default function DocumentUpload({
                   }}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Template (Optional)
                 </label>
                 <input
                   type="file"
-                  onChange={(e) => setNewDocumentTypeTemplate(e.target.files?.[0] || null)}
+                  onChange={(e) =>
+                    setNewDocumentTypeTemplate(e.target.files?.[0] || null)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
                 />
                 {newDocumentTypeTemplate && (
                   <p className="text-sm text-gray-600 mt-1">
-                    Selected: <span className="truncate inline-block max-w-[200px]" title={newDocumentTypeTemplate.name}>{newDocumentTypeTemplate.name}</span>
+                    Selected:{" "}
+                    <span
+                      className="truncate inline-block max-w-[200px]"
+                      title={newDocumentTypeTemplate.name}
+                    >
+                      {newDocumentTypeTemplate.name}
+                    </span>
                   </p>
                 )}
               </div>
             </div>
-            
+
             <div className="flex gap-2 justify-end mt-6">
               <button
                 className="bg-gray-400! hover:bg-gray-500! text-white! font-medium px-4 py-2 rounded-md"
@@ -1508,11 +1555,14 @@ export default function DocumentUpload({
                 <X className="h-4 w-4" />
               </button>
             </div>
-            
+
             <div className="overflow-y-auto max-h-[55vh] pr-2">
               <div className="space-y-3">
                 {documentTypes.map((docType) => (
-                  <div key={docType.id} className="p-3 border border-gray-200 rounded-md">
+                  <div
+                    key={docType.id}
+                    className="p-3 border border-gray-200 rounded-md"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         {editingDocumentTypeId === docType.id ? (
@@ -1523,9 +1573,9 @@ export default function DocumentUpload({
                             onKeyPress={(e) => {
                               if (e.key === "Enter") {
                                 handleUpdateDocumentType(
-                                  docType.id, 
+                                  docType.id,
                                   (e.target as HTMLInputElement).value,
-                                  docType.template || null
+                                  docType.template || null,
                                 );
                               }
                             }}
@@ -1533,22 +1583,34 @@ export default function DocumentUpload({
                           />
                         ) : (
                           <div>
-                            <div className="font-medium text-gray-900 truncate block max-w-[200px]" title={docType.name}>{docType.name}</div>
+                            <div
+                              className="font-medium text-gray-900 truncate block max-w-[200px]"
+                              title={docType.name}
+                            >
+                              {docType.name}
+                            </div>
                             <div className="text-sm text-gray-500">
-                              Template: {docType.link ? "Available" : "No template"}
+                              Template:{" "}
+                              {docType.link ? "Available" : "No template"}
                             </div>
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center gap-1 ml-4">
                         {editingDocumentTypeId === docType.id ? (
                           <>
                             <button
                               className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                               onClick={() => {
-                                const input = document.querySelector(`input[defaultValue="${docType.name}"]`) as HTMLInputElement;
-                                handleUpdateDocumentType(docType.id, input?.value || docType.name, docType.template || null);
+                                const input = document.querySelector(
+                                  `input[defaultValue="${docType.name}"]`,
+                                ) as HTMLInputElement;
+                                handleUpdateDocumentType(
+                                  docType.id,
+                                  input?.value || docType.name,
+                                  docType.template || null,
+                                );
                               }}
                               title="Save"
                             >
@@ -1569,7 +1631,7 @@ export default function DocumentUpload({
                                 className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                                 onClick={() => {
                                   const fullUrl = getFileUrl(docType.link);
-                                  window.open(fullUrl, '_blank');
+                                  window.open(fullUrl, "_blank");
                                 }}
                                 title="Download Template"
                               >
@@ -1578,14 +1640,18 @@ export default function DocumentUpload({
                             )}
                             <button
                               className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                              onClick={() => setEditingDocumentTypeId(docType.id)}
+                              onClick={() =>
+                                setEditingDocumentTypeId(docType.id)
+                              }
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
                             </button>
                             <button
                               className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                              onClick={() => handleDeleteDocumentType(docType.id)}
+                              onClick={() =>
+                                handleDeleteDocumentType(docType.id)
+                              }
                               title="Delete"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -1594,7 +1660,7 @@ export default function DocumentUpload({
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Template management section */}
                     <div className="mt-2 pt-2 border-t border-gray-100">
                       <input
@@ -1604,22 +1670,38 @@ export default function DocumentUpload({
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
                         onChange={(e) => {
                           const file = e.target.files?.[0] || null;
-                          handleUpdateDocumentType(docType.id, docType.name, file);
+                          handleUpdateDocumentType(
+                            docType.id,
+                            docType.name,
+                            file,
+                          );
                         }}
                       />
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">Template management:</span>
+                        <span className="text-xs text-gray-500">
+                          Template management:
+                        </span>
                         <div className="flex gap-2">
                           <button
                             className="text-xs text-blue-600 hover:text-blue-700 px-2 py-1 hover:bg-blue-50 rounded"
-                            onClick={() => document.getElementById(`template-${docType.id}`)?.click()}
+                            onClick={() =>
+                              document
+                                .getElementById(`template-${docType.id}`)
+                                ?.click()
+                            }
                           >
                             Change Template
                           </button>
                           {(docType.link || docType.template) && (
                             <button
                               className="text-xs text-red-600 hover:text-red-700 px-2 py-1 hover:bg-red-50 rounded"
-                              onClick={() => handleUpdateDocumentType(docType.id, docType.name, null)}
+                              onClick={() =>
+                                handleUpdateDocumentType(
+                                  docType.id,
+                                  docType.name,
+                                  null,
+                                )
+                              }
                             >
                               Remove Template
                             </button>
@@ -1630,19 +1712,19 @@ export default function DocumentUpload({
                   </div>
                 ))}
               </div>
-              
-            <div className="flex justify-end mt-4 pt-3 border-t border-gray-200">
-              <button
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-md text-sm"
-                onClick={() => {
-                  setShowEditDocumentTypesModal(false);
-                  setEditingDocumentTypeId(null);
-                }}
-              >
-                Close
-              </button>
+
+              <div className="flex justify-end mt-4 pt-3 border-t border-gray-200">
+                <button
+                  className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-md text-sm"
+                  onClick={() => {
+                    setShowEditDocumentTypesModal(false);
+                    setEditingDocumentTypeId(null);
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       )}
@@ -1651,21 +1733,30 @@ export default function DocumentUpload({
       {showAddDocumentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-semibold mb-4">Add Document Requirement</h3>
-            
+            <h3 className="text-lg font-semibold mb-4">
+              Add Document Requirement
+            </h3>
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Document Type
               </label>
               <select
                 value={selectedDocumentTypeId || ""}
-                onChange={(e) => setSelectedDocumentTypeId(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) =>
+                  setSelectedDocumentTypeId(
+                    e.target.value ? Number(e.target.value) : null,
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a document type...</option>
                 {documentTypes
-                  .filter((docType) => 
-                    !documentRows.some((doc) => doc.documentTypeId === docType.id)
+                  .filter(
+                    (docType) =>
+                      !documentRows.some(
+                        (doc) => doc.documentTypeId === docType.id,
+                      ),
                   )
                   .map((docType) => (
                     <option key={docType.id} value={docType.id}>
@@ -1684,10 +1775,10 @@ export default function DocumentUpload({
                 value={selectedDeadline}
                 onChange={(e) => setSelectedDeadline(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <button
                 className="bg-gray-400 hover:bg-gray-500 text-white font-medium px-4 py-2 rounded-md"

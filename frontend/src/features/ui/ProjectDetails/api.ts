@@ -420,25 +420,32 @@ export const downloadDocumentTemplate = async (
   documentTypeId: number,
 ): Promise<Blob | null> => {
   try {
-    console.log(`Attempting to download template for documentTypeId: ${documentTypeId}`);
-    console.log(`API URL: https://localhost:7224/api/Documents/template/${documentTypeId}`);
-    
+    console.log(
+      `Attempting to download template for documentTypeId: ${documentTypeId}`,
+    );
+    console.log(
+      `API URL: https://localhost:7224/api/Documents/template/${documentTypeId}`,
+    );
+
     const response = await axios.get(
       `https://localhost:7224/api/Documents/template/${documentTypeId}`,
       {
-        responseType: 'blob', // Important for file downloads
-      }
+        responseType: "blob", // Important for file downloads
+      },
     );
 
     console.log("Download Template Response Status:", response.status);
     console.log("Download Template Response Headers:", response.headers);
     console.log("Download Template Response Data Size:", response.data?.size);
     console.log("Download Template Response Data Type:", response.data?.type);
-    
+
     // Check if the response is actually a blob with content
     if (response.data && response.data instanceof Blob) {
       if (response.data.size > 0) {
-        console.log("Template download successful - blob received with size:", response.data.size);
+        console.log(
+          "Template download successful - blob received with size:",
+          response.data.size,
+        );
         return response.data;
       } else {
         console.warn("Template blob is empty (size: 0)");
@@ -455,7 +462,7 @@ export const downloadDocumentTemplate = async (
       console.error("Response status:", axiosError.response.status);
       console.error("Response data:", axiosError.response.data);
       console.error("Response headers:", axiosError.response.headers);
-      
+
       // If it's a 404 or other error, the template might not exist
       if (axiosError.response.status === 404) {
         console.error("Template not found on server (404)");
@@ -517,50 +524,58 @@ export interface CreateDocumentTypeResponse {
 }
 
 export const createDocumentType = async (
-  documentTypeData: CreateDocumentTypeRequest
+  documentTypeData: CreateDocumentTypeRequest,
 ): Promise<DocumentType | null> => {
   try {
     const formData = new FormData();
-    formData.append('name', documentTypeData.name);
-    
-    console.log('Creating document type with data:', {
+    formData.append("name", documentTypeData.name);
+
+    console.log("Creating document type with data:", {
       name: documentTypeData.name,
       hasTemplate: !!documentTypeData.template,
       templateName: documentTypeData.template?.name,
       templateSize: documentTypeData.template?.size,
-      templateType: documentTypeData.template?.type
+      templateType: documentTypeData.template?.type,
     });
-    
+
     if (documentTypeData.template) {
       // Use the exact field name from Swagger: 'TemplateFile'
-      formData.append('TemplateFile', documentTypeData.template);
-      console.log('Template file added to FormData as "TemplateFile":', documentTypeData.template.name);
+      formData.append("TemplateFile", documentTypeData.template);
+      console.log(
+        'Template file added to FormData as "TemplateFile":',
+        documentTypeData.template.name,
+      );
     } else {
-      console.log('No template file provided');
+      console.log("No template file provided");
     }
 
     // Log FormData contents
-    console.log('FormData entries:');
+    console.log("FormData entries:");
     for (const [key, value] of formData.entries()) {
-      console.log(`  ${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
+      console.log(
+        `  ${key}:`,
+        value instanceof File
+          ? `File: ${value.name} (${value.size} bytes)`
+          : value,
+      );
     }
 
-    console.log('Making API call without manual Content-Type header...');
+    console.log("Making API call without manual Content-Type header...");
 
     const response = await axios.post<CreateDocumentTypeResponse>(
       `https://localhost:7224/api/Documents`,
-      formData
+      formData,
       // Let axios automatically set headers for FormData
     );
 
-    console.log('API Response:', response.data);
-    
+    console.log("API Response:", response.data);
+
     if (response.data.succeeded && response.data.data) {
-      console.log('Created document type:', response.data.data);
+      console.log("Created document type:", response.data.data);
       return response.data.data;
     }
 
-    console.log('API call failed or no data returned');
+    console.log("API call failed or no data returned");
     return null;
   } catch (error) {
     return handleError(error as AxiosError, "createDocumentType");
@@ -581,47 +596,55 @@ export interface UpdateDocumentTypeResponse {
 
 export const updateDocumentType = async (
   id: number,
-  documentTypeData: UpdateDocumentTypeRequest
+  documentTypeData: UpdateDocumentTypeRequest,
 ): Promise<DocumentType | null> => {
   try {
     const formData = new FormData();
-    formData.append('name', documentTypeData.name);
-    
-    console.log('Updating document type with data:', {
+    formData.append("name", documentTypeData.name);
+
+    console.log("Updating document type with data:", {
       id: id,
       name: documentTypeData.name,
       hasTemplate: !!documentTypeData.template,
       templateName: documentTypeData.template?.name,
       templateSize: documentTypeData.template?.size,
-      templateType: documentTypeData.template?.type
+      templateType: documentTypeData.template?.type,
     });
-    
+
     if (documentTypeData.template) {
-      formData.append('TemplateFile', documentTypeData.template);
-      console.log('Template file added to FormData as "TemplateFile":', documentTypeData.template.name);
+      formData.append("TemplateFile", documentTypeData.template);
+      console.log(
+        'Template file added to FormData as "TemplateFile":',
+        documentTypeData.template.name,
+      );
     } else {
-      console.log('No template file provided for update');
+      console.log("No template file provided for update");
     }
 
     // Log FormData contents
-    console.log('FormData entries for update:');
+    console.log("FormData entries for update:");
     for (const [key, value] of formData.entries()) {
-      console.log(`  ${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
+      console.log(
+        `  ${key}:`,
+        value instanceof File
+          ? `File: ${value.name} (${value.size} bytes)`
+          : value,
+      );
     }
 
     const response = await axios.put<UpdateDocumentTypeResponse>(
       `https://localhost:7224/api/Documents/${id}`,
-      formData
+      formData,
     );
 
-    console.log('Update API Response:', response.data);
-    
+    console.log("Update API Response:", response.data);
+
     if (response.data.succeeded && response.data.data) {
-      console.log('Updated document type:', response.data.data);
+      console.log("Updated document type:", response.data.data);
       return response.data.data;
     }
 
-    console.log('Update API call failed or no data returned');
+    console.log("Update API call failed or no data returned");
     return null;
   } catch (error) {
     return handleError(error as AxiosError, "updateDocumentType");
@@ -838,32 +861,39 @@ export const submitDocument = async (
   try {
     console.log(`Submitting document with requestId: ${documentRequestId}`);
     console.log(`File: ${file.name}, Size: ${file.size}, Type: ${file.type}`);
-    
+
     const formData = new FormData();
     formData.append("DocumentRequestId", documentRequestId.toString());
     formData.append("DocumentFile", file);
 
-    console.log("Making API request to:", "https://localhost:7224/api/submitted-documents/submit");
+    console.log(
+      "Making API request to:",
+      "https://localhost:7224/api/submitted-documents/submit",
+    );
     console.log("FormData contents:");
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
-    
+
     // Test server connectivity first with a known working endpoint
     try {
       console.log("Testing server connectivity with document requirements...");
-      const testResponse = await api.get(`/DocumentRequirements/project/${documentRequestId}`);
+      const testResponse = await api.get(
+        `/DocumentRequirements/project/${documentRequestId}`,
+      );
       console.log("✅ Server is reachable, status:", testResponse.status);
     } catch (testError) {
       console.error("❌ Server connectivity test failed:", testError);
-      console.error("This might indicate server issues that could affect document submission");
+      console.error(
+        "This might indicate server issues that could affect document submission",
+      );
     }
-    
+
     console.log("Proceeding with document submission...");
     console.log("⏰ Starting submission at:", new Date().toISOString());
-    
+
     try {
-      const response = await Promise.race([
+      const response = (await Promise.race([
         api.post<SubmitDocumentResponse>(
           "/submitted-documents/submit",
           formData,
@@ -872,27 +902,32 @@ export const submitDocument = async (
               "Content-Type": "multipart/form-data",
             },
             timeout: 30000, // 30 second timeout for file upload
-          }
+          },
         ),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Manual timeout after 15 seconds")), 15000)
-        )
-      ]) as any;
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Manual timeout after 15 seconds")),
+            15000,
+          ),
+        ),
+      ])) as any;
 
       console.log("✅ Submit Document Response Status:", response.status);
       console.log("✅ Submit Document Response:", response.data);
-      
+
       if (response.data.succeeded && response.data.data) {
         console.log("🎉 Document submission successful!");
         return response.data.data;
       } else {
-        console.error("❌ Document submission failed - API returned succeeded: false");
+        console.error(
+          "❌ Document submission failed - API returned succeeded: false",
+        );
         console.error("Error message:", response.data.message);
         return null;
       }
     } catch (submitError) {
       console.error("💥 Exception during document submission:", submitError);
-      
+
       const axiosError = submitError as AxiosError;
       if (axiosError.response) {
         console.error("📡 Response received but failed:");
@@ -908,12 +943,12 @@ export const submitDocument = async (
       } else {
         console.error("⚠️ Request setup error:", axiosError.message);
       }
-      
+
       throw submitError; // Re-throw to trigger the outer catch block
     }
   } catch (error) {
     console.error("Error submitting document - Exception caught:", error);
-    
+
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       console.error("Response status:", axiosError.response.status);
@@ -924,7 +959,7 @@ export const submitDocument = async (
     } else {
       console.error("Request setup error:", axiosError.message);
     }
-    
+
     // Return null instead of calling handleError since handleError might not return what we expect
     return null;
   }
@@ -932,14 +967,12 @@ export const submitDocument = async (
 
 // Delete Submitted Document API
 export const deleteSubmittedDocument = async (
-  submissionId: number
+  submissionId: number,
 ): Promise<boolean> => {
   try {
     console.log(`🗑️ Deleting submitted document with ID: ${submissionId}`);
-    
-    const response = await api.delete(
-      `/submitted-documents/${submissionId}`
-    );
+
+    const response = await api.delete(`/submitted-documents/${submissionId}`);
 
     console.log("✅ Delete Document Response Status:", response.status);
     console.log("✅ Delete Document Response:", response.data);
@@ -953,7 +986,7 @@ export const deleteSubmittedDocument = async (
     }
   } catch (error) {
     console.error("💥 Error deleting submitted document:", error);
-    
+
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       console.error("📡 Response received but failed:");
@@ -966,7 +999,7 @@ export const deleteSubmittedDocument = async (
     } else {
       console.error("⚠️ Request setup error:", axiosError.message);
     }
-    
+
     return false;
   }
 };

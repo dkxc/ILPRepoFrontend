@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { X, Upload, Download, Filter, Trash2 } from "lucide-react";
-import { getSubmittedDocuments, getDocumentRequirements, getDocumentRequirementsByProject, downloadDocumentTemplate, submitDocument, deleteSubmittedDocument, type DocumentRequirementType } from "./ProjectDetails/api";
+import {
+  getSubmittedDocuments,
+  getDocumentRequirements,
+  getDocumentRequirementsByProject,
+  downloadDocumentTemplate,
+  submitDocument,
+  deleteSubmittedDocument,
+  type DocumentRequirementType,
+} from "./ProjectDetails/api";
 
 interface UploadedDocument {
   id: number;
@@ -27,7 +35,6 @@ const DocumentSubmissionModal = ({
   projectId = "default",
   batchId,
 }: DocumentSubmissionModalProps) => {
-
   const [uploadError, setUploadError] = useState<string>("");
   const [uploadSuccess, setUploadSuccess] = useState<string>("");
   const [currentStep, setCurrentStep] = useState(1);
@@ -43,10 +50,14 @@ const DocumentSubmissionModal = ({
   const [uploadedDocuments, setUploadedDocuments] = useState<
     UploadedDocument[]
   >([]);
-  
+
   // Document requirements state
-  const [documentRequirements, setDocumentRequirements] = useState<DocumentRequirementType[]>([]);
-  const [availableDocumentTypes, setAvailableDocumentTypes] = useState<string[]>([]);
+  const [documentRequirements, setDocumentRequirements] = useState<
+    DocumentRequirementType[]
+  >([]);
+  const [availableDocumentTypes, setAvailableDocumentTypes] = useState<
+    string[]
+  >([]);
 
   // Mock data fallback
   const mockDocuments: UploadedDocument[] = [
@@ -115,16 +126,19 @@ const DocumentSubmissionModal = ({
     },
   ];
 
-
-
   // Fetch documents on open
   useEffect(() => {
-    console.log("DocumentUpload useEffect triggered:", { isOpen, projectId, batchId });
-    
+    console.log("DocumentUpload useEffect triggered:", {
+      isOpen,
+      projectId,
+      batchId,
+    });
+
     if (isOpen && (projectId || batchId)) {
       // Use the provided ID (prefer batchId if available)
-      const idToUse = (projectId && projectId !== "default") ? projectId : batchId;
-      
+      const idToUse =
+        projectId && projectId !== "default" ? projectId : batchId;
+
       if (idToUse) {
         console.log("Fetching documents for ID:", idToUse);
         // Use the new submitted documents API for specific project IDs
@@ -147,84 +161,143 @@ const DocumentSubmissionModal = ({
             console.error("Error fetching submitted documents:", error);
             setUploadedDocuments([]);
           });
-          
+
         // Fetch document requirements - use appropriate API based on available ID
         if (batchId) {
           console.log("Using batch API for batchId:", batchId);
           // Use batch-based API when batchId is available
           getDocumentRequirements(batchId.toString())
             .then((requirements: DocumentRequirementType[] | null) => {
-              console.log("Batch document requirements response:", requirements);
+              console.log(
+                "Batch document requirements response:",
+                requirements,
+              );
               if (requirements && Array.isArray(requirements)) {
                 setDocumentRequirements(requirements);
                 // Extract unique document type names for dropdown, filter out invalid ones
                 const types = requirements
-                  .map(req => req.documentTypeName)
-                  .filter(typeName => typeName && typeName !== "string" && typeName.length > 1);
+                  .map((req) => req.documentTypeName)
+                  .filter(
+                    (typeName) =>
+                      typeName && typeName !== "string" && typeName.length > 1,
+                  );
                 setAvailableDocumentTypes([...new Set(types)]);
                 console.log("Available document types from batch:", types);
                 console.log("Raw requirements:", requirements);
               } else {
                 // Fallback to default document types
-                setAvailableDocumentTypes(["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"]);
+                setAvailableDocumentTypes([
+                  "BRD",
+                  "UAT",
+                  "Sprint Tracker",
+                  "MOM",
+                  "Requirements",
+                ]);
               }
             })
             .catch((error) => {
-              console.error("Error fetching batch document requirements:", error);
+              console.error(
+                "Error fetching batch document requirements:",
+                error,
+              );
               // Fallback to default document types
-              setAvailableDocumentTypes(["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"]);
+              setAvailableDocumentTypes([
+                "BRD",
+                "UAT",
+                "Sprint Tracker",
+                "MOM",
+                "Requirements",
+              ]);
             });
         } else if (projectId && projectId !== "default") {
           console.log("Using project API for projectId:", projectId);
           // Use project-based API when only projectId is available
           getDocumentRequirementsByProject(projectId.toString())
             .then((requirements: DocumentRequirementType[] | null) => {
-              console.log("Project document requirements response:", requirements);
+              console.log(
+                "Project document requirements response:",
+                requirements,
+              );
               if (requirements && Array.isArray(requirements)) {
                 setDocumentRequirements(requirements);
                 // Extract unique document type names for dropdown, filter out invalid ones
                 const types = requirements
-                  .map(req => req.documentTypeName)
-                  .filter(typeName => typeName && typeName !== "string" && typeName.length > 1);
+                  .map((req) => req.documentTypeName)
+                  .filter(
+                    (typeName) =>
+                      typeName && typeName !== "string" && typeName.length > 1,
+                  );
                 setAvailableDocumentTypes([...new Set(types)]);
                 console.log("Available document types from project:", types);
                 console.log("Raw requirements:", requirements);
               } else {
                 // Fallback to default document types
                 console.log("No project requirements found, using defaults");
-                setAvailableDocumentTypes(["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"]);
+                setAvailableDocumentTypes([
+                  "BRD",
+                  "UAT",
+                  "Sprint Tracker",
+                  "MOM",
+                  "Requirements",
+                ]);
               }
             })
             .catch((error) => {
-              console.error("Error fetching project document requirements:", error);
+              console.error(
+                "Error fetching project document requirements:",
+                error,
+              );
               // Fallback to default document types
-              setAvailableDocumentTypes(["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"]);
+              setAvailableDocumentTypes([
+                "BRD",
+                "UAT",
+                "Sprint Tracker",
+                "MOM",
+                "Requirements",
+              ]);
             });
         } else {
           console.log("No valid ID available, using default types");
           // No valid ID available, use default types
-          setAvailableDocumentTypes(["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"]);
+          setAvailableDocumentTypes([
+            "BRD",
+            "UAT",
+            "Sprint Tracker",
+            "MOM",
+            "Requirements",
+          ]);
         }
       } else {
         // No valid ID available, show empty state
         setUploadedDocuments([]);
         // Use default document types for fallback
-        setAvailableDocumentTypes(["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"]);
+        setAvailableDocumentTypes([
+          "BRD",
+          "UAT",
+          "Sprint Tracker",
+          "MOM",
+          "Requirements",
+        ]);
       }
     } else if (isOpen) {
       // Modal opened with no project/batch ID, show empty state
       setUploadedDocuments([]);
       // Use default document types for fallback
-      setAvailableDocumentTypes(["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"]);
+      setAvailableDocumentTypes([
+        "BRD",
+        "UAT",
+        "Sprint Tracker",
+        "MOM",
+        "Requirements",
+      ]);
     }
   }, [isOpen, projectId, batchId]);
 
   // Use dynamic document types from API, fallback to static list
-  const documentTypes = availableDocumentTypes.length > 0 ? availableDocumentTypes : ["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"];
-
-
-
-
+  const documentTypes =
+    availableDocumentTypes.length > 0
+      ? availableDocumentTypes
+      : ["BRD", "UAT", "Sprint Tracker", "MOM", "Requirements"];
 
   const filteredDocuments =
     filterType === "all"
@@ -266,15 +339,15 @@ const DocumentSubmissionModal = ({
   const handleDeleteDocument = async (docId: number) => {
     try {
       console.log(`🗑️ Attempting to delete document with ID: ${docId}`);
-      
+
       // Call the delete API
       const success = await deleteSubmittedDocument(docId);
-      
+
       if (success) {
         console.log("✅ Document deleted successfully from server");
         // Remove from local state
         setUploadedDocuments((prev) => prev.filter((doc) => doc.id !== docId));
-        
+
         // Show success message
         setUploadSuccess("Document deleted successfully!");
         setTimeout(() => setUploadSuccess(""), 3000);
@@ -299,27 +372,31 @@ const DocumentSubmissionModal = ({
       }
 
       // Check if it's a direct file URL (like Supabase storage)
-      if (doc.fileUrl.includes('supabase.co') || doc.fileUrl.includes('amazonaws.com') || doc.fileUrl.startsWith('http')) {
+      if (
+        doc.fileUrl.includes("supabase.co") ||
+        doc.fileUrl.includes("amazonaws.com") ||
+        doc.fileUrl.startsWith("http")
+      ) {
         // For external URLs, fetch and download as blob
         try {
           const response = await fetch(doc.fileUrl, {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Accept': '*/*',
+              Accept: "*/*",
             },
           });
 
           if (response.ok) {
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
-            
-            const link = window.document.createElement('a');
+
+            const link = window.document.createElement("a");
             link.href = url;
             link.download = doc.filename;
             window.document.body.appendChild(link);
             link.click();
             window.document.body.removeChild(link);
-            
+
             // Clean up
             window.URL.revokeObjectURL(url);
           } else {
@@ -328,16 +405,16 @@ const DocumentSubmissionModal = ({
         } catch (fetchError) {
           console.error("Error fetching document:", fetchError);
           // Fallback: try opening in new tab
-          window.open(doc.fileUrl, '_blank', 'noopener,noreferrer');
+          window.open(doc.fileUrl, "_blank", "noopener,noreferrer");
         }
       } else {
         // For relative URLs or other formats, try direct download
-        const link = window.document.createElement('a');
+        const link = window.document.createElement("a");
         link.href = doc.fileUrl;
         link.download = doc.filename;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
         window.document.body.appendChild(link);
         link.click();
         window.document.body.removeChild(link);
@@ -353,32 +430,43 @@ const DocumentSubmissionModal = ({
     setUploadSuccess("");
     console.log("handleUpload called with selectedType:", selectedType);
     console.log("Available documentRequirements:", documentRequirements);
-    
+
     if (!selectedType) {
       setShowTypeError(true);
       return;
     }
-    
+
     if (selectedFile && selectedType) {
       // Find the document requirement for the selected type to get the requestId
-      const requirement = documentRequirements.find(req => req.documentTypeName === selectedType);
+      const requirement = documentRequirements.find(
+        (req) => req.documentTypeName === selectedType,
+      );
       console.log("Found requirement for upload:", requirement);
-      
+
       if (!requirement || !requirement.documentRequestId) {
         setUploadError("Document requirement not found. Please try again.");
         return;
       }
 
       try {
-        console.log("Submitting document with requestId:", requirement.documentRequestId);
-        const result = await submitDocument(requirement.documentRequestId, selectedFile);
-        
+        console.log(
+          "Submitting document with requestId:",
+          requirement.documentRequestId,
+        );
+        const result = await submitDocument(
+          requirement.documentRequestId,
+          selectedFile,
+        );
+
         if (result) {
           console.log("Document submitted successfully:", result);
-          setUploadSuccess(`Document submitted successfully! Submission ID: ${result.submissionId}`);
-          
+          setUploadSuccess(
+            `Document submitted successfully! Submission ID: ${result.submissionId}`,
+          );
+
           // Refresh document list
-          const idToUse = (projectId && projectId !== "default") ? projectId : batchId;
+          const idToUse =
+            projectId && projectId !== "default" ? projectId : batchId;
           if (idToUse) {
             getSubmittedDocuments(idToUse.toString())
               .then((docs: UploadedDocument[] | null) => {
@@ -390,9 +478,9 @@ const DocumentSubmissionModal = ({
               })
               .catch(() => setUploadedDocuments(mockDocuments));
           }
-          
+
           onSubmit?.(selectedFile, selectedType);
-          
+
           // Close modal after a short delay to show success message
           setTimeout(() => {
             handleClose();
@@ -511,7 +599,12 @@ const DocumentSubmissionModal = ({
                           className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                         >
                           <td className="px-4 py-3 text-sm text-gray-800">
-                            <span className="truncate block max-w-[200px]" title={doc.filename}>{doc.filename}</span>
+                            <span
+                              className="truncate block max-w-[200px]"
+                              title={doc.filename}
+                            >
+                              {doc.filename}
+                            </span>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
@@ -530,7 +623,7 @@ const DocumentSubmissionModal = ({
                           </td>
                           <td className="px-4 py-3 text-center">
                             <div className="flex items-center justify-center gap-2">
-                              <button 
+                              <button
                                 onClick={() => handleDownloadDocument(doc)}
                                 className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors"
                               >
@@ -647,67 +740,117 @@ const DocumentSubmissionModal = ({
                     </select>
                     <button
                       onClick={async () => {
-                        console.log("Step 2 template download clicked with selectedType:", selectedType);
-                        console.log("Available documentRequirements:", documentRequirements);
-                        
+                        console.log(
+                          "Step 2 template download clicked with selectedType:",
+                          selectedType,
+                        );
+                        console.log(
+                          "Available documentRequirements:",
+                          documentRequirements,
+                        );
+
                         if (!selectedType) {
                           alert("Please select a document type first.");
                           return;
                         }
-                        
+
                         // Find the document requirement for the selected type
-                        const requirement = documentRequirements.find(req => req.documentTypeName === selectedType);
-                        console.log("Found requirement for", selectedType, ":", requirement);
-                        
+                        const requirement = documentRequirements.find(
+                          (req) => req.documentTypeName === selectedType,
+                        );
+                        console.log(
+                          "Found requirement for",
+                          selectedType,
+                          ":",
+                          requirement,
+                        );
+
                         if (!requirement) {
-                          alert("Document requirement not found for this type.");
-                          console.log("Available document types:", documentRequirements.map(req => req.documentTypeName));
+                          alert(
+                            "Document requirement not found for this type.",
+                          );
+                          console.log(
+                            "Available document types:",
+                            documentRequirements.map(
+                              (req) => req.documentTypeName,
+                            ),
+                          );
                           return;
                         }
 
                         // Check if documentTemplateUrl exists in the requirement
                         if (requirement.documentTemplateUrl) {
                           try {
-                            console.log("Step 2: Using direct template URL:", requirement.documentTemplateUrl);
-                            
+                            console.log(
+                              "Step 2: Using direct template URL:",
+                              requirement.documentTemplateUrl,
+                            );
+
                             // Create a download link directly from the URL
-                            const link = window.document.createElement('a');
+                            const link = window.document.createElement("a");
                             link.href = requirement.documentTemplateUrl;
                             link.download = `${selectedType}_template.pdf`;
-                            link.target = '_blank'; // Open in new tab as fallback
+                            link.target = "_blank"; // Open in new tab as fallback
                             window.document.body.appendChild(link);
                             link.click();
                             window.document.body.removeChild(link);
-                            console.log("Step 2: Template download initiated successfully");
+                            console.log(
+                              "Step 2: Template download initiated successfully",
+                            );
                           } catch (error) {
-                            console.error("Step 2: Error downloading template from URL:", error);
-                            alert("Failed to download template. Please try again.");
+                            console.error(
+                              "Step 2: Error downloading template from URL:",
+                              error,
+                            );
+                            alert(
+                              "Failed to download template. Please try again.",
+                            );
                           }
                         } else {
-                          console.log("Step 2: No documentTemplateUrl found, trying API endpoint");
+                          console.log(
+                            "Step 2: No documentTemplateUrl found, trying API endpoint",
+                          );
                           try {
-                            console.log("Step 2: Attempting to download template for documentTypeId:", requirement.documentTypeId);
-                            const templateBlob = await downloadDocumentTemplate(requirement.documentTypeId);
-                            console.log("Step 2 download response:", templateBlob);
-                            
+                            console.log(
+                              "Step 2: Attempting to download template for documentTypeId:",
+                              requirement.documentTypeId,
+                            );
+                            const templateBlob = await downloadDocumentTemplate(
+                              requirement.documentTypeId,
+                            );
+                            console.log(
+                              "Step 2 download response:",
+                              templateBlob,
+                            );
+
                             if (templateBlob) {
                               // Create a download link for the template
-                              const url = window.URL.createObjectURL(templateBlob);
-                              const link = window.document.createElement('a');
+                              const url =
+                                window.URL.createObjectURL(templateBlob);
+                              const link = window.document.createElement("a");
                               link.href = url;
                               link.download = `${selectedType}_template.pdf`;
                               window.document.body.appendChild(link);
                               link.click();
                               window.document.body.removeChild(link);
                               window.URL.revokeObjectURL(url);
-                              console.log("Step 2 template download successful");
+                              console.log(
+                                "Step 2 template download successful",
+                              );
                             } else {
                               console.log("Step 2 template blob is null");
-                              alert("Template not available for this document type.");
+                              alert(
+                                "Template not available for this document type.",
+                              );
                             }
                           } catch (error) {
-                            console.error("Step 2 error downloading template:", error);
-                            alert("Failed to download template. Please try again.");
+                            console.error(
+                              "Step 2 error downloading template:",
+                              error,
+                            );
+                            alert(
+                              "Failed to download template. Please try again.",
+                            );
                           }
                         }
                       }}

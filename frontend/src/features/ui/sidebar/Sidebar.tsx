@@ -25,13 +25,13 @@ function SideBar({
 
   const isItemActive = (item: NavItem, defaultIsActive: boolean) => {
     if (defaultIsActive) return true;
-    
+
     if (item.activePatterns) {
-      return item.activePatterns.some(pattern => 
-        location.pathname.startsWith(pattern)
+      return item.activePatterns.some((pattern) =>
+        location.pathname.startsWith(pattern),
       );
     }
-    
+
     return false;
   };
 

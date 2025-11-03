@@ -12,7 +12,7 @@ function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Validate the ID parameter
   const projectId = useMemo(() => {
     if (!id || isNaN(Number(id))) {
@@ -24,22 +24,25 @@ function ProjectDetails() {
 
   // You can fetch project data based on the ID here
   // For now, using the existing hardcoded data
-  const projectData = useMemo(() => ({
-    id: Number(projectId),
-    projectName: `Project ${projectId}`,
-    name: "ILP 2024-25 BATCH 1",
-    trainees: 7,
-    status: "Ongoing",
-    techStack: ["React", ".NET", "TypeScript", "PostgreSQL", "Node.js"],
-    repositoryUrl: "https://github.com/dkxc/ILPRepo",
-    figmaUrl:
-      "https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0",
-  }), [projectId]);
+  const projectData = useMemo(
+    () => ({
+      id: Number(projectId),
+      projectName: `Project ${projectId}`,
+      name: "ILP 2024-25 BATCH 1",
+      trainees: 7,
+      status: "Ongoing",
+      techStack: ["React", ".NET", "TypeScript", "PostgreSQL", "Node.js"],
+      repositoryUrl: "https://github.com/dkxc/ILPRepo",
+      figmaUrl:
+        "https://www.figma.com/design/DvtEbqQRsDcXu7zlO8x439/ILP-REPO?node-id=0-1&p=f&t=mBJIveNfwYtTfhga-0",
+    }),
+    [projectId],
+  );
 
   // Handle component mounting and navigation states
   useEffect(() => {
     setIsLoading(false);
-    
+
     return () => {
       // Cleanup any pending promises or subscriptions
       console.debug("ProjectDetails component unmounting, cleaning up...");

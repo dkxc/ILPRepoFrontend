@@ -32,11 +32,11 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 const navItems = [
   { to: "/", label: "Home", icon: House, end: true },
-  { 
-    to: "/ilpprojects", 
-    label: "ILP Projects", 
-    icon: FolderGit2, 
-    activePatterns: ["/projectsDetailsTrainee"] 
+  {
+    to: "/ilpprojects",
+    label: "ILP Projects",
+    icon: FolderGit2,
+    activePatterns: ["/projectsDetailsTrainee"],
   },
   { to: "/results", label: "Results", icon: ChartNoAxesCombined },
   { to: "/curriculum", label: "Curriculum", icon: ChartLine },
@@ -45,11 +45,11 @@ const navItems = [
 const adminNavItems = [
   { to: "/admindash", label: "Home", icon: House, end: true },
   { to: "/batches", label: "Batches", icon: UsersRound },
-  { 
-    to: "/projects", 
-    label: "Projects", 
-    icon: FolderGit2, 
-    activePatterns: ["/projectsDetailsAdmin"] 
+  {
+    to: "/projects",
+    label: "Projects",
+    icon: FolderGit2,
+    activePatterns: ["/projectsDetailsAdmin"],
   },
   { to: "/attendance", label: "Attendance", icon: UsersRound },
 ];
