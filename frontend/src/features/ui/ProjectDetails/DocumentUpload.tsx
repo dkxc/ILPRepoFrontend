@@ -167,7 +167,12 @@ function ProjectDocuments({
       width: "35%",
       render: (value, row) =>
         row.status === "Submitted" ? (
-          <span className="text-gray-600 text-sm truncate">{value}</span>
+          <span
+            className="text-gray-600 text-sm truncate block max-w-[250px]"
+            title={value}
+          >
+            {value}
+          </span>
         ) : (
           <span className="text-gray-400 italic text-sm">—</span>
         ),
@@ -337,6 +342,7 @@ function ProjectDocuments({
         isOpen={showStepper}
         onClose={() => setShowStepper(false)}
         onSubmit={() => setShowStepper(false)}
+        projectId={projectId}
       />
 
       {/* Notification Modal */}
