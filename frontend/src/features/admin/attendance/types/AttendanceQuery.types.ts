@@ -35,7 +35,7 @@ export type UpdateSuccessResponseType = {
   updateRecordCount: number;
 };
 
-// For POST: /api/attendance/batch/{batchId}/upload-json
+// For POST: /api/attendance/batch/{batchId}/upload
 export type UploadJsonItem = {
   traineeName: string;
   date: string; // "yyyy-MM-dd"
