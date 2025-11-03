@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (response.ok) {
           console.log("✅ Token valid → User logged in again");
           // Ensure roleName is converted to enum if it's a string
-          if (typeof parsed.roleName === 'string') {
+          if (typeof parsed.roleName === "string") {
             parsed.roleName = roleStringToEnum(parsed.roleName);
           }
           setAuthData(parsed);
@@ -128,17 +128,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (data: AuthData | any) => {
     console.log("🔐 Saving auth to sessionStorage & context");
     console.log("🔐 Original data:", data);
-    
+
     // Convert string role to enum if necessary
     const normalizedData: AuthData = {
       ...data,
-      roleName: typeof data.roleName === 'string' 
-        ? roleStringToEnum(data.roleName) 
-        : data.roleName
+      roleName:
+        typeof data.roleName === "string"
+          ? roleStringToEnum(data.roleName)
+          : data.roleName,
     };
-    
+
     console.log("🔐 Normalized data:", normalizedData);
-    
+
     setAuthData(normalizedData);
     sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(normalizedData));
   };

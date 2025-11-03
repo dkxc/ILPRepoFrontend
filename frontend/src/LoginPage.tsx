@@ -29,7 +29,7 @@ const LoginPage = () => {
       );
 
       const { accessToken, userId, roleName } = response.data.data;
-      console.log(accessToken, userId, roleName)
+      console.log(accessToken, userId, roleName);
       login({ accessToken, userId, roleName });
 
       const redirectPath = location.state?.from?.pathname;
