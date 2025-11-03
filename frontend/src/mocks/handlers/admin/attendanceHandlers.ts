@@ -6,6 +6,39 @@ import type {
 } from "features/admin/attendance/types/AttendanceQuery.types";
 
 export const attendanceHandlers = [
+  http.get(
+    "/api/attendance/trainee/:traineeId",
+    async ({ params, request }) => {
+      const { traineeId } = params;
+      const url = new URL(request.url);
+
+      const date = url.searchParams.get("date");
+      const traineeData = mockAttendanceRecords.find(
+        (trainee) => trainee.traineeId === Number(traineeId),
+      );
+
+      if (!traineeData) {
+        return HttpResponse.json(
+          { message: "Trainee not found" },
+          { status: 404 },
+        );
+      }
+
+      if (date) {
+        const attendanceForDate = traineeData.dates[date];
+        if (attendanceForDate) {
+          return HttpResponse.json({ date, attendance: attendanceForDate });
+        } else {
+          return HttpResponse.json(
+            { message: "Attendance not found for the provided date" },
+            { status: 404 },
+          );
+        }
+      }
+      return HttpResponse.json({ traineeId, attendance: traineeData.dates });
+    },
+  ),
+
   http.get("/api/attendance/batch/:batchId", async ({ params, request }) => {
     const { batchId } = params;
     const url = new URL(request.url);

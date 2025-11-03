@@ -63,7 +63,7 @@ function AttendanceImportSlideout({
   }, [isOpen]);
 
   return (
-    <SlideoutMenu isOpen={isOpen} onOpenChange={onClose}>
+    <SlideoutMenu isOpen={isOpen} onOpenChange={onClose} className="z-10">
       <SlideoutMenu.Header onClose={onClose}>
         <h2 className="text-lg font-semibold text-primary">
           Import Attendance
