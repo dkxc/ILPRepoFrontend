@@ -1,11 +1,15 @@
 import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
 import Button from "../../features/ui/Button";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
 import StatusBadge from "../../features/ui/StatusBadge";
+import { batchService } from "../../services/batchService";
+import { traineeService } from "../../services/allServices";
 
 // ---------------------- Types ----------------------
 interface Batch {
@@ -21,164 +25,213 @@ interface Batch {
 
 export default function Batches() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [batches, setBatches] = useState<Batch[]>([]);
 
-  const [batches, setBatches] = useState<Batch[]>([
-    {
-      id: 1,
-      name: "ILP 2022-23 Batch 1",
-      type: "Developer Batch",
-      totalTrainees: 12,
-      totalTrainingHours: 40,
-      status: "Ongoing",
-      startDate: "2022-07-01",
-      endDate: "2022-07-30",
-    },
-    {
-      id: 2,
-      name: "ILP 2022-23 Batch 2",
-      type: "BA Batch",
-      totalTrainees: 10,
-      totalTrainingHours: 32,
-      status: "Not Started",
-      startDate: "2023-01-05",
-      endDate: "2023-01-25",
-    },
-    {
-      id: 3,
-      name: "ILP 2023-24 Batch 1",
-      type: "SDET",
-      totalTrainees: 15,
-      totalTrainingHours: 45,
-      status: "Completed",
-      startDate: "2023-08-01",
-      endDate: "2023-08-20",
-    },
-    {
-      id: 4,
-      name: "ILP 2023-24 Batch 2",
-      type: "Developer Batch",
-      totalTrainees: 14,
-      totalTrainingHours: 42,
-      status: "Ongoing",
-      startDate: "2023-10-01",
-      endDate: "2023-10-20",
-    },
-    {
-      id: 5,
-      name: "ILP 2023-24 Batch 3",
-      type: "BA Batch",
-      totalTrainees: 8,
-      totalTrainingHours: 30,
-      status: "Not Started",
-      startDate: "2024-01-05",
-      endDate: "2024-01-25",
-    },
-    {
-      id: 6,
-      name: "ILP 2024-25 Batch 1",
-      type: "SDET",
-      totalTrainees: 12,
-      totalTrainingHours: 38,
-      status: "Ongoing",
-      startDate: "2024-07-01",
-      endDate: "2024-07-25",
-    },
-    {
-      id: 7,
-      name: "ILP 2024-25 Batch 2",
-      type: "Developer Batch",
-      totalTrainees: 16,
-      totalTrainingHours: 50,
-      status: "Completed",
-      startDate: "2024-09-01",
-      endDate: "2024-09-20",
-    },
-    {
-      id: 8,
-      name: "ILP 2025-26 Batch 1",
-      type: "BA Batch",
-      totalTrainees: 9,
-      totalTrainingHours: 28,
-      status: "Ongoing",
-      startDate: "2025-10-05",
-      endDate: "2026-07-25",
-    },
-    {
-      id: 9,
-      name: "ILP 2025-26 Batch 2",
-      type: "SDET",
-      totalTrainees: 11,
-      totalTrainingHours: 35,
-      status: "Not Started",
-      startDate: "2025-10-01",
-      endDate: "2026-09-20",
-    },
-    {
-      id: 10,
-      name: "ILP 2025-26 Batch 3",
-      type: "Developer Batch",
-      totalTrainees: 13,
-      totalTrainingHours: 40,
-      status: "Completed",
-      startDate: "2025-10-01",
-      endDate: "2026-05-20",
-    },
-  ]);
+  // Fetch batch types for ID lookup
+  const { data: apiBatchTypes } = useQuery({
+    queryKey: ["batchTypes"],
+    queryFn: batchService.getAllBatchTypes,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  // Auto-update batch status
-  const determineStatus = (
+  // Calculate training hours from dates
+  const calculateTrainingHours = (
     startDate?: string,
     endDate?: string,
-  ): Batch["status"] => {
-    if (!startDate || !endDate) return "Not Started";
-    const today = new Date();
+  ): number => {
+    if (!startDate || !endDate) return 0;
     const start = new Date(startDate);
     const end = new Date(endDate);
-    if (today < start) return "Not Started";
-    if (today > end) return "Completed";
-    return "Ongoing";
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays * 8; // Assuming 8 hours per day
   };
 
+  // Fetch all batches
+  const {
+    data: apiBatches,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["batches"],
+    queryFn: batchService.getAllBatches,
+    staleTime: 30000, // Cache for 30 seconds
+    retry: 2, // Retry failed requests twice
+    retryDelay: 1000, // Wait 1 second between retries
+  });
+
+  // Transform API data to local format
   useEffect(() => {
-    const updateStatuses = () => {
-      setBatches((prev) =>
-        prev.map((b) => ({
-          ...b,
-          status: determineStatus(b.startDate, b.endDate),
-        })),
-      );
-    };
+    if (apiBatches) {
+      // Handle both direct array and wrapped response formats
+      const batchArray = Array.isArray(apiBatches)
+        ? apiBatches
+        : (apiBatches as any).$values || (apiBatches as any).data || [];
 
-    updateStatuses();
-    const interval = setInterval(updateStatuses, 60000);
-    return () => clearInterval(interval);
-  }, []);
+      const transformed = batchArray.map((b: any) => {
+        // Map backend status to frontend format
+        // Backend can return status as string or integer (0=NotStarted, 1=Active, 2=Completed)
+        let status: "Not Started" | "Ongoing" | "Completed" = "Not Started";
 
-  // Add new batch
+        // Debug: Log the actual status value from backend
+        console.log(
+          `Batch ${b.batchName} status from API:`,
+          b.status,
+          typeof b.status,
+        );
+
+        // Handle integer status values
+        if (b.status === 0 || b.status === "NotStarted") {
+          status = "Not Started";
+        } else if (
+          b.status === 1 ||
+          b.status === "Active" ||
+          b.status === "Ongoing"
+        ) {
+          status = "Ongoing";
+        } else if (b.status === 2 || b.status === "Completed") {
+          status = "Completed";
+        }
+
+        return {
+          id: b.id,
+          name: b.batchName,
+          type:
+            b.batchTypeName ||
+            b.batchType?.name ||
+            (typeof b.batchType === "string" ? b.batchType : "Unknown"),
+          totalTrainees: 0, // Will be updated by fetching trainee counts
+          totalTrainingHours: calculateTrainingHours(b.startDate, b.endDate),
+          status,
+          startDate: b.startDate,
+          endDate: b.endDate,
+        };
+      });
+      setBatches(transformed);
+
+      // Fetch trainee counts for all batches
+      const fetchTraineeCounts = async () => {
+        try {
+          const traineeCountPromises = transformed.map(
+            async (batch: { id: number }) => {
+              try {
+                const traineesResponse =
+                  await traineeService.getTraineesByBatch(batch.id);
+                const traineesArray = Array.isArray(traineesResponse)
+                  ? traineesResponse
+                  : (traineesResponse as any).$values ||
+                    (traineesResponse as any).data ||
+                    [];
+
+                return {
+                  batchId: batch.id,
+                  traineeCount: traineesArray.length,
+                };
+              } catch (error) {
+                console.error(
+                  `Failed to fetch trainees for batch ${batch.id}:`,
+                  error,
+                );
+                return {
+                  batchId: batch.id,
+                  traineeCount: 0,
+                };
+              }
+            },
+          );
+
+          const traineeCountResults = await Promise.all(traineeCountPromises);
+
+          // Update all batches with their trainee counts
+          setBatches((prevBatches) =>
+            prevBatches.map((batch) => {
+              const result = traineeCountResults.find(
+                (r) => r.batchId === batch.id,
+              );
+              return result
+                ? { ...batch, totalTrainees: result.traineeCount }
+                : batch;
+            }),
+          );
+        } catch (error) {
+          console.error("Failed to fetch trainee counts:", error);
+        }
+      };
+
+      fetchTraineeCounts();
+    }
+  }, [apiBatches]);
+
+  // Create batch mutation
+  const createBatchMutation = useMutation({
+    mutationFn: batchService.createBatch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["batches"] });
+      setIsModalOpen(false);
+      notifications.show({
+        title: "Success",
+        message: "Batch created successfully",
+        color: "green",
+      });
+    },
+    onError: (error: Error) => {
+      notifications.show({
+        title: "Error",
+        message: error.message || "Failed to create batch",
+        color: "red",
+      });
+    },
+  });
+
+  // Handle batch creation
   const handleAddBatch = (data: {
     batchName: string;
     batchType: string;
     startDate: string;
     endDate: string;
+    phases?: any[];
   }) => {
-    const newBatch: Batch = {
-      id: Date.now(),
-      name: data.batchName,
-      type: data.batchType,
-      totalTrainees: 0,
-      totalTrainingHours: 0,
-      status: determineStatus(data.startDate, data.endDate),
-      startDate: data.startDate,
-      endDate: data.endDate,
+    // Backend automatically calculates status based on dates, so we don't send it
+
+    // Convert dates to ISO 8601 format at noon UTC to avoid timezone issues
+    // This ensures the date is interpreted consistently regardless of user's timezone
+    const startDateISO = `${data.startDate}T12:00:00.000Z`;
+    const endDateISO = `${data.endDate}T12:00:00.000Z`;
+
+    // Find the batch type ID from the batch type name
+    const batchTypeArray = Array.isArray(apiBatchTypes)
+      ? apiBatchTypes
+      : (apiBatchTypes as any)?.$values || (apiBatchTypes as any)?.data || [];
+
+    const selectedBatchType = batchTypeArray.find(
+      (bt: any) => bt.name === data.batchType,
+    );
+
+    // Process phases with ISO dates at noon UTC to avoid timezone issues
+    const processedPhases = data.phases?.map((phase: any) => ({
+      phaseType: phase.phaseType,
+      phaseTypeId: phase.phaseTypeId,
+      startDate: `${phase.startDate}T12:00:00.000Z`,
+      endDate: `${phase.endDate}T12:00:00.000Z`,
+    }));
+
+    const payload = {
+      batchName: data.batchName,
+      batchTypeId: selectedBatchType?.id || null,
+      // Status is not sent - backend calculates it automatically from dates
+      startDate: startDateISO,
+      endDate: endDateISO,
+      phases: processedPhases || [],
     };
-    setBatches((prev) => [...prev, newBatch]);
-    setIsModalOpen(false);
+
+    createBatchMutation.mutate(payload);
   };
 
   const columns: ColumnDef<Batch>[] = [
-    { key: "name", header: "Batch Name", sortable: true, width: "30%" },
-    { key: "type", header: "Batch Type", sortable: true, width: "20%" },
+    { key: "name", header: "Batch Name", sortable: true, width: "25%" },
+    { key: "type", header: "Batch Type", sortable: true, width: "18%" },
     {
       key: "totalTrainees",
       header: "Total Trainees",
@@ -198,7 +251,7 @@ export default function Batches() {
       header: "Status",
       align: "center",
       sortable: true,
-      width: "20%",
+      width: "15%",
       render: (value) => <StatusBadge status={value as Batch["status"]} />,
     },
   ];
@@ -206,6 +259,48 @@ export default function Batches() {
   // Unique options for filters
   const batchTypes = Array.from(new Set(batches.map((b) => b.type)));
   const statuses = Array.from(new Set(batches.map((b) => b.status)));
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="p-4 flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">Loading batches...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+          <div className="text-lg text-red-600 mb-2">
+            Failed to load batches
+          </div>
+          <div className="text-sm text-gray-600">{error.message}</div>
+          <div className="text-xs text-gray-500">
+            <p>Troubleshooting tips:</p>
+            <ul className="list-disc list-inside mt-2 text-left">
+              <li>
+                Make sure your backend server is running on
+                http://localhost:5225
+              </li>
+              <li>Check that CORS is enabled in your backend</li>
+              <li>Verify the API endpoint is accessible</li>
+            </ul>
+          </div>
+          <Button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["batches"] })
+            }
+            size="sm"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
@@ -217,6 +312,7 @@ export default function Batches() {
           onClick={() => setIsModalOpen(true)}
           size="sm"
           className="rounded-[18px]"
+          disabled={createBatchMutation.isPending}
         >
           <Plus size={16} /> Create new batch
         </Button>
@@ -266,284 +362,3 @@ export default function Batches() {
     </div>
   );
 }
-
-// src/pages/Batches.tsx
-// import { Plus, Trash2 } from "lucide-react";
-// import { useState, useEffect } from "react";
-// import { ActionIcon } from "@mantine/core";
-// import { notifications } from "@mantine/notifications";
-// import { useNavigate } from "react-router";
-
-// import Button from "../../features/ui/Button";
-// import DataTable, { type ColumnDef } from "../../features/ui/Table";
-// import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
-// import StatusBadge from "../../features/ui/StatusBadge";
-// import { openDeleteModal } from "../../features/ui/DeleteConfirmModal";
-// import { batchService, type BatchDto } from "../../services/batchService";
-
-// interface Batch {
-//   id: number;
-//   name: string;
-//   type: string;
-//   totalTrainees: number;
-//   totalTrainingHours: number;
-//   status: "Not Started" | "Ongoing" | "Completed";
-//   startDate?: string;
-//   endDate?: string;
-// }
-
-// export default function Batches() {
-//   const navigate = useNavigate();
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-//   const [batches, setBatches] = useState<Batch[]>([]);
-//   const [loading, setLoading] = useState(true);
-
-//   // Determine batch status based on dates
-//   const determineStatus = (
-//     startDate?: string,
-//     endDate?: string
-//   ): Batch["status"] => {
-//     if (!startDate || !endDate) return "Not Started";
-//     const today = new Date();
-//     const start = new Date(startDate);
-//     const end = new Date(endDate);
-//     if (today < start) return "Not Started";
-//     if (today > end) return "Completed";
-//     return "Ongoing";
-//   };
-
-//   // Fetch batches from backend
-//   const fetchBatches = async () => {
-//     try {
-//       setLoading(true);
-//       const data = await batchService.getAllBatches();
-
-//       const mappedBatches: Batch[] = data.map((b: BatchDto) => ({
-//         id: b.id,
-//         name: b.name,
-//         type: b.type,
-//         totalTrainees: b.totalTrainees, // Now calculated from relationship
-//         totalTrainingHours: b.totalTrainingHours, // Now calculated from dates
-//         startDate: b.startDate,
-//         endDate: b.endDate,
-//         status: determineStatus(b.startDate, b.endDate),
-//       }));
-
-//       setBatches(mappedBatches);
-//     } catch (error) {
-//       notifications.show({
-//         title: "Error",
-//         message: "Failed to fetch batches",
-//         color: "red",
-//       });
-//       console.error("Error fetching batches:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchBatches();
-//   }, []);
-
-//   // Auto-update statuses every minute
-//   useEffect(() => {
-//     const updateStatuses = () => {
-//       setBatches((prev) =>
-//         prev.map((b) => ({
-//           ...b,
-//           status: determineStatus(b.startDate, b.endDate),
-//         }))
-//       );
-//     };
-
-//     updateStatuses();
-//     const interval = setInterval(updateStatuses, 60000);
-//     return () => clearInterval(interval);
-//   }, []);
-
-//   // Delete batch
-//   const handleDelete = (batch: Batch) => {
-//     openDeleteModal({
-//       itemName: batch.name,
-//       itemType: "Batch",
-//       onConfirm: async () => {
-//         try {
-//           await batchService.deleteBatch(batch.id);
-//           setBatches((prev) => prev.filter((b) => b.id !== batch.id));
-//           notifications.show({
-//             title: "Success",
-//             message: "Batch deleted successfully",
-//             color: "green",
-//           });
-//         } catch (error) {
-//           notifications.show({
-//             title: "Error",
-//             message: "Failed to delete batch",
-//             color: "red",
-//           });
-//           console.error("Error deleting batch:", error);
-//         }
-//       },
-//     });
-//   };
-
-//   // Add new batch
-//   const handleAddBatch = async (data: {
-//     batchName: string;
-//     batchType: string;
-//     startDate: string;
-//     endDate: string;
-//   }) => {
-//     try {
-//       const newBatchDto = {
-//         name: data.batchName,
-//         type: data.batchType,
-//         startDate: data.startDate,
-//         endDate: data.endDate,
-//       };
-
-//       const createdBatch = await batchService.createBatch(newBatchDto);
-
-//       const newBatch: Batch = {
-//         id: createdBatch.id,
-//         name: createdBatch.name,
-//         type: createdBatch.type,
-//         totalTrainees: createdBatch.totalTrainees,
-//         totalTrainingHours: createdBatch.totalTrainingHours,
-//         startDate: createdBatch.startDate,
-//         endDate: createdBatch.endDate,
-//         status: determineStatus(createdBatch.startDate, createdBatch.endDate),
-//       };
-
-//       setBatches((prev) => [...prev, newBatch]);
-//       setIsModalOpen(false);
-
-//       notifications.show({
-//         title: "Success",
-//         message: "Batch created successfully",
-//         color: "green",
-//       });
-//     } catch (error) {
-//       notifications.show({
-//         title: "Error",
-//         message: "Failed to create batch",
-//         color: "red",
-//       });
-//       console.error("Error creating batch:", error);
-//     }
-//   };
-
-//   const columns: ColumnDef<Batch>[] = [
-//     { key: "name", header: "Batch Name", sortable: true, width: "25%" },
-//     { key: "type", header: "Batch Type", sortable: true, width: "18%" },
-//     {
-//       key: "totalTrainees",
-//       header: "Total Trainees",
-//       align: "center",
-//       sortable: true,
-//       width: "15%",
-//     },
-//     {
-//       key: "totalTrainingHours",
-//       header: "Training Hours",
-//       align: "center",
-//       sortable: true,
-//       width: "15%",
-//     },
-//     {
-//       key: "status",
-//       header: "Status",
-//       align: "center",
-//       sortable: true,
-//       width: "15%",
-//       render: (value) => <StatusBadge status={value as Batch["status"]} />,
-//     },
-//     {
-//       key: "action",
-//       header: "Action",
-//       align: "center",
-//       width: "12%",
-//       render: (_, row) => (
-//         <ActionIcon
-//           variant="subtle"
-//           color="gray"
-//           onClick={(e) => {
-//             e.stopPropagation();
-//             handleDelete(row);
-//           }}
-//         >
-//           <Trash2 size={18} />
-//         </ActionIcon>
-//       ),
-//     },
-//   ];
-
-//   if (loading) {
-//     return (
-//       <div className="p-4 flex justify-center items-center h-64">
-//         <div className="text-lg text-gray-600">Loading batches...</div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="p-4">
-//       {/* Header */}
-//       <div className="flex justify-between items-center">
-//         <span className="text-[30px] font-semibold text-[#565E6C]">
-//           Batches
-//         </span>
-//         <Button
-//           onClick={() => setIsModalOpen(true)}
-//           size="sm"
-//           className="rounded-[18px]"
-//         >
-//           <Plus size={16} /> Create new batch
-//         </Button>
-//       </div>
-
-//       {/* Table */}
-//       <div className="pt-8">
-//         <DataTable
-//           columns={columns}
-//           data={batches}
-//           showHeaderSection={true}
-//           headerTitle="All Batches"
-//           headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
-//           enableFilter={true}
-//           filterColumn="status"
-//           filterOptions={["Ongoing", "Completed", "Not Started"]}
-//           enableSearch={true}
-//           enablePagination={true}
-//           pageSize={10}
-//           pageSizeOptions={[5, 10, 25, 50]}
-//           striped={false}
-//           highlightOnHover={true}
-//           withBorder={true}
-//           rowStyle={{
-//             fontSize: "16px",
-//             height: "56px",
-//             lineHeight: "1",
-//             cursor: "pointer",
-//           }}
-//           headerStyle={{
-//             fontWeight: 500,
-//             fontSize: "16px",
-//             height: "40px",
-//             background: "#F8F9FA",
-//           }}
-//           onRowClick={(row) => navigate(`/batches/${row.id}`)}
-//         />
-//       </div>
-
-//       {/* Create Batch Modal */}
-//       <BatchDetailsModal
-//         isOpen={isModalOpen}
-//         onClose={() => setIsModalOpen(false)}
-//         onSubmit={handleAddBatch}
-//         title="Create Batch"
-//       />
-//     </div>
-//   );
-// }
