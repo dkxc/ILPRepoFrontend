@@ -4,6 +4,8 @@ import { PublicDocumentsCardLoading } from "./components/PublicDocumentsCardLoad
 import { GenericErrorCard } from "@ui/card/GenericErrorCard";
 import { PublicDocumentsCardSuccess } from "./components/PublicDocumentsCardSuccess";
 import type { SimpleQueryResult } from "@features/trainee/types/SimplerQuery.types";
+import * as Card from "@features/ui/card";
+import { cn } from "@lib/utils";
 
 export interface PublicDocumentsCardProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -33,8 +35,21 @@ function PublicDocumentsCard({
     );
   }
 
-  if (!documents) {
-    return null;
+  if (!documents || documents.length === 0) {
+    return (
+      <Card.Card
+        className={cn(
+          "flex flex-col h-full items-center justify-center",
+          className,
+        )}
+      >
+        <Card.CardHeader className="text-center">
+          <Card.CardDescription>
+            No Documents uploaded yet.
+          </Card.CardDescription>
+        </Card.CardHeader>
+      </Card.Card>
+    );
   }
 
   return (
