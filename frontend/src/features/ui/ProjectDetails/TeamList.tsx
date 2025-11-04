@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Trash2 } from "lucide-react";
 import DataTable from "../../admin/Table";
 import type { ColumnDef } from "../../admin/Table";
 import { getTeamList } from "./api";
@@ -16,8 +15,6 @@ interface TeamListProps {
   data?: TeamMember[];
   title?: string;
   showTitle?: boolean;
-  canDelete?: boolean;
-  onDelete?: (member: TeamMember) => void;
   projectId?: string;
 }
 
@@ -51,8 +48,6 @@ export default function TeamList({
   data,
   title = "Team Members",
   showTitle = true,
-  canDelete = false,
-  onDelete,
   projectId,
 }: TeamListProps) {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(
@@ -77,44 +72,17 @@ export default function TeamList({
     fetchTeamMembers();
   }, [projectId, data]);
 
-  const handleDelete = (member: TeamMember) => {
-    setTeamMembers((prev) => prev.filter((m) => m.id !== member.id));
-    onDelete?.(member);
-  };
-
   const defaultColumns: ColumnDef<TeamMember>[] = [
     { key: "name", header: "Name", width: "35%" },
     { key: "role", header: "Role", width: "25%" },
     { key: "mail", header: "Mail", width: "30%" },
-    ...(canDelete
-      ? [
-          {
-            key: "actions",
-            header: "Actions",
-            width: "10%",
-            align: "center" as const,
-            render: (_: any, row: TeamMember) => (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(row);
-                }}
-                className="p-1.5 hover:bg-gray-100 rounded transition-colors text-gray-600 hover:text-gray-700"
-                title="Remove from project"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            ),
-          },
-        ]
-      : []),
   ];
 
   const tableColumns = columns || defaultColumns;
 
   if (loading) {
     return (
-      <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto animate-pulse">
+      <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto animate-pulse shadow-sm">
         {showTitle && <div className="h-6 bg-gray-300 rounded w-32 mb-6"></div>}
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -126,7 +94,7 @@ export default function TeamList({
   }
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto">
+    <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto shadow-sm">
       {showTitle && (
         <h2 className="text-base font-semibold mb-6 text-[#565E6C]">{title}</h2>
       )}

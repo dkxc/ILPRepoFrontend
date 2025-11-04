@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Upload, Download, Filter, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   getSubmittedDocuments,
   getDocumentRequirements,
@@ -348,18 +349,19 @@ const DocumentSubmissionModal = ({
         // Remove from local state
         setUploadedDocuments((prev) => prev.filter((doc) => doc.id !== docId));
 
-        // Show success message
-        setUploadSuccess("Document deleted successfully!");
-        setTimeout(() => setUploadSuccess(""), 3000);
+        // Show success toast
+        toast.success("Document deleted successfully!");
       } else {
         console.error("❌ Failed to delete document from server");
-        setUploadError("Failed to delete document. Please try again.");
-        setTimeout(() => setUploadError(""), 3000);
+
+        // Show error toast
+        toast.error("Failed to delete document. Please try again.");
       }
     } catch (error) {
       console.error("💥 Error during document deletion:", error);
-      setUploadError("An error occurred while deleting the document.");
-      setTimeout(() => setUploadError(""), 3000);
+
+      // Show error toast
+      toast.error("An error occurred while deleting the document.");
     }
   };
 
@@ -460,8 +462,10 @@ const DocumentSubmissionModal = ({
 
         if (result) {
           console.log("Document submitted successfully:", result);
-          setUploadSuccess(
-            `Document submitted successfully! Submission ID: ${result.submissionId}`,
+
+          // Show success toast
+          toast.success(
+            `Document uploaded successfully! Submission ID: ${result.submissionId}`,
           );
 
           // Refresh document list
@@ -481,16 +485,17 @@ const DocumentSubmissionModal = ({
 
           onSubmit?.(selectedFile, selectedType);
 
-          // Close modal after a short delay to show success message
-          setTimeout(() => {
-            handleClose();
-          }, 2000);
+          // Close modal immediately after successful upload
+          handleClose();
         } else {
-          setUploadError("Document submission failed. Please try again.");
+          // Show error toast
+          toast.error("Document submission failed. Please try again.");
         }
       } catch (error) {
         console.error("Error during document submission:", error);
-        setUploadError("Document submission failed. Please try again.");
+
+        // Show error toast
+        toast.error("Document submission failed. Please try again.");
       }
     }
   };
@@ -508,7 +513,7 @@ const DocumentSubmissionModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl h-[90%] flex flex-col">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
