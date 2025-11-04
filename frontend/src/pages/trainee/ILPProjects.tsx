@@ -396,7 +396,7 @@ export default function Projects() {
           filterOptions={uniqueBatches}
           enableSearch={true}
           enablePagination={true}
-          // enableDateFilter={true}
+          enableDateFilter={true}
           dateFilterColumn="startDate"
           pageSize={5}
           pageSizeOptions={[5, 10, 25, 50]}

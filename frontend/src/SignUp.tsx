@@ -181,7 +181,7 @@ const ForgotPasswordFlow = () => {
           <div className="mt-6 space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
-                {/* Forgot Password? */}
+                Forgot Password?
               </h2>
               <p className="text-sm text-center text-gray-600">
                 Enter your email address and we'll send you an OTP to reset your

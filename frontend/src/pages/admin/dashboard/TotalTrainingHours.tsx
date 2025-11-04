@@ -2,7 +2,9 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import Card from "../../../features/ui/card/Card";
 import CardContent from "../../../features/ui/card/CardContent";
 import CardHeader from "../../../features/ui/card/CardHeader";
-import BatchSelect, { sampleBatches } from "../../../features/admin/dashboard/BatchSelect";
+import BatchSelect, {
+  sampleBatches,
+} from "../../../features/admin/dashboard/BatchSelect";
 
 /* ----------------- CALENDAR COMPONENT (UNCHANGED) ------------------- */
 
@@ -27,7 +29,6 @@ function CalendarGrid({
   trainingHours,
   onUpdateHours,
 }: CalendarGridProps) {
-
   const gridRef = useRef<HTMLDivElement>(null);
 
   const firstDay = new Date(year, month - 1, 1).getDay();
@@ -67,12 +68,12 @@ function CalendarGrid({
               }}
               type="button"
               className={`h-10 w-10 rounded-md flex items-center justify-center ${d === null
-                  ? "invisible"
-                  : isSunday
-                    ? "bg-white text-gray-400"
-                    : isHoliday
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800 hover:bg-green-200"
+                ? "invisible"
+                : isSunday
+                  ? "bg-white text-gray-400"
+                  : isHoliday
+                    ? "bg-red-100 text-red-800"
+                    : "bg-green-100 text-green-800 hover:bg-green-200"
                 }`}
             >
               {d}
@@ -94,9 +95,7 @@ function CalendarGrid({
                       type="number"
                       className="w-20 border rounded px-2 py-1"
                       value={trainingHours[d] || 8}
-                      onChange={(e) =>
-                        onUpdateHours(d, Number(e.target.value))
-                      }
+                      onChange={(e) => onUpdateHours(d, Number(e.target.value))}
                       min="0"
                       max="24"
                     />
@@ -155,7 +154,7 @@ export default function TotalTrainingHours() {
   const [holidays] = useState<number[]>([]);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [trainingHours, setTrainingHours] = useState<Record<number, number>>(
-    {}
+    {},
   );
 
   const handleUpdateHours = (day: number, hours: number) => {
@@ -169,28 +168,35 @@ export default function TotalTrainingHours() {
 
   const fetchBatchTypes = async () => {
     const res = await fetch(
-      "https://localhost:7224/api/AdminDashboard/batch-types"
+      "https://localhost:7224/api/AdminDashboard/batch-types",
     );
     const data = await res.json();
     setBatchTypes(data);
   };
 
   const fetchReport = async () => {
-    const params = new URLSearchParams({
-      startDate: from,
-      endDate: to,
-    });
+  const params = new URLSearchParams({
+    startDate: from,
+    endDate: to,
+  });
 
-    if (batchTypeId) params.append("batchTypeId", batchTypeId);
+  // Only send when not "All"
+  if (batchTypeId !== "0") {
+    params.append("batchTypeId", batchTypeId);
+  }
 
-    const res = await fetch(
-      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
-    );
-    const data = await res.json();
+  const res = await fetch(
+    `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
+  );
 
-    setTotalHours(data.totalHours || 0);
-    setRows(data.batchDetails || []);
-  };
+  const data = await res.json();
+
+  setTotalHours(data.totalHours || 0);
+  setRows(data.batchDetails || []);
+};
+
+
+
 
   useEffect(() => {
     fetchBatchTypes();
@@ -213,11 +219,12 @@ export default function TotalTrainingHours() {
 
           <CardContent>
             <div className="space-y-6">
-
               {/* Filters */}
               <div className="flex justify-between gap-4">
                 <div className="flex flex-col w-full gap-1">
-                  <label className="text-sm text-gray-600">Select Start Date</label>
+                  <label className="text-sm text-gray-600">
+                    Select Start Date
+                  </label>
                   <input
                     type="date"
                     value={from}
@@ -227,7 +234,9 @@ export default function TotalTrainingHours() {
                 </div>
 
                 <div className="flex flex-col w-full gap-1">
-                  <label className="text-sm text-gray-600">Select End Date</label>
+                  <label className="text-sm text-gray-600">
+                    Select End Date
+                  </label>
                   <input
                     type="date"
                     value={to}
@@ -237,21 +246,20 @@ export default function TotalTrainingHours() {
                 </div>
 
                 <div className="flex flex-col w-full gap-1">
-                  <label className="text-sm text-gray-600">Select Batch Type</label>
+                  <label className="text-sm text-gray-600">
+                    Select Batch Type
+                  </label>
                   <select
                     value={batchTypeId}
                     onChange={(e) => setBatchTypeId(e.target.value)}
                     className="border px-3 py-2 rounded"
                   >
-
-                    <option value=""></option>
-                    {batchTypes.map(bt => (
-                      <option key={bt.id} value={bt.batchTypeId}>
+                    {batchTypes.map((bt: any) => (
+                      <option key={bt.id} value={bt.id.toString()}>
                         {bt.name}
                       </option>
                     ))}
                   </select>
-
                 </div>
               </div>
 
@@ -268,23 +276,18 @@ export default function TotalTrainingHours() {
               {/* TABLE */}
               <div className="rounded border overflow-hidden">
                 <div className="grid grid-cols-4 bg-gray-50 px-4 py-3 text-sm font-medium">
-                  <div>Name</div>
+                  <div>Batch Name</div>
                   <div className="text-center">Batch Type</div>
                   <div>Hours</div>
                   <div>Days</div>
                 </div>
 
                 <div className="max-h-[300px] overflow-y-auto divide-y">
-                  {rows.map((r, i) => (
-                    <div
-                      key={i}
-                      className="grid grid-cols-4 px-4 py-3 text-sm"
-                    >
+                  {rows.map((r: any, i: number) => (
+                    <div key={i} className="grid grid-cols-4 px-4 py-3 text-sm">
                       <div>{r.batchName}</div>
                       <div className="text-center">{r.batchTypeName}</div>
-                      <div className="text-blue-600 font-semibold">
-                        {r.totalTrainingHours}
-                      </div>
+                      <div className="text-blue-600 font-semibold">{r.totalTrainingHours}</div>
                       <div className="text-blue-600 font-semibold">
                         {Math.round(r.totalTrainingHours / 8)} Days
                       </div>
@@ -292,12 +295,11 @@ export default function TotalTrainingHours() {
                   ))}
 
                   {rows.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">
-                      No data available
-                    </div>
+                    <div className="text-center py-4 text-gray-500">No data available</div>
                   )}
                 </div>
               </div>
+
             </div>
           </CardContent>
         </Card>
@@ -312,7 +314,6 @@ export default function TotalTrainingHours() {
 
           <CardContent>
             <div className="space-y-4">
-
               {/* Batch Select */}
               <BatchSelect
                 value={selectedBatch}

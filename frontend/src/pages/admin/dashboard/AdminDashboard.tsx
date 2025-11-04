@@ -13,7 +13,6 @@ interface DashboardSummaryData {
   totalProjects: number;
 }
 
-
 // Define a function to fetch data
 const fetchDashboardSummary = async (): Promise<DashboardSummaryData> => {
   const res = await fetch("https://localhost:7224/api/AdminDashboard/summary");
@@ -27,38 +26,37 @@ function Dashboard() {
   const [selected, setSelected] = useState<string | null>("batches");
   const [selectedBatchId, setSelectedBatchId] = useState<string>("1");
   // ✅ Fetch total training hours for last 5 years
-const fetchTotalTrainingHours = async () => {
-  const today = new Date();
-  const endDate = today.toISOString().split("T")[0];
+  const fetchTotalTrainingHours = async () => {
+    const today = new Date();
+    const endDate = today.toISOString().split("T")[0];
 
-  const last5Years = new Date();
-  last5Years.setFullYear(today.getFullYear() - 5);
-  const startDate = last5Years.toISOString().split("T")[0];
+    const last5Years = new Date();
+    last5Years.setFullYear(today.getFullYear() - 5);
+    const startDate = last5Years.toISOString().split("T")[0];
 
-  const params = new URLSearchParams({
-    startDate,
-    endDate,
+    const params = new URLSearchParams({
+      startDate,
+      endDate,
+    });
+
+    // ✅ fetch all batch types total hours (batchTypeId empty)
+    const res = await fetch(
+      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`,
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch total training hours");
+
+    return res.json();
+  };
+
+  const {
+    data: trainingHours,
+    isLoading: isHoursLoading,
+    isError: isHoursError,
+  } = useQuery({
+    queryKey: ["dashboardTrainingHours"],
+    queryFn: fetchTotalTrainingHours,
   });
-
-  // ✅ fetch all batch types total hours (batchTypeId empty)
-  const res = await fetch(
-    `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
-  );
-
-  if (!res.ok) throw new Error("Failed to fetch total training hours");
-
-  return res.json();
-};
-
-const {
-  data: trainingHours,
-  isLoading: isHoursLoading,
-  isError: isHoursError,
-} = useQuery({
-  queryKey: ["dashboardTrainingHours"],
-  queryFn: fetchTotalTrainingHours,
-});
-
 
   // Fetch data from backend API
   const {
@@ -99,16 +97,34 @@ const {
       id: "hours",
       title: "Total Training Hours",
       value: (
-    <span className="text-2xl">
-      {isHoursLoading
-        ? "..."
-        : isHoursError
-        ? "0"
-        : trainingHours?.totalHours ?? 0}
-    </span>
-  ),
+        <span className="text-2xl">
+          {isHoursLoading
+            ? "..."
+            : isHoursError
+              ? "0"
+              : (() => {
+                // ✅ If API returns { totalHours: number }
+                if (typeof trainingHours?.totalHours === "number") {
+                  return trainingHours.totalHours+100;
+                }
+
+                // ✅ If API returns batchDetails instead
+                if (Array.isArray(trainingHours?.batchDetails)) {
+                  return trainingHours.batchDetails.reduce(
+                    (sum: number, batch: any) =>
+                      sum + (batch.totalTrainingHours ?? 0),
+                    0
+                  );
+                }
+
+                // ✅ Default
+                return 0;
+              })()}
+        </span>
+      ),
       icon: <img src={clockIcon} alt="Hours" />,
     },
+
   ];
 
   return (
