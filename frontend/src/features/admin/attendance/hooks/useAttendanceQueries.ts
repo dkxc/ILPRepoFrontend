@@ -7,7 +7,7 @@ import type {
   UpdateSuccessResponseType,
   UploadJsonQueryType,
 } from "../types/AttendanceQuery.types";
-import apiClient from "@lib/api/apiClient";
+import ApiService from "../../../../services/apiService";
 
 function buildAttendanceUrl(batchId: number, filters?: GetQueryType): string {
   const queryParams = new URLSearchParams();
@@ -17,7 +17,7 @@ function buildAttendanceUrl(batchId: number, filters?: GetQueryType): string {
   }
 
   const queryString = queryParams.toString();
-  return `/api/attendance/batch/${batchId}${queryString ? `?${queryString}` : ""}`;
+  return `/Attendance/batch/${batchId}${queryString ? `?${queryString}` : ""}`;
 }
 
 // Custom Hooks
@@ -26,12 +26,19 @@ function buildAttendanceUrl(batchId: number, filters?: GetQueryType): string {
  * @param batchId The ID of the batch to fetch attendance for.
  * @param filters Optional filters for start date, end date, and status.
  */
-export function useAttendanceQuery(batchId: number, filters?: GetQueryType) {
-  return useQuery<GetResponseType[]>({
+export function useAttendanceQuery(
+  batchId: number | null,
+  filters?: GetQueryType,
+) {
+  return useQuery<GetResponseType[], Error>({
     queryKey: ["attendance", batchId, filters],
     queryFn: () => {
+      if (!batchId) {
+        // Should not happen due to 'enabled' flag, but serves as a safeguard
+        return Promise.resolve([]);
+      }
       const endpoint = buildAttendanceUrl(batchId, filters);
-      return apiClient(endpoint);
+      return ApiService.get(endpoint);
     },
     enabled: !!batchId,
   });
@@ -39,7 +46,6 @@ export function useAttendanceQuery(batchId: number, filters?: GetQueryType) {
 
 /**
  * Custom hook to create a mutation for updating attendance records.
- * @param batchId The ID of the batch whose cache needs to be invalidated on success.
  */
 export function useUpdateAttendanceMutation() {
   const queryClient = useQueryClient();
@@ -47,13 +53,10 @@ export function useUpdateAttendanceMutation() {
   return useMutation<
     UpdateSuccessResponseType,
     Error,
-    { batchId: number; data: UpdateQueryType }
+    { batchId: number | null; data: UpdateQueryType }
   >({
     mutationFn: ({ batchId, data }) => {
-      return apiClient(`/api/attendance/batch/${batchId}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      return ApiService.put(`/Attendance/batch/${batchId}`, data);
     },
 
     onSuccess: (_data, variables) => {
@@ -65,9 +68,6 @@ export function useUpdateAttendanceMutation() {
 }
 
 /**
- * Custom hook to create a mutation for uploading an attendance file.
- */
-/**
  * Custom hook to create a mutation for uploading parsed attendance data.
  */
 export function useUploadAttendanceMutation() {
@@ -76,16 +76,10 @@ export function useUploadAttendanceMutation() {
   return useMutation<
     ImportSuccessResponseType,
     Error,
-    { batchId: number; data: UploadJsonQueryType }
+    { batchId: number | null; data: UploadJsonQueryType }
   >({
     mutationFn: ({ batchId, data }) => {
-      return apiClient(`/api/attendance/batch/${batchId}/upload`, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      return ApiService.post(`/Attendance/batch/${batchId}/upload`, data);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
