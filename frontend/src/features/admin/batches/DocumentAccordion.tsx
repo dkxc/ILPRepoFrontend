@@ -559,7 +559,9 @@ export default function DocumentUpload({
     );
     if (!selectedLinkTypeId || !batchId) {
       console.log("Save blocked - missing selectedLinkTypeId or batchId");
-      toast.error("Please select a link type and ensure batch ID is available.");
+      toast.error(
+        "Please select a link type and ensure batch ID is available.",
+      );
       return;
     }
 
@@ -602,7 +604,9 @@ export default function DocumentUpload({
         console.log("Error response:", err.response?.data);
         console.log("Error status:", err.response?.status);
       }
-      toast.error(`Failed to assign link type. ${err instanceof Error ? err.message : "Unknown error"}`);
+      toast.error(
+        `Failed to assign link type. ${err instanceof Error ? err.message : "Unknown error"}`,
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -705,7 +709,9 @@ export default function DocumentUpload({
         setNewDocumentTypeTemplate(null);
         setShowAddDocumentTypeModal(false);
 
-        toast.success(`Document type "${newDocumentType.name}" added successfully`);
+        toast.success(
+          `Document type "${newDocumentType.name}" added successfully`,
+        );
       } else {
         toast.error("Failed to create document type");
       }
