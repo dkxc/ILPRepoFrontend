@@ -75,9 +75,7 @@ const LoginPage = () => {
             width={140}
             className="mb-2"
           />
-          <p className="text-sm text-gray-500 font-medium">
-            ILP Repository Portal
-          </p>
+          <p className="text-sm text-gray-500 font-medium">ILP Repo Portal</p>
         </div>
 
         <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
