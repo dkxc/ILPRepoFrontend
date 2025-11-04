@@ -5,10 +5,11 @@ import Skeleton from "@ui/skeleton";
 import { cn } from "../../../../lib/utils";
 import UpcomingSessionCardItem from "./UpcomingSessionCardItem";
 import { type UseQueryResult } from "@tanstack/react-query";
+import type { SimpleQueryResult } from "@features/trainee/types/SimplerQuery.types";
 
 export interface UpcomingSessionCardProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  query: UseQueryResult<Session[]>;
+  query: SimpleQueryResult<Session[]>;
 }
 
 function UpcomingSessionCard({
@@ -17,9 +18,9 @@ function UpcomingSessionCard({
   ref,
   ...props
 }: UpcomingSessionCardProps & { ref?: React.Ref<HTMLDivElement> }) {
-  const { data: activities, status } = query;
+  const { data: activities, isLoading, isError } = query;
 
-  if (status === "pending") {
+  if (isLoading) {
     return (
       <Card.Card className={cn("flex flex-col h-full", className)}>
         <Card.CardHeader>
@@ -37,7 +38,7 @@ function UpcomingSessionCard({
     );
   }
 
-  if (status === "error") {
+  if (isError) {
     return (
       <Card.Card
         className={cn(

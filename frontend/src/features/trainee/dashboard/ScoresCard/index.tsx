@@ -6,9 +6,10 @@ import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
 import { getPieDataFromPercent } from "../../../../lib/graphs/utils";
 import { type UseQueryResult } from "@tanstack/react-query";
+import type { SimpleQueryResult } from "@features/trainee/types/SimplerQuery.types";
 
 export interface ScoreCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  query: UseQueryResult<Scores>;
+  query: SimpleQueryResult<Scores>;
 }
 
 function ScoreCard({
@@ -17,9 +18,9 @@ function ScoreCard({
   ref,
   ...props
 }: ScoreCardProps & { ref?: React.Ref<HTMLDivElement> }) {
-  const { data: scores, status } = query;
+  const { data: scores, isLoading, isError } = query;
 
-  if (status === "pending") {
+  if (isLoading) {
     return (
       <Card.Card className={cn("flex flex-col h-full", className)}>
         <Card.CardHeader>
@@ -32,7 +33,7 @@ function ScoreCard({
     );
   }
 
-  if (status === "error") {
+  if (isError) {
     return (
       <Card.Card
         className={cn(
