@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, useEffect } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import ApiService from "../../services/apiService";
-// import ApiService from "../../services/ApiService";
 
 interface Sections {
   password: boolean;
@@ -28,9 +27,10 @@ interface PasswordData {
 
 interface Admin {
   id: number;
-  name: string;
+  username: string; // Changed from 'name' to 'username' to match API
   email: string;
-  role: string;
+  role: number; // Changed to number to match API (0 = Admin)
+  isActive: boolean;
 }
 
 interface Trainee {
@@ -47,9 +47,13 @@ interface TimelineSettings {
 }
 
 interface EmailConfig {
-  subject: string;
-  message: string;
-  daysBeforeDue: number;
+  serviceName: string;
+  serviceDescription: string;
+  daysBeforeDueDate: number;
+  scheduledTime: string;
+  emailSubject: string;
+  emailBodyTemplate: string;
+  isActive: boolean;
 }
 
 export default function AdminSettings() {
@@ -75,9 +79,9 @@ export default function AdminSettings() {
 
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  const [admins, setAdmins] = useState<Admin[]>([
-    { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Admin" },
-  ]);
+  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [isLoadingAdmins, setIsLoadingAdmins] = useState(false);
+  const [isRemovingAdmin, setIsRemovingAdmin] = useState<number | null>(null);
 
   const [newAdmin, setNewAdmin] = useState({
     name: "",
@@ -113,15 +117,101 @@ export default function AdminSettings() {
     autoLogoutAfter: 120,
   });
 
-  const [emailConfig, setEmailConfig] = useState<EmailConfig>({
-    subject: "Project Due Date Reminder",
-    message:
-      "Hello,\n\nThis is a reminder that your project is due in 5 days.\n\nPlease ensure all work is completed on time.\n\nBest regards,\nAdmin Team",
-    daysBeforeDue: 5,
-  });
+  // Default email configuration
+  const defaultEmailConfig: EmailConfig = {
+    serviceName: "DocumentRequestReminder",
+    serviceDescription:
+      "Sends reminder emails to team members about upcoming document submission deadlines",
+    daysBeforeDueDate: 365,
+    scheduledTime: "09:00",
+    emailSubject: "Reminder: Document Submission Due in {DaysRemaining} Days",
+    emailBodyTemplate: `Dear {RecipientName},\n\nThis is a friendly reminder that the following document is due soon:\n\nProject: {ProjectName}\nDocument: {DocumentName}\nDue Date: {DueDate}\nDays Remaining: {DaysRemaining}\nRequest Date: {RequestDate}\n\nPlease ensure you submit the required document before the deadline.\n\nIf you have any questions or need assistance, please contact your project coordinator.\n\nBest regards,\nILP Management Team`,
+    isActive: true,
+  };
+
+  const [emailConfig, setEmailConfig] =
+    useState<EmailConfig>(defaultEmailConfig);
+  const [isLoadingEmailConfig, setIsLoadingEmailConfig] = useState(false);
+  const [isSavingEmailConfig, setIsSavingEmailConfig] = useState(false);
+
+  // Fetch email configuration and admins on component mount
+  useEffect(() => {
+    fetchEmailConfiguration();
+    fetchAdmins();
+  }, []);
+
+  // Fetch all admins from API
+  const fetchAdmins = async () => {
+    setIsLoadingAdmins(true);
+    try {
+      const response = await ApiService.get("/User/admins");
+      console.log("Admins API response:", response);
+
+      if (response && Array.isArray(response.data)) {
+        setAdmins(response.data);
+      } else if (Array.isArray(response)) {
+        // If response is directly the array
+        setAdmins(response);
+      } else {
+        console.error("Unexpected response format:", response);
+        toast.error("Failed to load admins: unexpected response format");
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch admins:", error);
+      toast.error("Failed to load admins");
+    } finally {
+      setIsLoadingAdmins(false);
+    }
+  };
+
+  const fetchEmailConfiguration = async () => {
+    setIsLoadingEmailConfig(true);
+    try {
+      const response = await ApiService.get("/EmailConfiguration/1");
+      console.log("hi");
+      console.log("API Response:", response); // Debug log
+      console.log(response.data);
+      if (response && typeof response === "object") {
+        // Ensure all required fields are present, fallback to defaults if missing
+        setEmailConfig({
+          serviceName:
+            response.data.serviceName || defaultEmailConfig.serviceName,
+          serviceDescription:
+            response.data.serviceDescription ||
+            defaultEmailConfig.serviceDescription,
+          daysBeforeDueDate:
+            response.data.daysBeforeDueDate ||
+            defaultEmailConfig.daysBeforeDueDate,
+          scheduledTime:
+            response.data.scheduledTime || defaultEmailConfig.scheduledTime,
+          emailSubject:
+            response.data.emailSubject || defaultEmailConfig.emailSubject,
+          emailBodyTemplate:
+            response.data.emailBodyTemplate ||
+            defaultEmailConfig.emailBodyTemplate,
+          isActive: response.data.isActive,
+        });
+      } else {
+        // If response is invalid, use defaults
+        setEmailConfig(defaultEmailConfig);
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch email configuration:", error);
+      toast.error("Failed to load email configuration");
+      // Use defaults on error
+      setEmailConfig(defaultEmailConfig);
+    } finally {
+      setIsLoadingEmailConfig(false);
+    }
+  };
 
   const toggleSection = (section: keyof Sections) => {
     setSections((prev) => ({ ...prev, [section]: !prev[section] }));
+
+    // Fetch fresh admin data when opening admin management section
+    if (section === "adminManagement" && !sections.adminManagement) {
+      fetchAdmins();
+    }
   };
 
   const handlePasswordChange = (field: keyof PasswordData, value: string) => {
@@ -195,16 +285,8 @@ export default function AdminSettings() {
       if (response && typeof response === "object" && "status" in response) {
         if (response.succeeded) {
           toast.success("Admin added successfully!");
-          // Add to local state for display
-          setAdmins([
-            ...admins,
-            {
-              id: response.data?.id || Date.now(),
-              name: newAdmin.name,
-              email: newAdmin.email,
-              role: newAdmin.role,
-            },
-          ]);
+          // Refresh the admin list
+          await fetchAdmins();
           setNewAdmin({ name: "", email: "", password: "", role: "Admin" });
         } else {
           toast.error(response.message || "Failed to add admin");
@@ -212,15 +294,7 @@ export default function AdminSettings() {
       } else {
         // Standard response format
         toast.success("Admin added successfully!");
-        setAdmins([
-          ...admins,
-          {
-            id: response?.id || Date.now(),
-            name: newAdmin.name,
-            email: newAdmin.email,
-            role: newAdmin.role,
-          },
-        ]);
+        await fetchAdmins();
         setNewAdmin({ name: "", email: "", password: "", role: "Admin" });
       }
     } catch (error: any) {
@@ -231,8 +305,30 @@ export default function AdminSettings() {
     }
   };
 
-  const handleRemoveAdmin = (id: number) => {
-    setAdmins(admins.filter((admin) => admin.id !== id));
+  const handleRemoveAdmin = async (id: number) => {
+    setIsRemovingAdmin(id);
+
+    try {
+      const response = await ApiService.delete(`/User/${id}`);
+
+      if (response && typeof response === "object" && "status" in response) {
+        if (response.succeeded) {
+          toast.success("Admin removed successfully!");
+          setAdmins(admins.filter((admin) => admin.id !== id));
+        } else {
+          toast.error(response.message || "Failed to remove admin");
+        }
+      } else {
+        // Standard response format
+        toast.success("Admin removed successfully!");
+        setAdmins(admins.filter((admin) => admin.id !== id));
+      }
+    } catch (error: any) {
+      console.error("Remove admin error:", error);
+      toast.error(error.message || "Failed to remove admin. Please try again.");
+    } finally {
+      setIsRemovingAdmin(null);
+    }
   };
 
   const handleAddTrainee = () => {
@@ -269,16 +365,92 @@ export default function AdminSettings() {
 
   const handleEmailConfigChange = (
     field: keyof EmailConfig,
-    value: string | number,
+    value: string | number | boolean,
   ) => {
     setEmailConfig((prev) => ({
       ...prev,
-      [field]: field === "daysBeforeDue" ? Number(value) || 0 : value,
+      [field]:
+        field === "daysBeforeDueDate" || field === "isActive"
+          ? value
+          : String(value),
     }));
   };
 
-  const handleSaveEmailConfig = () => {
-    toast.success("Email configuration saved successfully!");
+  const handleSaveEmailConfig = async () => {
+    setIsSavingEmailConfig(true);
+
+    try {
+      // Prepare the data for API - only send editable fields
+      const updateData = {
+        daysBeforeDueDate: emailConfig.daysBeforeDueDate,
+        scheduledTime: emailConfig.scheduledTime,
+        emailSubject: emailConfig.emailSubject,
+        emailBodyTemplate: emailConfig.emailBodyTemplate,
+        isActive: emailConfig.isActive,
+        // These fields should not be changed as per requirements
+        serviceName: "DocumentRequestReminder",
+        serviceDescription:
+          "Sends reminder emails to team members about upcoming document submission deadlines",
+      };
+
+      const response = await ApiService.put(
+        "/EmailConfiguration/1",
+        updateData,
+      );
+
+      if (response && typeof response === "object") {
+        toast.success("Email configuration saved successfully!");
+      } else {
+        toast.success("Email configuration saved successfully!");
+      }
+    } catch (error: any) {
+      console.error("Failed to save email configuration:", error);
+      toast.error("Failed to save email configuration");
+    } finally {
+      setIsSavingEmailConfig(false);
+    }
+  };
+
+  // Safe preview function
+  const getEmailPreview = () => {
+    const template =
+      emailConfig?.emailBodyTemplate || defaultEmailConfig.emailBodyTemplate;
+
+    return template
+      .replace(/{RecipientName}/g, "John Doe")
+      .replace(/{ProjectName}/g, "Project Alpha")
+      .replace(/{DocumentName}/g, "Quarterly Report")
+      .replace(/{DueDate}/g, "2024-12-31")
+      .replace(
+        /{DaysRemaining}/g,
+        (emailConfig?.daysBeforeDueDate || 365).toString(),
+      )
+      .replace(/{RequestDate}/g, "2024-01-01");
+  };
+
+  // Toggle switch component for isActive
+  const ToggleSwitch = ({
+    isActive,
+    onToggle,
+  }: {
+    isActive: boolean;
+    onToggle: (value: boolean) => void;
+  }) => {
+    return (
+      <button
+        type="button"
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+          isActive ? "bg-blue-600" : "bg-gray-200"
+        }`}
+        onClick={() => onToggle(!isActive)}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            isActive ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
+      </button>
+    );
   };
 
   return (
@@ -389,28 +561,57 @@ export default function AdminSettings() {
             {sections.adminManagement && (
               <div className="px-6 pb-6">
                 <div className="space-y-3 mb-4">
-                  {admins.map((admin) => (
-                    <div
-                      key={admin.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {admin.name}
-                        </p>
-                        <p className="text-sm text-gray-500">{admin.email}</p>
-                        <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
-                          {admin.role}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleRemoveAdmin(admin.id)}
-                        className="text-red-600 hover:text-red-700 p-2"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                  {isLoadingAdmins ? (
+                    <div className="text-center py-4">
+                      <p className="text-gray-500">Loading admins...</p>
                     </div>
-                  ))}
+                  ) : admins.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-gray-500">No admins found</p>
+                    </div>
+                  ) : (
+                    admins.map((admin) => (
+                      <div
+                        key={admin.id}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {admin.username}
+                          </p>
+                          <p className="text-sm text-gray-500">{admin.email}</p>
+                          <div className="flex gap-2 mt-1">
+                            <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                              {admin.role === 0
+                                ? "Admin"
+                                : `Role: ${admin.role}`}
+                            </span>
+                            <span
+                              className={`inline-block px-2 py-1 text-xs rounded ${
+                                admin.isActive
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {admin.isActive ? "Active" : "Inactive"}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveAdmin(admin.id)}
+                          disabled={isRemovingAdmin === admin.id}
+                          className="text-red-600 hover:text-red-700 p-2 disabled:text-red-300 disabled:cursor-not-allowed"
+                          title="Remove Admin"
+                        >
+                          {isRemovingAdmin === admin.id ? (
+                            <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Trash2 className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 space-y-3">
@@ -422,7 +623,7 @@ export default function AdminSettings() {
                       setNewAdmin({ ...newAdmin, name: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Username"
+                    placeholder="Enter username"
                     disabled={isAddingAdmin}
                   />
                   <input
@@ -432,7 +633,7 @@ export default function AdminSettings() {
                       setNewAdmin({ ...newAdmin, email: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Email Address"
+                    placeholder="Enter email address"
                     disabled={isAddingAdmin}
                   />
                   <input
@@ -442,7 +643,7 @@ export default function AdminSettings() {
                       setNewAdmin({ ...newAdmin, password: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Password"
+                    placeholder="Enter password"
                     disabled={isAddingAdmin}
                   />
                   <select
@@ -527,7 +728,7 @@ export default function AdminSettings() {
                       setNewTrainee({ ...newTrainee, name: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Full Name"
+                    placeholder="Enter full name"
                   />
                   <input
                     type="email"
@@ -536,7 +737,7 @@ export default function AdminSettings() {
                       setNewTrainee({ ...newTrainee, email: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Email Address"
+                    placeholder="Enter email address"
                   />
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -549,7 +750,7 @@ export default function AdminSettings() {
                         setNewTrainee({ ...newTrainee, days: e.target.value })
                       }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="30"
+                      placeholder="Enter number of days"
                       min="1"
                     />
                   </div>
@@ -590,7 +791,7 @@ export default function AdminSettings() {
               <div className="px-6 pb-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Active State Duration (days)
+                    Trainee Active Days
                   </label>
                   <input
                     type="number"
@@ -632,7 +833,8 @@ export default function AdminSettings() {
                   Automatic Email Configuration
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  Configure automatic reminder emails for project due dates
+                  Configure automatic reminder emails for document submission
+                  deadlines
                 </p>
               </div>
               {sections.emailConfig ? (
@@ -644,80 +846,191 @@ export default function AdminSettings() {
 
             {sections.emailConfig && (
               <div className="px-6 pb-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Days Before Due Date
-                  </label>
-                  <input
-                    type="number"
-                    value={emailConfig.daysBeforeDue}
-                    onChange={(e) =>
-                      handleEmailConfigChange("daysBeforeDue", e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    min="1"
-                    placeholder="5"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Send reminder email this many days before the project due
-                    date
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Subject
-                  </label>
-                  <input
-                    type="text"
-                    value={emailConfig.subject}
-                    onChange={(e) =>
-                      handleEmailConfigChange("subject", e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Project Due Date Reminder"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Message
-                  </label>
-                  <textarea
-                    value={emailConfig.message}
-                    onChange={(e) =>
-                      handleEmailConfigChange("message", e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={8}
-                    placeholder="Enter your email message here. Use {days} to insert the number of days remaining."
-                  />
-                </div>
-
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    Preview
-                  </p>
-                  <div className="bg-white p-3 rounded border border-gray-300">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">
-                      Subject: {emailConfig.subject}
-                    </p>
-                    <p className="text-xs text-gray-600 whitespace-pre-wrap">
-                      {emailConfig.message.replace(
-                        "{days}",
-                        emailConfig.daysBeforeDue.toString(),
-                      )}
+                {isLoadingEmailConfig ? (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500">
+                      Loading email configuration...
                     </p>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    {/* Service Info (Read-only) */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">
+                        Service Information
+                      </h3>
+                      <div className="space-y-2">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-500">
+                            Service Name
+                          </label>
+                          <p className="text-sm text-gray-900">
+                            {emailConfig?.serviceName ||
+                              defaultEmailConfig.serviceName}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-500">
+                            Service Description
+                          </label>
+                          <p className="text-sm text-gray-900">
+                            {emailConfig?.serviceDescription ||
+                              defaultEmailConfig.serviceDescription}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-                <button
-                  onClick={handleSaveEmailConfig}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Email Configuration
-                </button>
+                    {/* Active Toggle */}
+                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Enable Email Service
+                        </label>
+                        <p className="text-xs text-gray-500">
+                          Turn on/off automatic email reminders
+                        </p>
+                      </div>
+                      <ToggleSwitch
+                        isActive={
+                          emailConfig?.isActive ?? defaultEmailConfig.isActive
+                        }
+                        onToggle={(value) =>
+                          handleEmailConfigChange("isActive", value)
+                        }
+                      />
+                    </div>
+
+                    {/* Editable Fields */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Days Before Due Date
+                      </label>
+                      <input
+                        type="number"
+                        value={
+                          emailConfig?.daysBeforeDueDate ||
+                          defaultEmailConfig.daysBeforeDueDate
+                        }
+                        onChange={(e) =>
+                          handleEmailConfigChange(
+                            "daysBeforeDueDate",
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        min="1"
+                        placeholder={`Current: ${emailConfig?.daysBeforeDueDate || defaultEmailConfig.daysBeforeDueDate} days`}
+                        disabled={isSavingEmailConfig}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Send reminder email this many days before the document
+                        due date
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Scheduled Time
+                      </label>
+                      <input
+                        type="time"
+                        value={
+                          emailConfig?.scheduledTime ||
+                          defaultEmailConfig.scheduledTime
+                        }
+                        onChange={(e) =>
+                          handleEmailConfigChange(
+                            "scheduledTime",
+                            e.target.value,
+                          )
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={`Current: ${emailConfig?.scheduledTime || defaultEmailConfig.scheduledTime}`}
+                        disabled={isSavingEmailConfig}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Daily time to send reminder emails
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Subject
+                      </label>
+                      <input
+                        type="text"
+                        value={
+                          emailConfig?.emailSubject ||
+                          defaultEmailConfig.emailSubject
+                        }
+                        onChange={(e) =>
+                          handleEmailConfigChange(
+                            "emailSubject",
+                            e.target.value,
+                          )
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={`Current: ${emailConfig?.emailSubject || defaultEmailConfig.emailSubject}`}
+                        disabled={isSavingEmailConfig}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Body Template
+                      </label>
+                      <textarea
+                        value={
+                          emailConfig?.emailBodyTemplate ||
+                          defaultEmailConfig.emailBodyTemplate
+                        }
+                        onChange={(e) =>
+                          handleEmailConfigChange(
+                            "emailBodyTemplate",
+                            e.target.value,
+                          )
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows={12}
+                        placeholder={`Current template:\n${emailConfig?.emailBodyTemplate || defaultEmailConfig.emailBodyTemplate}`}
+                        disabled={isSavingEmailConfig}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Available variables: {"{RecipientName}"},{" "}
+                        {"{ProjectName}"}, {"{DocumentName}"}, {"{DueDate}"},{" "}
+                        {"{DaysRemaining}"}, {"{RequestDate}"}
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">
+                        Preview
+                      </p>
+                      <div className="bg-white p-4 rounded border border-gray-300">
+                        <p className="text-sm font-semibold text-gray-600 mb-2">
+                          Subject:{" "}
+                          {emailConfig?.emailSubject ||
+                            defaultEmailConfig.emailSubject}
+                        </p>
+                        <div className="text-sm text-gray-600 whitespace-pre-wrap">
+                          {getEmailPreview()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleSaveEmailConfig}
+                      disabled={isSavingEmailConfig}
+                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                    >
+                      <Save className="w-4 h-4" />
+                      {isSavingEmailConfig
+                        ? "Saving..."
+                        : "Save Email Configuration"}
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>

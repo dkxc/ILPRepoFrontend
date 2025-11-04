@@ -8,7 +8,6 @@ import {
   UserCheck,
   Users,
   FileText,
-  LogIn,
 } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { useNavigate } from "react-router";
@@ -448,10 +447,11 @@ export default function Projects() {
         };
 
         project.mentors.forEach((mentor: any) => {
-          if (mentor.mentorType === 0) mentorsByType.codeMentor = mentor.name;
-          if (mentor.mentorType === 1)
+          if (mentor.mentorType === "CodeMenter")
+            mentorsByType.codeMentor = mentor.name;
+          if (mentor.mentorType === "ProjectMenter")
             mentorsByType.projectMentor = mentor.name;
-          if (mentor.mentorType === 2) mentorsByType.baMentor = mentor.name;
+          if (mentor.mentorType === "BA") mentorsByType.baMentor = mentor.name;
         });
 
         mentors.push({
@@ -463,10 +463,8 @@ export default function Projects() {
         });
       }
 
-      const submittedDocs =
-        project.documentRequests?.filter((doc: any) => doc.isSubmitted)
-          .length || 0;
       const requestedDocs = project.documentRequests?.length || 0;
+      const submittedDocs = project.documentSubmissions?.length || 0;
       const submissionRate =
         requestedDocs > 0
           ? Math.round((submittedDocs / requestedDocs) * 100)
@@ -1322,7 +1320,6 @@ export default function Projects() {
             filterOptions={uniqueBatches}
             enableSearch={true}
             enablePagination={true}
-            // enableDateFilter={true}
             dateFilterColumn="startDate"
             pageSize={10}
             pageSizeOptions={[5, 10, 25, 50]}
