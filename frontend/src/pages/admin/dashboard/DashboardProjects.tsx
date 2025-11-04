@@ -161,16 +161,16 @@ export default function DashboardProjects({
                     onClick={() => navigate(`/projectsDetailsAdmin/${p.id}`)}
                   >
                     <td className="py-3 px-6 text-sm text-gray-900">
-                      {p.project_name || "N/A"}
+                      {p.projectName || "N/A"}
                     </td>
                     <td className="py-3 px-6 text-sm text-gray-600">
-                      {p.team_lead || "N/A"}
+                      {p.teamLeadName || "N/A"}
                     </td>
                     <td className="py-3 px-6 text-sm text-gray-600">
-                      {p.no_trainees || 0}
+                      {p.noOfTrainees || 0}
                     </td>
                     <td className="py-3 px-6 text-sm">
-                      {(p.tech_stack || "").split("+").map((t: string) => (
+                      {(p.technology || "").split("+").map((t: string) => (
                         <span
                           key={t}
                           className="inline-block mr-2 px-2 py-1 rounded-full bg-blue-50 text-sm font-medium text-blue-700"
@@ -182,14 +182,14 @@ export default function DashboardProjects({
                     <td className="py-3 px-6 text-sm">
                       <div className="flex items-center">
                         <Semicircle
-                          percent={p.submission_rate || 0}
+                          percent={p.submissionRate || 0}
                           width={60}
                           stroke={6}
                         />
                       </div>
                     </td>
                     <td className="py-3 px-6 text-sm">
-                      {p.status === "Live" && (
+                      {p.status === "Completed" && (
                         <span className="inline-block px-3 py-1 rounded-full bg-green-100 text-sm text-green-800">
                           Live
                         </span>
@@ -199,7 +199,7 @@ export default function DashboardProjects({
                           In Progress
                         </span>
                       )}
-                      {p.status === "Not Completed" && (
+                      {p.status === "NotLive" && (
                         <span className="inline-block px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">
                           Not Completed
                         </span>
