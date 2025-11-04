@@ -43,6 +43,7 @@ interface AddTraineeModalProps {
   title?: string;
   initialData?: Partial<TraineeFormData> | null;
   batchId?: number | null;
+  existingTrainees?: Array<{ email: string; [key: string]: any }>;
 }
 
 const Field = ({
@@ -74,7 +75,9 @@ const Field = ({
         focus:border-[#3b82f6] hover:border-[#3b82f6] transition-all duration-150
         ${error ? "border-red-500" : "border-gray-300"}`}
     />
-    {error && <span className="text-red-500 text-xs mt-1">{error}</span>}
+    {error && (
+      <div className="text-red-500 text-xs mt-1 block font-medium">{error}</div>
+    )}
   </div>
 );
 
@@ -85,11 +88,13 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
   title = "Add Details",
   initialData = null,
   batchId,
+  existingTrainees = [],
 }) => {
   const [uploadType, setUploadType] = useState<UploadType>("Trainee Details");
   const [form, setForm] = useState<TraineeFormData>(initialData || {});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const modalRef = useRef<HTMLDivElement>(null);
+
   const queryClient = useQueryClient();
 
   // Mutation for creating trainee
@@ -105,19 +110,25 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
       handleClose();
     },
     onError: (error: any) => {
-      console.error("Create trainee error:", error);
-
       // Parse error message for better user feedback
       let errorMessage = "Failed to create trainee";
+      let setInlineError = false;
 
       if (error.message) {
         // Check for duplicate email constraint
         if (
-          error.message.includes("duplicate key") &&
-          error.message.includes("email")
+          error.message.includes("Email already exists") ||
+          (error.message.includes("duplicate key") &&
+            error.message.includes("email"))
         ) {
           errorMessage =
             "This email is already registered. Please use a different email.";
+          setInlineError = true;
+          // Set inline error for the email field
+          setErrors((e) => ({
+            ...e,
+            email: "Trainee with this email already exists",
+          }));
         } else if (
           error.message.includes("duplicate key") &&
           error.message.includes("username")
@@ -129,12 +140,15 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
         }
       }
 
-      notifications.show({
-        title: "Error Creating Trainee",
-        message: errorMessage,
-        color: "red",
-        autoClose: 5000,
-      });
+      // Only show notification if we didn't set an inline error
+      if (!setInlineError) {
+        notifications.show({
+          title: "Error Creating Trainee",
+          message: errorMessage,
+          color: "red",
+          autoClose: 5000,
+        });
+      }
     },
   });
 
@@ -151,7 +165,6 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
       handleClose();
     },
     onError: (error: any) => {
-      console.error("Create BO phase error:", error);
       notifications.show({
         title: "Error Creating BO Details",
         message: error.message || "Failed to create BO details",
@@ -174,7 +187,6 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
       handleClose();
     },
     onError: (error: any) => {
-      console.error("Create trainee DU error:", error);
       notifications.show({
         title: "Error Creating DU Details",
         message: error.message || "Failed to create DU details",
@@ -195,30 +207,84 @@ const AddTraineeModal: React.FC<AddTraineeModalProps> = ({
     return () => document.removeEventListener("mousedown", clickOutside);
   }, [isOpen]);
 
+  // Check if email already exists in existing trainees
+  const checkEmailExists = (email: string): boolean => {
+    if (!email.trim()) return false;
+
+    const exists = existingTrainees.some(
+      (trainee) =>
+        trainee.email &&
+        trainee.email.toLowerCase().trim() === email.toLowerCase().trim(),
+    );
+    return exists;
+  };
+
   const handleChange = (key: keyof TraineeFormData, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
-    if (errors[key]) setErrors((e) => ({ ...e, [key]: "" }));
+
+    // Real-time email validation for trainee details
+    if (key === "email" || key === "traineeEmail") {
+      if (!value.trim()) {
+        // Clear error when field is empty
+        setErrors((e) => ({ ...e, [key]: "" }));
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          setErrors((e) => ({
+            ...e,
+            [key]: "Please enter a valid email address",
+          }));
+        } else if (checkEmailExists(value)) {
+          setErrors((e) => ({
+            ...e,
+            [key]: "Trainee with this email already exists",
+          }));
+        } else {
+          setErrors((e) => ({ ...e, [key]: "" }));
+        }
+      }
+    } else {
+      // For non-email fields, clear errors when user starts typing
+      if (errors[key]) setErrors((e) => ({ ...e, [key]: "" }));
+    }
   };
 
   const validate = () => {
     const e: Record<string, string> = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!uploadType) e.uploadType = "Select type is required";
 
     if (uploadType === "Trainee Details") {
       if (!form.fullName?.trim()) e.fullName = "Full name is required";
-      if (!form.email?.trim()) e.email = "Email is required";
+      if (!form.email?.trim()) {
+        e.email = "Email is required";
+      } else if (!emailRegex.test(form.email)) {
+        e.email = "Please enter a valid email address";
+      } else if (checkEmailExists(form.email)) {
+        e.email = "Trainee with this email already exists";
+      }
       if (!form.phoneNumber?.trim()) e.phoneNumber = "Phone number is required";
     } else if (uploadType === "BO Details") {
       if (!form.traineeName?.trim()) e.traineeName = "Trainee Name is required";
-      if (!form.traineeEmail?.trim())
+      if (!form.traineeEmail?.trim()) {
         e.traineeEmail = "Trainee Email is required";
+      } else if (!emailRegex.test(form.traineeEmail)) {
+        e.traineeEmail = "Please enter a valid email address";
+      } else if (checkEmailExists(form.traineeEmail)) {
+        e.traineeEmail = "Trainee with this email already exists";
+      }
       if (!form.buddy?.trim()) e.buddy = "Buddy is required";
       if (!form.buddyDU?.trim()) e.buddyDU = "Buddy's DU is required";
     } else if (uploadType === "DU Details") {
       if (!form.traineeName?.trim()) e.traineeName = "Trainee Name is required";
-      if (!form.traineeEmail?.trim())
+      if (!form.traineeEmail?.trim()) {
         e.traineeEmail = "Trainee Email is required";
+      } else if (!emailRegex.test(form.traineeEmail)) {
+        e.traineeEmail = "Please enter a valid email address";
+      } else if (checkEmailExists(form.traineeEmail)) {
+        e.traineeEmail = "Trainee with this email already exists";
+      }
       if (!form.duAllocated?.trim()) e.duAllocated = "DU allocated is required";
       if (!form.location?.trim()) e.location = "Location is required";
       if (!form.ojtMentor?.trim()) e.ojtMentor = "OJT mentor is required";

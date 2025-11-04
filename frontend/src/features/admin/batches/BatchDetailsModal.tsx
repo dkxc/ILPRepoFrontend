@@ -16,6 +16,8 @@ interface Phase {
 
 interface BatchFormData {
   batchName: string;
+  batchYear: string;
+  batchNumber: string;
   startDate: string;
   endDate: string;
   batchType: string;
@@ -50,6 +52,25 @@ const DEFAULT_PHASES = [
   { value: "custom", label: "Custom Phase" },
 ];
 
+// Default batch name for create modal
+const DEFAULT_BATCH_NAME = "ILP 2025-26 Batch 1";
+const DEFAULT_BATCH_YEAR = "2025-26";
+const DEFAULT_BATCH_NUMBER = "1";
+
+// Helper functions for batch name parsing
+const parseBatchName = (batchName: string) => {
+  // Parse "ILP 2025-26 Batch 1" format
+  const match = batchName.match(/^ILP\s+(.+?)\s+Batch\s+(.+)$/);
+  if (match) {
+    return { year: match[1], number: match[2] };
+  }
+  // Fallback to defaults if parsing fails
+  return { year: DEFAULT_BATCH_YEAR, number: DEFAULT_BATCH_NUMBER };
+};
+
+const generateBatchName = (year: string, number: string) => {
+  return `ILP ${year} Batch ${number}`;
+};
 // ---------------------- Field Component ----------------------
 const Field = ({
   label,
@@ -80,6 +101,52 @@ const Field = ({
   </div>
 );
 
+// ---------------------- Custom Batch Name Field ----------------------
+const BatchNameField = ({
+  year,
+  batchNumber,
+  onYearChange,
+  onBatchNumberChange,
+  error,
+}: {
+  year: string;
+  batchNumber: string;
+  onYearChange: (value: string) => void;
+  onBatchNumberChange: (value: string) => void;
+  error?: string;
+}) => (
+  <div>
+    <label className="block text-sm font-medium text-[#565E6C] mb-1">
+      Batch Name
+    </label>
+    <div className="flex items-center gap-2">
+      <span className="text-[#565E6C] font-medium">ILP</span>
+      <input
+        type="text"
+        value={year}
+        onChange={(e) => onYearChange(e.target.value)}
+        placeholder="2025-26"
+        className={`px-3 py-2 rounded-[4px] border text-[#565E6C] w-24
+          placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#bfdbfe]
+          focus:border-[#3b82f6] hover:border-[#3b82f6] transition-all duration-150
+          ${error ? "border-red-500" : "border-gray-300"}`}
+      />
+      <span className="text-[#565E6C] font-medium">Batch</span>
+      <input
+        type="text"
+        value={batchNumber}
+        onChange={(e) => onBatchNumberChange(e.target.value)}
+        placeholder="1"
+        className={`px-3 py-2 rounded-[4px] border text-[#565E6C] w-16
+          placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#bfdbfe]
+          focus:border-[#3b82f6] hover:border-[#3b82f6] transition-all duration-150
+          ${error ? "border-red-500" : "border-gray-300"}`}
+      />
+    </div>
+    {error && <span className="text-red-500 text-xs mt-1">{error}</span>}
+  </div>
+);
+
 // ---------------------- Modal ----------------------
 const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
   isOpen,
@@ -91,7 +158,9 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
   batchId = null,
 }) => {
   const [form, setForm] = useState<BatchFormData>({
-    batchName: "",
+    batchName: DEFAULT_BATCH_NAME,
+    batchYear: DEFAULT_BATCH_YEAR,
+    batchNumber: DEFAULT_BATCH_NUMBER,
     startDate: "",
     endDate: "",
     batchType: "",
@@ -280,8 +349,13 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
           };
         });
 
+        // Parse batch name for year and number
+        const parsedBatchName = parseBatchName(batchData.batchName || "");
+
         setForm({
           batchName: batchData.batchName || "",
+          batchYear: parsedBatchName.year,
+          batchNumber: parsedBatchName.number,
           startDate: formatDateForInput(batchData.startDate) || "",
           endDate: formatDateForInput(batchData.endDate) || "",
           batchType: batchTypeValue,
@@ -308,8 +382,15 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
         }
       }
 
+      // Parse batch name for year and number
+      const parsedBatchName = parseBatchName(
+        batchData.batchName || DEFAULT_BATCH_NAME,
+      );
+
       setForm({
-        batchName: batchData.batchName || "",
+        batchName: batchData.batchName || DEFAULT_BATCH_NAME,
+        batchYear: parsedBatchName.year,
+        batchNumber: parsedBatchName.number,
         startDate: batchData.startDate || "",
         endDate: batchData.endDate || "",
         batchType: batchTypeValue,
@@ -322,7 +403,9 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
     // Reset form for new batch (no initial data)
     console.log("Resetting form for new batch");
     setForm({
-      batchName: "",
+      batchName: DEFAULT_BATCH_NAME,
+      batchYear: DEFAULT_BATCH_YEAR,
+      batchNumber: DEFAULT_BATCH_NUMBER,
       startDate: "",
       endDate: "",
       batchType: "",
@@ -364,6 +447,28 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
       });
     } else if (errors[key]) {
       setErrors((e) => ({ ...e, [key]: "" }));
+    }
+  };
+
+  const handleYearChange = (year: string) => {
+    setForm((f) => ({
+      ...f,
+      batchYear: year,
+      batchName: generateBatchName(year, f.batchNumber),
+    }));
+    if (errors.batchName) {
+      setErrors((e) => ({ ...e, batchName: "" }));
+    }
+  };
+
+  const handleBatchNumberChange = (number: string) => {
+    setForm((f) => ({
+      ...f,
+      batchNumber: number,
+      batchName: generateBatchName(f.batchYear, number),
+    }));
+    if (errors.batchName) {
+      setErrors((e) => ({ ...e, batchName: "" }));
     }
   };
 
@@ -538,7 +643,9 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
     setErrors({});
     // Always reset form on close to ensure fresh data on reopen
     setForm({
-      batchName: "",
+      batchName: DEFAULT_BATCH_NAME,
+      batchYear: DEFAULT_BATCH_YEAR,
+      batchNumber: DEFAULT_BATCH_NUMBER,
       startDate: "",
       endDate: "",
       batchType: "",
@@ -582,11 +689,11 @@ const BatchDetailsModal: React.FC<BatchDetailsModalProps> = ({
           onSubmit={handleSubmit}
           style={{ display: isLoadingData ? "none" : "block" }}
         >
-          <Field
-            label="Batch Name"
-            value={form.batchName}
-            onChange={(v: string) => handleChange("batchName", v)}
-            placeholder="ILP Batch 7"
+          <BatchNameField
+            year={form.batchYear}
+            batchNumber={form.batchNumber}
+            onYearChange={handleYearChange}
+            onBatchNumberChange={handleBatchNumberChange}
             error={errors.batchName}
           />
 

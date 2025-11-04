@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { notifications } from "@mantine/notifications";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router";
+import { useBatchToast } from "../../hooks/useBatchToast";
+import BatchToastContainer from "../../components/BatchToastContainer";
 import BatchDetailsCard from "../../features/admin/batches/BatchDetailsCard";
 import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
 import AddTraineeModal from "../../features/admin/batches/AddTraineeModal";
@@ -85,11 +86,10 @@ export default function BatchDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const batchId = id ? parseInt(id) : null;
+  const { toasts, show: showToast, removeToast } = useBatchToast();
 
-  const [selectedStatus] = useState<string | null>(null);
   const [isAddTraineeModalOpen, setIsAddTraineeModalOpen] = useState(false);
   const [isEditBatchModalOpen, setIsEditBatchModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [activePhase, setActivePhase] = useState("Trainees");
 
   // Fetch batch details from API
@@ -210,6 +210,8 @@ export default function BatchDetailsPage() {
           .map((phase: any) => phase.phaseType || phase.phaseTypeName)
           .filter((name: string) => name);
         setAvailablePhases(phaseNames);
+      } else {
+        setAvailablePhases([]);
       }
     }
   }, [apiBatch]);
@@ -420,7 +422,6 @@ export default function BatchDetailsPage() {
   const [modalErrors, setModalErrors] = useState<Record<string, string>>({});
 
   const handleSavePhaseEdit = (updatedRow: any) => {
-    console.log("handleSavePhaseEdit called with:", updatedRow);
     switch (currentEditPhase) {
       case "Trainees": {
         // Transform to UpdateTraineeDto format
@@ -442,12 +443,6 @@ export default function BatchDetailsPage() {
             | "Inactive"
             | "OnLeave",
         };
-        console.log(
-          "Sending trainee update - ID:",
-          traineeId,
-          "Data:",
-          updateData,
-        );
         updateTraineeMutation.mutate({ id: traineeId, data: updateData });
         break;
       }
@@ -457,7 +452,7 @@ export default function BatchDetailsPage() {
           prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
         );
         setIsEditPhaseModalOpen(false);
-        notifications.show({
+        showToast({
           title: "Success",
           message: "Updated successfully (local only)",
           color: "green",
@@ -495,7 +490,7 @@ export default function BatchDetailsPage() {
           prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)),
         );
         setIsEditPhaseModalOpen(false);
-        notifications.show({
+        showToast({
           title: "Success",
           message: "Updated successfully (local only)",
           color: "green",
@@ -514,14 +509,14 @@ export default function BatchDetailsPage() {
       queryClient.invalidateQueries({ queryKey: ["batch", batchId] });
       queryClient.invalidateQueries({ queryKey: ["batches"] });
       setIsEditBatchModalOpen(false);
-      notifications.show({
+      showToast({
         title: "Success",
         message: "Batch updated successfully",
         color: "green",
       });
     },
     onError: (error: Error) => {
-      notifications.show({
+      showToast({
         title: "Error",
         message: error.message || "Failed to update batch",
         color: "red",
@@ -533,23 +528,19 @@ export default function BatchDetailsPage() {
   const updateTraineeMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) =>
       traineeService.updateTrainee(id, data),
-    onSuccess: async (response) => {
-      console.log("Update successful, response:", response);
-      console.log("Invalidating queries and refetching...");
+    onSuccess: async () => {
       // Invalidate and refetch to ensure UI updates
       await queryClient.invalidateQueries({ queryKey: ["trainees", batchId] });
-      const refetchResult = await refetchTrainees(); // Explicitly refetch
-      console.log("Refetch result:", refetchResult?.data);
+      await refetchTrainees(); // Explicitly refetch
       setModalErrors({}); // Clear any previous errors
       setIsEditPhaseModalOpen(false);
-      notifications.show({
+      showToast({
         title: "Success",
         message: "Trainee updated successfully",
         color: "green",
       });
     },
     onError: (error: any) => {
-      console.log("Update error:", error);
       // Check if it's an email already exists error
       if (
         error.message &&
@@ -558,7 +549,7 @@ export default function BatchDetailsPage() {
         setModalErrors({ email: "Email already exists" });
         // Don't show notification, just show inline error
       } else {
-        notifications.show({
+        showToast({
           title: "Error",
           message: error.message || "Failed to update trainee",
           color: "red",
@@ -574,14 +565,14 @@ export default function BatchDetailsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["boPhases", batchId] });
       setIsEditPhaseModalOpen(false);
-      notifications.show({
+      showToast({
         title: "Success",
         message: "Business Orientation updated successfully",
         color: "green",
       });
     },
     onError: (error: Error) => {
-      notifications.show({
+      showToast({
         title: "Error",
         message: error.message || "Failed to update Business Orientation",
         color: "red",
@@ -596,14 +587,14 @@ export default function BatchDetailsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["traineeDus", batchId] });
       setIsEditPhaseModalOpen(false);
-      notifications.show({
+      showToast({
         title: "Success",
         message: "DU assignment updated successfully",
         color: "green",
       });
     },
     onError: (error: Error) => {
-      notifications.show({
+      showToast({
         title: "Error",
         message: error.message || "Failed to update DU assignment",
         color: "red",
@@ -641,14 +632,13 @@ export default function BatchDetailsPage() {
       phases: processedPhases || undefined, // Don't send empty array to preserve existing phases
     };
 
-    console.log("Updating batch with payload:", payload);
     updateBatchMutation.mutate({ id: batchId, data: payload });
   };
 
   const handleAddTrainee = (traineeData: TraineeFormData) => {
     // Trainee creation is handled by AddTraineeModal mutation
     // The query will be invalidated automatically and trainees will refresh
-    notifications.show({
+    showToast({
       title: "Success",
       message: `${traineeData.fullName} has been added successfully.`,
       color: "green",
@@ -657,14 +647,6 @@ export default function BatchDetailsPage() {
 
   const handleRowClick = (row: Trainee) =>
     navigate(`/batchDetails/${row.userId}`);
-
-  // Debug: Log trainees data when it changes
-  useEffect(() => {
-    console.log(
-      "Trainees state updated:",
-      trainees.map((t) => ({ id: t.id, name: t.name, status: t.status })),
-    );
-  }, [trainees]);
 
   const formatDateForDisplay = (isoDate: string) =>
     new Date(isoDate).toLocaleDateString("en-GB");
@@ -719,7 +701,6 @@ export default function BatchDetailsPage() {
           techStack={currentBatch.techStack}
           onEdit={handleEditBatch}
           onAddTrainee={() => setIsAddTraineeModalOpen(true)}
-          onUploadTrainees={() => setIsUploadModalOpen(true)}
         />
       </div>
 
@@ -768,6 +749,7 @@ export default function BatchDetailsPage() {
         onClose={() => setIsAddTraineeModalOpen(false)}
         onSubmit={handleAddTrainee}
         batchId={batchId}
+        existingTrainees={trainees}
       />
 
       {isEditPhaseModalOpen && currentEditRow && currentEditPhase && (
@@ -880,14 +862,21 @@ export default function BatchDetailsPage() {
             { id: 1, linkName: "GitHub Repo", urlPrefix: "" },
             { id: 2, linkName: "Deployment Link", urlPrefix: "" },
           ]}
-          onDocumentChange={(docs) => console.log("Updated Docs:", docs)}
-          onLinksChange={(links) => console.log("Updated Links:", links)}
+          onDocumentChange={() => {
+            /* Handle document changes */
+          }}
+          onLinksChange={() => {
+            /* Handle link changes */
+          }}
         />
       </div>
 
       <div className="mt-4">
         <ResultsAccordion batchId={""} />
       </div>
+
+      {/* Toast Container */}
+      <BatchToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   );
 }

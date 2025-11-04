@@ -10,7 +10,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import * as XLSX from "xlsx";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import { Download, Upload } from "lucide-react";
+import { Download, Upload, Check } from "lucide-react";
 import { traineeService } from "../../services/traineeService";
 import type {
   CreateTraineeDto,
@@ -47,13 +47,22 @@ export default function UploadDetails() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [showValidationModal, setShowValidationModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const types: UploadType[] = ["Trainee Details", "BO Details", "DU Details"];
 
-  // Fetch existing trainees for email lookup
-  const { data: traineesData } = useQuery({
+  // Fetch existing trainees for email lookup (all trainees across all batches)
+  const { data: allTraineesData } = useQuery({
+    queryKey: ["allTrainees"],
+    queryFn: () => traineeService.getAllTrainees(),
+    staleTime: 30000, // Cache for 30 seconds
+  });
+
+  // Also fetch trainees for current batch (for BO/DU validation)
+  const { data: batchTraineesData } = useQuery({
     queryKey: ["trainees", batchId],
     queryFn: () => traineeService.getTraineesByBatch(batchId!),
     enabled: !!batchId,
@@ -64,14 +73,11 @@ export default function UploadDetails() {
     mutationFn: (trainees: CreateTraineeDto[]) =>
       traineeService.bulkCreateTrainees(batchId!, trainees),
     onSuccess: (response: { data: string | any[] }) => {
-      notifications.show({
-        title: "Success",
-        message: `${response.data?.length || 0} trainees created successfully`,
-        color: "green",
-      });
       queryClient.invalidateQueries({ queryKey: ["trainees", batchId] });
-      handleCancel();
-      if (batchId) navigate(`/batches/${batchId}`);
+      setSuccessMessage(
+        `${response.data?.length || 0} trainees created successfully`,
+      );
+      setShowSuccessModal(true);
     },
     onError: (error: any) => {
       console.error("Bulk create trainees error:", error);
@@ -88,14 +94,11 @@ export default function UploadDetails() {
     mutationFn: (boPhases: CreateBoPhaseDto[]) =>
       traineeService.bulkCreateBoPhases(batchId!, boPhases),
     onSuccess: (response: { data: string | any[] }) => {
-      notifications.show({
-        title: "Success",
-        message: `${response.data?.length || 0} BO phase assignments created successfully`,
-        color: "green",
-      });
       queryClient.invalidateQueries({ queryKey: ["boPhases", batchId] });
-      handleCancel();
-      if (batchId) navigate(`/batches/${batchId}`);
+      setSuccessMessage(
+        `${response.data?.length || 0} BO phase assignments created successfully`,
+      );
+      setShowSuccessModal(true);
     },
     onError: (error: any) => {
       console.error("Bulk create BO phases error:", error);
@@ -112,14 +115,11 @@ export default function UploadDetails() {
     mutationFn: (traineeDus: CreateTraineeDuDto[]) =>
       traineeService.bulkCreateTraineeDus(batchId!, traineeDus),
     onSuccess: (response: { data: string | any[] }) => {
-      notifications.show({
-        title: "Success",
-        message: `${response.data?.length || 0} DU assignments created successfully`,
-        color: "green",
-      });
       queryClient.invalidateQueries({ queryKey: ["traineeDus", batchId] });
-      handleCancel();
-      if (batchId) navigate(`/batches/${batchId}`);
+      setSuccessMessage(
+        `${response.data?.length || 0} DU assignments created successfully`,
+      );
+      setShowSuccessModal(true);
     },
     onError: (error: any) => {
       console.error("Bulk create trainee DUs error:", error);
@@ -143,13 +143,79 @@ export default function UploadDetails() {
     }
   }, [data]);
 
-  // --- Logic (unchanged) ---
+  // --- Logic (with header validation) ---
   const parseExcelFile = async (file: File) => {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: "array" });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
+
+    // Get the headers from the first row
+    const headers: string[] = [];
+    const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: col });
+      const cell = worksheet[cellAddress];
+      if (cell && cell.v) {
+        headers.push(String(cell.v).trim());
+      }
+    }
+
+    console.log("Excel headers found:", headers);
+
+    // Define expected headers for each upload type
+    const expectedHeaders: { [key in UploadType]: string[] } = {
+      "Trainee Details": ["Full Name", "Email", "Phone Number"],
+      "BO Details": ["Trainee Name", "Trainee Email", "Buddy", "Buddy's DU"],
+      "DU Details": [
+        "Trainee Name",
+        "Trainee Email",
+        "DU allocated",
+        "Location",
+        "OJT mentor",
+      ],
+    };
+
+    // Validate that selectedType is valid before proceeding
+    if (!selectedType || !(selectedType in expectedHeaders)) {
+      const errorMessage =
+        "Invalid upload type selected. Please select a valid upload type.";
+      setValidationErrors([errorMessage]);
+      setShowValidationModal(true);
+      return;
+    }
+
+    // Validate headers
+    const requiredHeaders = expectedHeaders[selectedType as UploadType];
+    const missingHeaders = requiredHeaders.filter(
+      (header: string) => !headers.includes(header),
+    );
+    const extraHeaders = headers.filter(
+      (header: string) => !requiredHeaders.includes(header),
+    );
+
+    if (missingHeaders.length > 0) {
+      const errorMessage = `Upload Excel with appropriate headers. Missing headers: ${missingHeaders.join(", ")}. Expected headers: ${requiredHeaders.join(", ")}`;
+      setValidationErrors([errorMessage]);
+      setShowValidationModal(true);
+      return;
+    }
+
+    // Optional: Show warning for extra headers (but don't block upload)
+    if (extraHeaders.length > 0) {
+      console.warn("Extra headers found (will be ignored):", extraHeaders);
+    }
+
     const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+    // Validate that we have at least one data row
+    if (jsonData.length === 0) {
+      const errorMessage =
+        "Excel file is empty or contains only headers. Please add data rows.";
+      setValidationErrors([errorMessage]);
+      setShowValidationModal(true);
+      return;
+    }
 
     let parsedData: TraineeData[] = [];
     if (selectedType === "Trainee Details") {
@@ -177,17 +243,33 @@ export default function UploadDetails() {
       }));
     }
 
+    console.log("Parsed data:", parsedData);
     setData(parsedData);
   };
 
-  const handleFileSelect = (file: File | null) => {
+  const handleFileSelect = async (file: File | null) => {
     if (!selectedType || !file) return;
     if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
       alert("Please upload an Excel file (.xlsx or .xls)");
       return;
     }
-    setUploadedFile(file);
-    parseExcelFile(file);
+
+    // Clear previous data
+    setData([]);
+    setUploadedFile(null);
+
+    // Try to parse the file
+    try {
+      setUploadedFile(file);
+      await parseExcelFile(file);
+    } catch (error) {
+      console.error("Error parsing Excel file:", error);
+      setUploadedFile(null);
+      setValidationErrors([
+        "Error reading Excel file. Please check the file format and try again.",
+      ]);
+      setShowValidationModal(true);
+    }
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -257,6 +339,13 @@ export default function UploadDetails() {
     setData([]);
   };
 
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    setSuccessMessage("");
+    handleCancel();
+    if (batchId) navigate(`/batches/${batchId}`);
+  };
+
   const handleSaveData = () => {
     if (!uploadedFile || data.length === 0 || !batchId) {
       notifications.show({
@@ -313,23 +402,47 @@ export default function UploadDetails() {
         return;
       }
 
-      // Check for duplicate emails in existing trainees
+      // Check for duplicate emails in existing trainees (across ALL batches)
       const existingEmails = new Set<string>();
-      if (traineesData?.data) {
-        traineesData.data.forEach((trainee: any) => {
+
+      // Handle different response formats (wrapped or direct array)
+      const existingTrainees = allTraineesData?.data || allTraineesData || [];
+      console.log(
+        "All existing trainees data (across all batches):",
+        existingTrainees,
+      );
+
+      if (Array.isArray(existingTrainees)) {
+        existingTrainees.forEach((trainee: any) => {
           if (trainee.email) {
-            existingEmails.add(trainee.email.toLowerCase().trim());
+            const normalizedEmail = trainee.email.toLowerCase().trim();
+            existingEmails.add(normalizedEmail);
+            console.log(
+              "Added existing email from all batches:",
+              normalizedEmail,
+            );
           }
         });
       }
 
+      console.log(
+        "All existing emails across all batches:",
+        Array.from(existingEmails),
+      );
+
       // Find duplicates
       const duplicates: string[] = [];
-      trainees.forEach((trainee) => {
-        if (existingEmails.has(trainee.email.toLowerCase())) {
+      trainees.forEach((trainee, index) => {
+        const normalizedEmail = trainee.email.toLowerCase().trim();
+        console.log(`Checking trainee ${index + 1} email:`, normalizedEmail);
+
+        if (existingEmails.has(normalizedEmail)) {
           duplicates.push(trainee.email);
+          console.log("Found duplicate:", trainee.email);
         }
       });
+
+      console.log("Duplicate emails found:", duplicates);
 
       if (duplicates.length > 0) {
         setDuplicateEmails(duplicates);
@@ -380,22 +493,43 @@ export default function UploadDetails() {
         }
       });
 
-      // Check if all trainee emails exist in the batch
+      // Check if all trainee emails exist in the current batch
       const existingEmails = new Set<string>();
-      if (traineesData?.data) {
-        traineesData.data.forEach((trainee: any) => {
+
+      // Handle different response formats (wrapped or direct array)
+      const existingTrainees =
+        batchTraineesData?.data || batchTraineesData || [];
+      console.log(
+        "Existing trainees data for BO validation (current batch only):",
+        existingTrainees,
+      );
+
+      if (Array.isArray(existingTrainees)) {
+        existingTrainees.forEach((trainee: any) => {
           if (trainee.email) {
-            existingEmails.add(trainee.email.toLowerCase().trim());
+            const normalizedEmail = trainee.email.toLowerCase().trim();
+            existingEmails.add(normalizedEmail);
           }
         });
       }
 
+      console.log(
+        "All existing emails for BO validation (current batch):",
+        Array.from(existingEmails),
+      );
+
       boPhases.forEach((bp, index) => {
         const rowNum = index + 1;
-        if (bp.email && !existingEmails.has(bp.email.toLowerCase())) {
-          errors.push(
-            `Row ${rowNum}: Trainee with email "${bp.email}" does not exist in this batch. Please add the trainee first.`,
-          );
+        if (bp.email) {
+          const normalizedEmail = bp.email.toLowerCase().trim();
+          console.log(`Checking BO email ${rowNum}:`, normalizedEmail);
+
+          if (!existingEmails.has(normalizedEmail)) {
+            errors.push(
+              `Row ${rowNum}: Trainee with email "${bp.email}" does not exist in this batch. Please add the trainee first.`,
+            );
+            console.log("BO email not found:", bp.email);
+          }
         }
       });
 
@@ -451,22 +585,43 @@ export default function UploadDetails() {
         }
       });
 
-      // Check if all trainee emails exist in the batch
+      // Check if all trainee emails exist in the current batch
       const existingEmails = new Set<string>();
-      if (traineesData?.data) {
-        traineesData.data.forEach((trainee: any) => {
+
+      // Handle different response formats (wrapped or direct array)
+      const existingTrainees =
+        batchTraineesData?.data || batchTraineesData || [];
+      console.log(
+        "Existing trainees data for DU validation (current batch only):",
+        existingTrainees,
+      );
+
+      if (Array.isArray(existingTrainees)) {
+        existingTrainees.forEach((trainee: any) => {
           if (trainee.email) {
-            existingEmails.add(trainee.email.toLowerCase().trim());
+            const normalizedEmail = trainee.email.toLowerCase().trim();
+            existingEmails.add(normalizedEmail);
           }
         });
       }
 
+      console.log(
+        "All existing emails for DU validation (current batch):",
+        Array.from(existingEmails),
+      );
+
       traineeDus.forEach((td, index) => {
         const rowNum = index + 1;
-        if (td.email && !existingEmails.has(td.email.toLowerCase())) {
-          errors.push(
-            `Row ${rowNum}: Trainee with email "${td.email}" does not exist in this batch. Please add the trainee first.`,
-          );
+        if (td.email) {
+          const normalizedEmail = td.email.toLowerCase().trim();
+          console.log(`Checking DU email ${rowNum}:`, normalizedEmail);
+
+          if (!existingEmails.has(normalizedEmail)) {
+            errors.push(
+              `Row ${rowNum}: Trainee with email "${td.email}" does not exist in this batch. Please add the trainee first.`,
+            );
+            console.log("DU email not found:", td.email);
+          }
         }
       });
 
@@ -756,6 +911,9 @@ export default function UploadDetails() {
                 onClick={() => {
                   setShowValidationModal(false);
                   setValidationErrors([]);
+                  // Clear uploaded file and data if there were validation errors
+                  setUploadedFile(null);
+                  setData([]);
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
               >
@@ -775,8 +933,8 @@ export default function UploadDetails() {
                 Duplicate Emails Found
               </h2>
               <p className="text-gray-600 text-sm mb-4">
-                The following email(s) already exist in the database. Upload has
-                been cancelled.
+                The following email(s) already exist in the system (across all
+                batches). Upload has been cancelled.
               </p>
               <div className="bg-red-50 border border-red-200 rounded-md p-3 max-h-60 overflow-y-auto">
                 <ul className="list-disc list-inside space-y-1">
@@ -797,6 +955,33 @@ export default function UploadDetails() {
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl animate-in zoom-in-95 duration-300">
+            <div className="mb-6 text-center">
+              {/* Success Icon */}
+              <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-8 h-8 text-green-600" />
+              </div>
+
+              <h2 className="text-xl font-semibold text-green-600 mb-2">
+                Upload Successful!
+              </h2>
+              <p className="text-gray-600 text-sm mb-4">{successMessage}</p>
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={handleSuccessModalClose}
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+              >
+                Continue
               </button>
             </div>
           </div>
