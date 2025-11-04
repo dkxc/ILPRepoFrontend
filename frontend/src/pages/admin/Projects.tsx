@@ -34,7 +34,7 @@ interface Project {
   name: string;
   batch: string;
   teamLead: string;
-  status: "In Progress" | "Live" | "Not Live";
+  status: "In Progress" | "Live" | "On Hold";
   startDate: string;
   endDate: string;
 }
@@ -415,19 +415,18 @@ export default function Projects() {
     const documents: ProjectDocument[] = [];
 
     apiProjects.forEach((project) => {
-      const statusMap: { [key: number]: "In Progress" | "Live" | "Not Live" } =
-        {
-          0: "Not Live",
-          1: "Live",
-          2: "In Progress",
-        };
+      const statusMap: { [key: number]: "In Progress" | "Live" | "On Hold" } = {
+        0: "On Hold",
+        1: "Live",
+        2: "In Progress",
+      };
 
       projects.push({
         id: project.id,
         name: project.projectName,
         batch: project.batchName || "N/A",
         teamLead: project.teamLead || "N/A",
-        status: statusMap[project.status] || "Not Live",
+        status: statusMap[project.status] || "On Hold",
         startDate: project.createdAt ? project.createdAt.split("T")[0] : "",
         endDate: project.updatedAt ? project.updatedAt.split("T")[0] : "",
       });
@@ -581,7 +580,7 @@ export default function Projects() {
     if (activeFilter === "all") return true;
     if (activeFilter === "inProgress") return project.status === "In Progress";
     if (activeFilter === "live") return project.status === "Live";
-    if (activeFilter === "notLive") return project.status === "Not Live";
+    if (activeFilter === "notLive") return project.status === "On Hold";
     return true;
   });
 
@@ -589,7 +588,7 @@ export default function Projects() {
     all: projectsData.length,
     inProgress: projectsData.filter((p) => p.status === "In Progress").length,
     live: projectsData.filter((p) => p.status === "Live").length,
-    notLive: projectsData.filter((p) => p.status === "Not Live").length,
+    notLive: projectsData.filter((p) => p.status === "On Hold").length,
   };
 
   // Debug effect to track state changes
@@ -608,7 +607,7 @@ export default function Projects() {
         return "yellow";
       case "Live":
         return "green";
-      case "Not Live":
+      case "On Hold":
         return "red";
       default:
         return "gray";
@@ -693,7 +692,7 @@ export default function Projects() {
           status:
             updatedData.status === "Live"
               ? 1
-              : updatedData.status === "Not Live"
+              : updatedData.status === "On Hold"
                 ? 0
                 : 2,
           batchName: updatedData.batch,
@@ -1179,7 +1178,7 @@ export default function Projects() {
         {
           key: "status",
           label: "Status",
-          options: ["In Progress", "Live", "Not Live"],
+          options: ["In Progress", "Live", "On Hold"],
         },
         { key: "startDate", label: "Start Date", type: "date" },
         { key: "endDate", label: "End Date", type: "date" },
@@ -1272,7 +1271,7 @@ export default function Projects() {
         />
         <ProjectCard
           type="notLive"
-          title="Not Live Projects"
+          title="On Hold Projects"
           value={stats.notLive}
           className="text-sm w-60 h-16"
           isActive={activeFilter === "notLive"}
@@ -1315,7 +1314,7 @@ export default function Projects() {
                   ? "Projects In Progress"
                   : activeFilter === "live"
                     ? "Live Projects"
-                    : "Not Live Projects"
+                    : "On Hold Projects"
             }
             headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
             enableFilter={uniqueBatches.length > 0}

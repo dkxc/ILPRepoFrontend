@@ -3,7 +3,7 @@ import Button from "../../ui/Button";
 import { Card } from "@mantine/core";
 import { CardContent } from "@mui/material";
 import StatusBadge from "../../ui/StatusBadge";
-import { Upload, Pencil, MoreVertical, Calendar } from "lucide-react";
+import { Pencil, MoreVertical, Calendar } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 
@@ -19,7 +19,6 @@ interface BatchDetailsCardProps {
   techStack: string;
   onEdit?: () => void;
   onAddTrainee?: () => void;
-  onUploadTrainees?: () => void;
 }
 
 const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
@@ -34,7 +33,6 @@ const BatchDetailsCard: React.FC<BatchDetailsCardProps> = ({
   techStack,
   onEdit,
   onAddTrainee,
-  onUploadTrainees,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
