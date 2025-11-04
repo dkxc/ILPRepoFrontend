@@ -103,28 +103,27 @@ function Dashboard() {
             : isHoursError
               ? "0"
               : (() => {
-                // ✅ If API returns { totalHours: number }
-                if (typeof trainingHours?.totalHours === "number") {
-                  return trainingHours.totalHours+100;
-                }
+                  // ✅ If API returns { totalHours: number }
+                  if (typeof trainingHours?.totalHours === "number") {
+                    return trainingHours.totalHours + 100;
+                  }
 
-                // ✅ If API returns batchDetails instead
-                if (Array.isArray(trainingHours?.batchDetails)) {
-                  return trainingHours.batchDetails.reduce(
-                    (sum: number, batch: any) =>
-                      sum + (batch.totalTrainingHours ?? 0),
-                    0
-                  );
-                }
+                  // ✅ If API returns batchDetails instead
+                  if (Array.isArray(trainingHours?.batchDetails)) {
+                    return trainingHours.batchDetails.reduce(
+                      (sum: number, batch: any) =>
+                        sum + (batch.totalTrainingHours ?? 0),
+                      0,
+                    );
+                  }
 
-                // ✅ Default
-                return 0;
-              })()}
+                  // ✅ Default
+                  return 0;
+                })()}
         </span>
       ),
       icon: <img src={clockIcon} alt="Hours" />,
     },
-
   ];
 
   return (

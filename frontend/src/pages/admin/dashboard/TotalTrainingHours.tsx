@@ -67,14 +67,15 @@ function CalendarGrid({
                 }
               }}
               type="button"
-              className={`h-10 w-10 rounded-md flex items-center justify-center ${d === null
-                ? "invisible"
-                : isSunday
-                  ? "bg-white text-gray-400"
-                  : isHoliday
-                    ? "bg-red-100 text-red-800"
-                    : "bg-green-100 text-green-800 hover:bg-green-200"
-                }`}
+              className={`h-10 w-10 rounded-md flex items-center justify-center ${
+                d === null
+                  ? "invisible"
+                  : isSunday
+                    ? "bg-white text-gray-400"
+                    : isHoliday
+                      ? "bg-red-100 text-red-800"
+                      : "bg-green-100 text-green-800 hover:bg-green-200"
+              }`}
             >
               {d}
             </button>
@@ -175,28 +176,25 @@ export default function TotalTrainingHours() {
   };
 
   const fetchReport = async () => {
-  const params = new URLSearchParams({
-    startDate: from,
-    endDate: to,
-  });
+    const params = new URLSearchParams({
+      startDate: from,
+      endDate: to,
+    });
 
-  // Only send when not "All"
-  if (batchTypeId !== "0") {
-    params.append("batchTypeId", batchTypeId);
-  }
+    // Only send when not "All"
+    if (batchTypeId !== "0") {
+      params.append("batchTypeId", batchTypeId);
+    }
 
-  const res = await fetch(
-    `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
-  );
+    const res = await fetch(
+      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`,
+    );
 
-  const data = await res.json();
+    const data = await res.json();
 
-  setTotalHours(data.totalHours || 0);
-  setRows(data.batchDetails || []);
-};
-
-
-
+    setTotalHours(data.totalHours || 0);
+    setRows(data.batchDetails || []);
+  };
 
   useEffect(() => {
     fetchBatchTypes();
@@ -287,7 +285,9 @@ export default function TotalTrainingHours() {
                     <div key={i} className="grid grid-cols-4 px-4 py-3 text-sm">
                       <div>{r.batchName}</div>
                       <div className="text-center">{r.batchTypeName}</div>
-                      <div className="text-blue-600 font-semibold">{r.totalTrainingHours}</div>
+                      <div className="text-blue-600 font-semibold">
+                        {r.totalTrainingHours}
+                      </div>
                       <div className="text-blue-600 font-semibold">
                         {Math.round(r.totalTrainingHours / 8)} Days
                       </div>
@@ -295,11 +295,12 @@ export default function TotalTrainingHours() {
                   ))}
 
                   {rows.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">No data available</div>
+                    <div className="text-center py-4 text-gray-500">
+                      No data available
+                    </div>
                   )}
                 </div>
               </div>
-
             </div>
           </CardContent>
         </Card>
