@@ -133,7 +133,20 @@ function ProjectCard({
     );
   }
 
-  if (!project) return null;
+  if (!project) {
+    return (
+      <Card.Card
+        className={cn(
+          "flex flex-col h-full items-center justify-center",
+          className,
+        )}
+      >
+        <Card.CardHeader className="text-center">
+          <Card.CardDescription>Project not assigned yet.</Card.CardDescription>
+        </Card.CardHeader>
+      </Card.Card>
+    );
+  }
 
   return (
     <>

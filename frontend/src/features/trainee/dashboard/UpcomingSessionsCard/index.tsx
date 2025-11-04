@@ -56,7 +56,22 @@ function UpcomingSessionCard({
     );
   }
 
-  if (!activities) return null;
+  if (!activities || activities.length === 0) {
+    return (
+      <Card.Card
+        className={cn(
+          "flex flex-col h-full items-center justify-center",
+          className,
+        )}
+      >
+        <Card.CardHeader className="text-center">
+          <Card.CardDescription>
+            Sessions yet to be uploaded.
+          </Card.CardDescription>
+        </Card.CardHeader>
+      </Card.Card>
+    );
+  }
 
   return (
     <Card.Card
