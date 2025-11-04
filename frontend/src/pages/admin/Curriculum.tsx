@@ -1,145 +1,21 @@
-import { useState, useRef } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-  Clock,
-  User,
-  Edit,
-  PlusCircle,
-  CalendarX,
-  Trash2,
-  Save,
-  X,
-  AlertTriangle,
-} from "lucide-react";
+import { useState } from "react";
+import CalendarGrid from "../../features/ui/calendar/CalendarGrid";
+import EventSidebar from "../../features/ui/calendar/EventSideBar";
+import MonthPicker from "../../features/ui/calendar/MonthPicker";
+import HolidayConflictModal from "../../features/ui/calendar/HolidayConflictModal";
+import RescheduleModal from "../../features/ui/calendar/RescheduleModal";
+import Toast from "../../features/ui/calendar/Toast.tsx";
+import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import type {
+  CurriculumEvent,
+  Holiday,
+} from "../../features/ui/calendar/types.ts";
+import { monthNames } from "../../features/ui/calendar/CalendarUtils.tsx";
+import RescheduleOptionsModal from "../../features/ui/calendar/RescheduleOptionsModal";
+// Curriculum.tsx (Updated)
 
-// Toast Notification Component
-const Toast = ({
-  message,
-  type,
-  onClose,
-}: {
-  message: string;
-  type: "success" | "error" | "info";
-  onClose: () => void;
-}) => {
-  const bgColors = {
-    success: "bg-green-100 border-green-400 text-green-700",
-    error: "bg-red-100 border-red-400 text-red-700",
-    info: "bg-blue-100 border-blue-400 text-blue-700",
-  };
-  return (
-    <div className="fixed bottom-6 right-6 z-50 animate-slide-up">
-      <div
-        className={`${bgColors[type]} border-l-4 p-4 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px]`}
-      >
-        {" "}
-        <span className="flex-1 font-medium">{message}</span>
-        <button
-          onClick={onClose}
-          className="text-current opacity-70 hover:opacity-100 transition-opacity"
-        >
-          <X size={18} />
-        </button>
-      </div>
-    </div>
-  );
-};
+// Curriculum.tsx (Fixed)
 
-// Add animation styles
-const style = document.createElement("style");
-style.textContent = `
-  @keyframes slide-up {
-    from {
-      transform: translateY(100px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  .animate-slide-up {
-    animation: slide-up 0.3s ease-out;
-  }
-`;
-document.head.appendChild(style);
-
-// Types
-type ColorKey =
-  | "blue"
-  | "emerald"
-  | "indigo"
-  | "pink"
-  | "amber"
-  | "red"
-  | "orange";
-
-type CurriculumEvent = {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  color: ColorKey;
-  instructor: string;
-  description: string;
-};
-
-type SelectedDay = {
-  day: number;
-  events: CurriculumEvent[];
-};
-
-type Holiday = {
-  day: number;
-  month: number;
-  year: number;
-};
-
-// Utility functions
-const getDaysInMonth = (year: number, month: number) =>
-  new Date(year, month + 1, 0).getDate();
-
-const getFirstDayOfMonth = (year: number, month: number) =>
-  new Date(year, month, 1).getDay();
-
-const formatTime = (date: Date) => {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "PM" : "AM";
-  const displayHours = hours % 12 || 12;
-  return `${displayHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
-};
-
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const colorClasses: Record<ColorKey, string> = {
-  blue: "bg-blue-100 border-blue-500 text-blue-700",
-  emerald: "bg-emerald-100 border-emerald-500 text-emerald-700",
-  indigo: "bg-indigo-100 border-indigo-500 text-indigo-700",
-  pink: "bg-pink-100 border-pink-500 text-pink-700",
-  amber: "bg-amber-100 border-amber-500 text-amber-700",
-  red: "bg-red-100 border-red-500 text-red-700",
-  orange: "bg-orange-100 border-orange-500 text-orange-700",
-};
-
-// Initial mock data
 const initialEvents: CurriculumEvent[] = [
   {
     id: "1",
@@ -168,585 +44,34 @@ const initialEvents: CurriculumEvent[] = [
     instructor: "Hari Krishnan",
     description: "Basics of HTML and CSS",
   },
-  {
-    id: "4",
-    title: "TypeScript Basics",
-    start: new Date(2025, 9, 20, 9, 0),
-    end: new Date(2025, 9, 20, 12, 0),
-    color: "amber",
-    instructor: "Mike Wilson",
-    description: "Introduction to TypeScript",
-  },
 ];
 
-// Delete Confirmation Modal Component
-const DeleteConfirmModal = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  eventTitle,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  eventTitle: string;
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <AlertTriangle className="w-6 h-6 text-red-500" />
-          <h3 className="text-lg font-semibold text-slate-800">
-            Delete Session
-          </h3>
-        </div>
-        <p className="text-slate-600 mb-6">
-          Are you sure you want to delete "
-          <span className="font-semibold">{eventTitle}</span>"? This action
-          cannot be undone.
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={onConfirm}
-            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Yes
-          </button>
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            No
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Holiday Conflict Modal Component
-const HolidayConflictModal = ({
-  isOpen,
-  onClose,
-  onDelete,
-  onReschedule,
-  eventCount,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onDelete: () => void;
-  onReschedule: () => void;
-  eventCount: number;
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <AlertTriangle className="w-6 h-6 text-amber-500" />
-          <h3 className="text-lg font-semibold text-slate-800">
-            Sessions Conflict Detected
-          </h3>
-        </div>
-        <p className="text-slate-600 mb-6">
-          This day has {eventCount} session{eventCount > 1 ? "s" : ""}{" "}
-          scheduled. What would you like to do with{" "}
-          {eventCount > 1 ? "them" : "it"}?
-        </p>
-        <div className="space-y-3">
-          <button
-            onClick={onReschedule}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <CalendarX size={18} />
-            Reschedule to Another Date
-          </button>
-          <button
-            onClick={onDelete}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <Trash2 size={18} />
-            Delete Permanently
-          </button>
-          <button
-            onClick={onClose}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            <X size={18} />
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Reschedule Modal Component
-const RescheduleModal = ({
-  isOpen,
-  onClose,
-  onConfirm,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: (newDate: Date) => void;
-  currentYear: number;
-  currentMonth: number;
-}) => {
-  const [selectedDate, setSelectedDate] = useState("");
-
-  if (!isOpen) return null;
-
-  const handleConfirm = () => {
-    if (selectedDate) {
-      onConfirm(new Date(selectedDate));
-      setSelectedDate("");
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <h3 className="text-lg font-semibold text-slate-800 mb-4">
-          Select New Date for Sessions
-        </h3>
-        <p className="text-slate-600 mb-4">
-          Choose the date to reschedule all sessions from this day:
-        </p>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="flex gap-3">
-          <button
-            onClick={handleConfirm}
-            disabled={!selectedDate}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-          >
-            Confirm Reschedule
-          </button>
-          <button
-            onClick={() => {
-              setSelectedDate("");
-              onClose();
-            }}
-            className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// EventSidebar Component
-const EventSidebar = ({
-  events,
-  dateLabel,
-  editable,
-  isHoliday,
-  onEdit,
-  onAdd,
-  onDelete,
-  onToggleHoliday,
-}: {
-  events: CurriculumEvent[];
-  dateLabel: string;
-  editable?: boolean;
-  isHoliday?: boolean;
-  onEdit?: (event: CurriculumEvent) => void;
-  onAdd?: () => void;
-  onDelete?: (eventId: string) => void;
-  onToggleHoliday?: () => void;
-}) => {
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<Partial<CurriculumEvent>>({});
-  const [deleteConfirm, setDeleteConfirm] = useState<{
-    id: string;
-    title: string;
-  } | null>(null);
-
-  const startEdit = (event: CurriculumEvent) => {
-    setEditingId(event.id);
-    setEditForm({
-      title: event.title,
-      instructor: event.instructor,
-      description: event.description,
-      color: event.color,
-      start: event.start,
-      end: event.end,
-    });
-  };
-
-  const saveEdit = (event: CurriculumEvent) => {
-    if (onEdit && editForm) {
-      onEdit({
-        ...event,
-        title: editForm.title || event.title,
-        instructor: editForm.instructor || event.instructor,
-        description: editForm.description || event.description,
-        color: editForm.color || event.color,
-        start: editForm.start || event.start,
-        end: editForm.end || event.end,
-      });
-    }
-    setEditingId(null);
-    setEditForm({});
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditForm({});
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-slate-800">
-            {dateLabel || "Select a Day"}
-          </h3>
-          {editable && dateLabel && (
-            <div className="flex gap-2">
-              <button
-                onClick={onAdd}
-                className="text-green-600 hover:text-green-800"
-                title="Add Event"
-              >
-                <PlusCircle size={18} />
-              </button>
-              <button
-                onClick={onToggleHoliday}
-                className={`${isHoliday ? "text-red-600" : "text-slate-500"} hover:text-red-800`}
-                title="Mark as Holiday"
-              >
-                <CalendarX size={18} />
-              </button>
-            </div>
-          )}
-        </div>
-        {!dateLabel ? (
-          <div className="text-center py-12 text-slate-500">
-            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Select a day to view or manage events</p>
-          </div>
-        ) : isHoliday ? (
-          <div className="text-center py-12 text-rose-500 font-medium">
-            This day is marked as a Holiday
-          </div>
-        ) : events.length > 0 ? (
-          <div className="space-y-4">
-            {events.map((event) => (
-              <div
-                key={event.id}
-                className={`p-4 rounded-lg border-l-4 ${colorClasses[event.color]} relative`}
-              >
-                {editingId === event.id ? (
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      value={editForm.title || ""}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, title: e.target.value })
-                      }
-                      className="w-full px-2 py-1 border rounded text-sm"
-                      placeholder="Title"
-                    />
-                    <input
-                      type="text"
-                      value={editForm.instructor || ""}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, instructor: e.target.value })
-                      }
-                      className="w-full px-2 py-1 border rounded text-sm"
-                      placeholder="Instructor"
-                    />
-                    <textarea
-                      value={editForm.description || ""}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          description: e.target.value,
-                        })
-                      }
-                      className="w-full px-2 py-1 border rounded text-sm"
-                      rows={2}
-                      placeholder="Description"
-                    />
-                    <select
-                      value={editForm.color || event.color}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          color: e.target.value as ColorKey,
-                        })
-                      }
-                      className="w-full px-2 py-1 border rounded text-sm"
-                    >
-                      {Object.keys(colorClasses).map((color) => (
-                        <option key={color} value={color}>
-                          {color}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => saveEdit(event)}
-                        className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-                      >
-                        <Save size={14} /> Save
-                      </button>
-                      <button
-                        onClick={cancelEdit}
-                        className="flex items-center gap-1 px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-sm"
-                      >
-                        <X size={14} /> Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <h4 className="font-semibold text-slate-800 mb-3 flex justify-between">
-                      {event.title}
-                      {editable && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => startEdit(event)}
-                            className="text-blue-600 hover:text-blue-800"
-                            title="Edit"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() =>
-                              setDeleteConfirm({
-                                id: event.id,
-                                title: event.title,
-                              })
-                            }
-                            className="text-red-600 hover:text-red-800"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      )}
-                    </h4>
-                    <div className="space-y-2 text-sm text-slate-600">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>
-                          {formatTime(event.start)} - {formatTime(event.end)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        <span>{event.instructor}</span>
-                      </div>
-                      <p className="pt-2 border-t border-slate-200">
-                        {event.description}
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-slate-500">
-            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>No events yet — click "+" to add one</p>
-          </div>
-        )}
-      </div>
-
-      <DeleteConfirmModal
-        isOpen={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
-        onConfirm={() => {
-          if (deleteConfirm && onDelete) {
-            onDelete(deleteConfirm.id);
-            setDeleteConfirm(null);
-          }
-        }}
-        eventTitle={deleteConfirm?.title || ""}
-      />
-    </div>
-  );
-};
-
-// Month Picker Component - iOS Style
-const MonthPicker = ({
-  isOpen,
-  onClose,
-  currentMonth,
-  currentYear,
-  onSelect,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  currentMonth: number;
-  currentYear: number;
-  onSelect: (month: number, year: number) => void;
-}) => {
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-
-  const startYear = 1990;
-  const endYear = 2100;
-  const years = Array.from(
-    { length: endYear - startYear + 1 },
-    (_, i) => startYear + i,
-  );
-  const monthRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
-  const yearRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
-
-  if (!isOpen) return null;
-
-  const handleConfirm = () => {
-    onSelect(selectedMonth, selectedYear);
-    onClose();
-  };
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/30 flex items-end sm:items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-t-3xl sm:rounded-xl shadow-2xl w-full sm:max-w-md overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="px-6 py-4 flex justify-between items-center border-b border-slate-200">
-          <button
-            onClick={onClose}
-            className="text-blue-600 font-medium hover:text-blue-700"
-          >
-            Cancel
-          </button>
-          <h3 className="text-base font-semibold text-slate-800">
-            Select Date
-          </h3>
-          <button
-            onClick={handleConfirm}
-            className="text-blue-600 font-medium hover:text-blue-700"
-          >
-            Done
-          </button>
-        </div>
-        {/* iOS-style Picker */}
-        <div className="flex h-64 overflow-hidden relative">
-          {/* Selection indicator */}
-          <div className="absolute inset-0 flex items-center pointer-events-none">
-            <div className="w-full h-12 border-y-2 border-slate-200 bg-slate-50/50"></div>
-          </div>
-          {/* Month Picker */}
-          <div className="flex-1 overflow-y-auto scrollbar-hide snap-y snap-mandatory">
-            <div className="py-24">
-              {monthNames.map((month, index) => (
-                <div
-                  key={index}
-                  ref={(el) => {
-                    monthRefs.current[index] = el;
-                  }}
-                  onClick={() => setSelectedMonth(index)}
-                  className={`h-12 flex items-center justify-center cursor-pointer snap-center transition-all ${
-                    selectedMonth === index
-                      ? "text-slate-900 font-semibold text-lg"
-                      : "text-slate-400 text-base"
-                  }`}
-                >
-                  {month}
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Year Picker */}
-          <div className="flex-1 overflow-y-auto scrollbar-hide snap-y snap-mandatory border-l border-slate-200">
-            <div className="py-24">
-              {years.map((year) => (
-                <div
-                  key={year}
-                  ref={(el) => {
-                    yearRefs.current[year] = el;
-                  }}
-                  onClick={() => setSelectedYear(year)}
-                  className={`h-12 flex items-center justify-center cursor-pointer snap-center transition-all ${
-                    selectedYear === year
-                      ? "text-slate-900 font-semibold text-lg"
-                      : "text-slate-400 text-base"
-                  }`}
-                >
-                  {year}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-    </div>
-  );
-};
-
-// Main Calendar Component
 function Curriculum() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [events, setEvents] = useState<CurriculumEvent[]>(initialEvents);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [showRescheduleOptionsModal, setShowRescheduleOptionsModal] =
+    useState(false);
   const [conflictingEvents, setConflictingEvents] = useState<CurriculumEvent[]>(
     [],
   );
+  const [eventToReschedule, setEventToReschedule] =
+    useState<CurriculumEvent | null>(null);
+  const [pendingRescheduleDate, setPendingRescheduleDate] =
+    useState<Date | null>(null);
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
 
-  // Auto-hide toast after 3 seconds
   const showToast = (message: string, type: "success" | "error" | "info") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
-  };
-
-  const today = new Date();
-  const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-  const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
-
-  const isHolidayDay = (day: number, month: number, year: number): boolean => {
-    return holidays.some(
-      (h) => h.day === day && h.month === month && h.year === year,
-    );
-  };
-
-  const getDayEvents = (day: number) => {
-    return events.filter((event) => {
-      const eventDate = event.start;
-      return (
-        eventDate.getDate() === day &&
-        eventDate.getMonth() === currentMonth &&
-        eventDate.getFullYear() === currentYear
-      );
-    });
   };
 
   const handlePreviousMonth = () => {
@@ -775,27 +100,29 @@ function Curriculum() {
     setSelectedDay(null);
   };
 
+  const handleGoToToday = () => {
+    const today = new Date();
+    setCurrentMonth(today.getMonth());
+    setCurrentYear(today.getFullYear());
+    setSelectedDay(today.getDate());
+  };
+
   const handleDayClick = (day: number) => {
-    const dayEvents = getDayEvents(day);
-    setSelectedDay({ day, events: dayEvents });
+    setSelectedDay(day);
   };
 
   const handleAddEvent = () => {
-    if (!selectedDay) return;
+    if (selectedDay === null) return;
     const newEvent: CurriculumEvent = {
       id: String(Date.now()),
-      title: "New Session",
-      start: new Date(currentYear, currentMonth, selectedDay.day, 9, 0),
-      end: new Date(currentYear, currentMonth, selectedDay.day, 12, 0),
+      title: "",
+      start: new Date(currentYear, currentMonth, selectedDay, 9, 0),
+      end: new Date(currentYear, currentMonth, selectedDay, 12, 0),
       color: "blue",
-      instructor: "Trainer",
-      description: "Session details go here",
+      instructor: "",
+      description: "",
     };
     setEvents((prev) => [...prev, newEvent]);
-    setSelectedDay({
-      day: selectedDay.day,
-      events: [...selectedDay.events, newEvent],
-    });
     showToast("Event added successfully!", "success");
   };
 
@@ -803,281 +130,485 @@ function Curriculum() {
     setEvents((prev) =>
       prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e)),
     );
-    if (selectedDay) {
-      setSelectedDay({
-        day: selectedDay.day,
-        events: selectedDay.events.map((e) =>
-          e.id === updatedEvent.id ? updatedEvent : e,
-        ),
-      });
-    }
+    showToast("Event updated successfully!", "info");
   };
 
   const handleDeleteEvent = (id: string) => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
-    if (selectedDay) {
-      setSelectedDay({
-        day: selectedDay.day,
-        events: selectedDay.events.filter((e) => e.id !== id),
-      });
-    }
     showToast("Event deleted successfully!", "error");
   };
 
   const handleToggleHoliday = () => {
-    if (!selectedDay) return;
-    const dayEvents = getDayEvents(selectedDay.day);
+    if (selectedDay === null) return;
+    const dayEvents = getDayEvents(selectedDay);
     const isCurrentlyHoliday = isHolidayDay(
-      selectedDay.day,
+      selectedDay,
       currentMonth,
       currentYear,
     );
 
-    // If already a holiday, just toggle it off
     if (isCurrentlyHoliday) {
       setHolidays((prev) =>
         prev.filter(
           (h) =>
             !(
-              h.day === selectedDay.day &&
+              h.day === selectedDay &&
               h.month === currentMonth &&
               h.year === currentYear
             ),
         ),
       );
+      showToast("Holiday removed!", "info");
       return;
     }
 
-    // If there are events on this day, show conflict modal
     if (dayEvents.length > 0) {
       setConflictingEvents(dayEvents);
+      setPendingRescheduleDate(
+        new Date(currentYear, currentMonth, selectedDay),
+      );
       setShowConflictModal(true);
     } else {
-      // No events, just mark as holiday
       setHolidays((prev) => [
         ...prev,
-        { day: selectedDay.day, month: currentMonth, year: currentYear },
+        { day: selectedDay, month: currentMonth, year: currentYear },
       ]);
+      showToast("Day marked as holiday!", "info");
     }
   };
 
+  const isHolidayDay = (day: number, month: number, year: number): boolean => {
+    const date = new Date(year, month, day);
+    if (date.getDay() === 0) return true;
+    return holidays.some(
+      (h) => h.day === day && h.month === month && h.year === year,
+    );
+  };
+
+  const getDayEvents = (day: number) => {
+    return events.filter((event) => {
+      const eventDate = event.start;
+      return (
+        eventDate.getDate() === day &&
+        eventDate.getMonth() === currentMonth &&
+        eventDate.getFullYear() === currentYear
+      );
+    });
+  };
+
   const handleDeleteConflictingEvents = () => {
-    if (!selectedDay) return;
-    // Delete all events on this day
+    if (selectedDay === null) return;
     setEvents((prev) =>
       prev.filter(
         (e) =>
           !(
-            e.start.getDate() === selectedDay.day &&
+            e.start.getDate() === selectedDay &&
             e.start.getMonth() === currentMonth &&
             e.start.getFullYear() === currentYear
           ),
       ),
     );
-    // Mark as holiday
     setHolidays((prev) => [
       ...prev,
-      { day: selectedDay.day, month: currentMonth, year: currentYear },
+      { day: selectedDay, month: currentMonth, year: currentYear },
     ]);
-    setSelectedDay({ day: selectedDay.day, events: [] });
     setShowConflictModal(false);
     setConflictingEvents([]);
+    showToast("Events deleted and day marked as holiday!", "error");
   };
 
-  const handleRescheduleEvents = (newDate: Date) => {
-    if (!selectedDay) return;
-    const updatedEvents = events.map((event) => {
-      // Check if this event is on the selected day
-      if (
-        event.start.getDate() === selectedDay.day &&
-        event.start.getMonth() === currentMonth &&
-        event.start.getFullYear() === currentYear
+  const handleRescheduleEvent = (event: CurriculumEvent) => {
+    setEventToReschedule(event);
+    setShowRescheduleModal(true);
+  };
+
+  const handleRescheduleEventConfirm = (
+    newDate: Date,
+    pushMode: "keep" | "push",
+  ) => {
+    if (!eventToReschedule) return;
+
+    const targetDateEvents = events.filter(
+      (e) =>
+        e.start.getDate() === newDate.getDate() &&
+        e.start.getMonth() === newDate.getMonth() &&
+        e.start.getFullYear() === newDate.getFullYear() &&
+        e.id !== eventToReschedule.id,
+    );
+
+    if (pushMode === "push" && targetDateEvents.length > 0) {
+      const eventsToMove = [...targetDateEvents, eventToReschedule];
+      const sortedEvents = eventsToMove.sort(
+        (a, b) => a.start.getTime() - b.start.getTime(),
+      );
+
+      let currentDate = new Date(newDate);
+      const updatedEvents = events.map((event) => {
+        const matchingIndex = sortedEvents.findIndex((e) => e.id === event.id);
+        if (matchingIndex !== -1) {
+          while (
+            isHolidayDay(
+              currentDate.getDate(),
+              currentDate.getMonth(),
+              currentDate.getFullYear(),
+            )
+          ) {
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+
+          const updatedEvent = {
+            ...event,
+            start: new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              currentDate.getDate(),
+              event.start.getHours(),
+              event.start.getMinutes(),
+            ),
+            end: new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              currentDate.getDate(),
+              event.end.getHours(),
+              event.end.getMinutes(),
+            ),
+          };
+
+          currentDate.setDate(currentDate.getDate() + 1);
+          return updatedEvent;
+        }
+        return event;
+      });
+
+      setEvents(updatedEvents);
+    } else {
+      const updatedEvents = events.map((event) => {
+        if (event.id === eventToReschedule.id) {
+          return {
+            ...event,
+            start: new Date(
+              newDate.getFullYear(),
+              newDate.getMonth(),
+              newDate.getDate(),
+              event.start.getHours(),
+              event.start.getMinutes(),
+            ),
+            end: new Date(
+              newDate.getFullYear(),
+              newDate.getMonth(),
+              newDate.getDate(),
+              event.end.getHours(),
+              event.end.getMinutes(),
+            ),
+          };
+        }
+        return event;
+      });
+      setEvents(updatedEvents);
+    }
+
+    setShowRescheduleModal(false);
+    setShowRescheduleOptionsModal(false);
+    setEventToReschedule(null);
+    setPendingRescheduleDate(null);
+    showToast("Event rescheduled successfully!", "success");
+  };
+
+  // When pre-poning (rescheduling an event to an earlier date) and that date has existing events,
+  // offer to pull existing events one day earlier (skipping holidays and avoiding occupied dates).
+  const handlePullExistingEventsBackward = (newDate: Date) => {
+    if (!eventToReschedule) return;
+
+    const targetDay = newDate.getDate();
+    const targetMonth = newDate.getMonth();
+    const targetYear = newDate.getFullYear();
+
+    const targetDateEvents = events
+      .filter(
+        (e) =>
+          e.start.getDate() === targetDay &&
+          e.start.getMonth() === targetMonth &&
+          e.start.getFullYear() === targetYear &&
+          e.id !== eventToReschedule.id,
+      )
+      .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+    if (targetDateEvents.length === 0) {
+      // Nothing to pull; just move the event
+      handleRescheduleEventConfirm(newDate, "keep");
+      return;
+    }
+
+    // Other events remaining (excluding the ones we will move)
+    const existingOtherEvents = events.filter(
+      (e) => !targetDateEvents.some((r) => r.id === e.id),
+    );
+
+    const dateKey = (d: Date) =>
+      `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+    // Occupied dates are from existingOtherEvents
+    const occupied = new Set<string>();
+    existingOtherEvents.forEach((e) => occupied.add(dateKey(e.start)));
+
+    // Start scheduling backwards from the day before the target date
+    let currentDate = new Date(newDate);
+    currentDate.setDate(currentDate.getDate() - 1);
+
+    const movedEvents: CurriculumEvent[] = [];
+
+    // Process events in reverse order (latest events first) so the right-most events are pulled
+    // into the nearest previous dates and earlier events are pushed further back. This keeps
+    // the relative ordering and ensures the event to the right is also moved.
+    for (const ev of [...targetDateEvents].reverse()) {
+      // find previous date that's not a holiday and not occupied
+      while (
+        isHolidayDay(
+          currentDate.getDate(),
+          currentDate.getMonth(),
+          currentDate.getFullYear(),
+        ) ||
+        occupied.has(dateKey(currentDate))
       ) {
-        // Calculate time difference to preserve start and end times
-        const startHours = event.start.getHours();
-        const startMinutes = event.start.getMinutes();
-        const endHours = event.end.getHours();
-        const endMinutes = event.end.getMinutes();
+        currentDate.setDate(currentDate.getDate() - 1);
+      }
+
+      const newStart = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate(),
+        ev.start.getHours(),
+        ev.start.getMinutes(),
+      );
+      const newEnd = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate(),
+        ev.end.getHours(),
+        ev.end.getMinutes(),
+      );
+
+      // We collect moved events; later we'll map them back by id
+      movedEvents.push({ ...ev, start: newStart, end: newEnd });
+
+      // mark this date occupied so the next moved event doesn't land here
+      occupied.add(dateKey(currentDate));
+
+      // move further back for the next event (which will be an earlier event)
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+
+    // Now update the rescheduled event to the target date
+    const updatedEvents = events.map((e) => {
+      const moved = movedEvents.find((m) => m.id === e.id);
+      if (moved) return moved;
+      if (e.id === eventToReschedule.id) {
         return {
-          ...event,
+          ...e,
           start: new Date(
-            newDate.getFullYear(),
-            newDate.getMonth(),
-            newDate.getDate(),
-            startHours,
-            startMinutes,
+            targetYear,
+            targetMonth,
+            targetDay,
+            e.start.getHours(),
+            e.start.getMinutes(),
           ),
           end: new Date(
-            newDate.getFullYear(),
-            newDate.getMonth(),
-            newDate.getDate(),
-            endHours,
-            endMinutes,
+            targetYear,
+            targetMonth,
+            targetDay,
+            e.end.getHours(),
+            e.end.getMinutes(),
           ),
         };
       }
-      return event;
+      return e;
     });
-    setEvents(updatedEvents);
-    // Mark original day as holiday
-    setHolidays((prev) => [
-      ...prev,
-      { day: selectedDay.day, month: currentMonth, year: currentYear },
-    ]);
-    setSelectedDay({ day: selectedDay.day, events: [] });
-    setShowRescheduleModal(false);
-    setShowConflictModal(false);
-    setConflictingEvents([]);
-  };
 
-  const isToday = (day: number) => {
-    return (
-      day === today.getDate() &&
-      currentMonth === today.getMonth() &&
-      currentYear === today.getFullYear()
+    setEvents(updatedEvents);
+
+    setShowRescheduleModal(false);
+    setShowRescheduleOptionsModal(false);
+    setEventToReschedule(null);
+    setPendingRescheduleDate(null);
+    showToast(
+      "Conflicting events pulled earlier and event rescheduled.",
+      "success",
     );
   };
 
-  const calendarDays: (number | null)[] = [];
-  const totalCells = Math.ceil((daysInMonth + firstDayOfMonth) / 7) * 7;
-  for (let i = 0; i < totalCells; i++) {
-    const day = i - firstDayOfMonth + 1;
-    if (day > 0 && day <= daysInMonth) {
-      calendarDays.push(day);
-    } else {
-      calendarDays.push(null);
-    }
-  }
+  const handleRescheduleAllEvents = (newDate: Date) => {
+    if (!newDate) return;
 
-  const currentIsHoliday = selectedDay
-    ? isHolidayDay(selectedDay.day, currentMonth, currentYear)
-    : false;
+    // determine the source day/month/year from the provided date (useful when selectedDay may have changed)
+    const sourceDay = newDate.getDate();
+    const sourceMonth = newDate.getMonth();
+    const sourceYear = newDate.getFullYear();
+
+    const eventsToReschedule = events
+      .filter(
+        (e) =>
+          e.start.getDate() === sourceDay &&
+          e.start.getMonth() === sourceMonth &&
+          e.start.getFullYear() === sourceYear,
+      )
+      .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+    // Other events that should remain in place
+    const existingOtherEvents = events.filter(
+      (e) => !eventsToReschedule.some((r) => r.id === e.id),
+    );
+
+    // Helper to create date key
+    const dateKey = (d: Date) =>
+      `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+    // Set of occupied dates (from existingOtherEvents)
+    const occupied = new Set<string>();
+    existingOtherEvents.forEach((e) => occupied.add(dateKey(e.start)));
+
+    // Start scheduling from the day after the provided date so we don't reschedule onto the holiday itself;
+    let currentDate = new Date(newDate);
+    currentDate.setDate(currentDate.getDate() + 1);
+
+    const movedEvents: CurriculumEvent[] = [];
+
+    for (const ev of eventsToReschedule) {
+      // find next date that's not a holiday and not occupied
+      while (
+        isHolidayDay(
+          currentDate.getDate(),
+          currentDate.getMonth(),
+          currentDate.getFullYear(),
+        ) ||
+        occupied.has(dateKey(currentDate))
+      ) {
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      const newStart = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate(),
+        ev.start.getHours(),
+        ev.start.getMinutes(),
+      );
+      const newEnd = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate(),
+        ev.end.getHours(),
+        ev.end.getMinutes(),
+      );
+
+      movedEvents.push({ ...ev, start: newStart, end: newEnd });
+
+      // mark this date occupied so the next moved event doesn't land here
+      occupied.add(dateKey(currentDate));
+
+      // advance to next day for next event
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    const updatedEvents = [...existingOtherEvents, ...movedEvents];
+
+    setEvents(updatedEvents);
+
+    // mark the source day as holiday
+    setHolidays((prev) => [
+      ...prev,
+      { day: sourceDay, month: sourceMonth, year: sourceYear },
+    ]);
+
+    setShowConflictModal(false);
+    setConflictingEvents([]);
+    showToast("Events rescheduled successfully!", "success");
+  };
+
+  const selectedDayEvents =
+    selectedDay !== null ? getDayEvents(selectedDay) : [];
+  const currentIsHoliday =
+    selectedDay !== null
+      ? isHolidayDay(selectedDay, currentMonth, currentYear)
+      : false;
+  const isPreponedOperation = Boolean(
+    eventToReschedule &&
+      pendingRescheduleDate &&
+      pendingRescheduleDate.getTime() < eventToReschedule.start.getTime(),
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <div className="min-h-screen bg-background p-4 font-secondary">
+      <div className="max-w-[1800px] mx-auto">
+        <div className="bg-card rounded-xl shadow-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <BookOpen className="w-8 h-6 text-blue-600" />
-              <div>
-                <h1 className="text-xl font-bold text-slate-800">
-                  Training Curriculum - Admin
-                </h1>
-              </div>
+              <BookOpen className="w-8 h-6 text-brand" />
+              <h1 className="text-xl font-bold text-text-base">
+                Training Curriculum - Admin
+              </h1>
             </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={handlePreviousMonth}
-                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                aria-label="Previous month"
+                className="p-2 rounded-lg hover:bg-brand-50 transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <h2
                 onClick={() => setShowMonthPicker(true)}
-                className="text-xl font-semibold text-slate-800 min-w-[200px] text-center cursor-pointer hover:bg-slate-50 px-4 py-2 rounded-lg transition-colors"
+                className="text-xl font-semibold text-text-base min-w-[200px] text-center cursor-pointer hover:bg-brand-50 px-4 py-2 rounded-lg transition-colors"
               >
                 {monthNames[currentMonth]} {currentYear}
               </h2>
               <button
                 onClick={handleNextMonth}
-                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                aria-label="Next month"
+                className="p-2 rounded-lg hover:bg-brand-50 transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 h-75vh overflow-hidden flex flex-col ">
-            <div className="grid grid-cols-7 mb-2 top-0 bg-white py-3 border-b border-slate-200">
-              {dayNames.map((day) => (
-                <div
-                  key={day}
-                  className="text-center text-sm font-semibold text-slate-600"
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-2 overflow-y-auto">
-              {calendarDays.map((day, index) => {
-                if (!day) {
-                  return <div key={index} className="min-h-[100px]"></div>;
-                }
-                const dayEvents = getDayEvents(day);
-                const isTodayDay = isToday(day);
-                const hasEvents = dayEvents.length > 0;
-                const isHoliday = isHolidayDay(day, currentMonth, currentYear);
-                return (
-                  <div
-                    key={index}
-                    onClick={() => handleDayClick(day)}
-                    className={`
-                      min-h-[100px] p-2 border rounded-lg transition-all cursor-pointer
-                      ${hasEvents ? "hover:shadow-md hover:scale-105 bg-white" : "bg-white hover:bg-slate-50"}
-                      ${isHoliday ? "ring-2 ring-red-500 bg-red-50" : "border-slate-200"}
-                      ${isTodayDay ? "ring-2 ring-blue-500" : ""}
-                      ${selectedDay?.day === day ? "ring-2 ring-green-500" : ""}
-                    `}
-                  >
-                    <div
-                      className={`
-                      text-sm font-medium mb-1 w-7 h-7 rounded-full flex items-center justify-center
-                      ${isTodayDay ? "bg-blue-600 text-white" : "text-slate-700"}
-                    `}
-                    >
-                      {day}
-                    </div>
-                    <div className="space-y-1">
-                      {dayEvents.slice(0, 2).map((event) => (
-                        <div
-                          key={event.id}
-                          className={`text-xs p-1 rounded border ${colorClasses[event.color]} truncate`}
-                        >
-                          {event.title}
-                        </div>
-                      ))}
-                      {dayEvents.length > 2 && (
-                        <div className="text-xs text-slate-600 font-medium">
-                          +{dayEvents.length - 2} more
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <CalendarGrid
+              currentMonth={currentMonth}
+              currentYear={currentYear}
+              selectedDay={selectedDay}
+              onDayClick={handleDayClick}
+              getDayEvents={getDayEvents}
+              isHolidayDay={isHolidayDay}
+            />
+          </div>
           <div className="lg:sticky lg:top-6 self-start h-fit">
             <EventSidebar
               dateLabel={
-                selectedDay
-                  ? `${monthNames[currentMonth]} ${selectedDay.day}, ${currentYear}`
+                selectedDay !== null
+                  ? `${monthNames[currentMonth]} ${selectedDay}, ${currentYear}`
                   : ""
               }
-              events={selectedDay?.events || []}
-              editable={true}
+              events={selectedDayEvents}
               isHoliday={currentIsHoliday}
               onAdd={handleAddEvent}
               onEdit={handleEditEvent}
               onDelete={handleDeleteEvent}
               onToggleHoliday={handleToggleHoliday}
+              onReschedule={handleRescheduleEvent}
             />
           </div>
         </div>
       </div>
-      {/* Modals */}
+
       <MonthPicker
         isOpen={showMonthPicker}
         onClose={() => setShowMonthPicker(false)}
         currentMonth={currentMonth}
         currentYear={currentYear}
         onSelect={handleMonthSelect}
+        onGoToToday={handleGoToToday}
       />
+
       <HolidayConflictModal
         isOpen={showConflictModal}
         onClose={() => {
@@ -1087,20 +618,108 @@ function Curriculum() {
         onDelete={handleDeleteConflictingEvents}
         onReschedule={() => {
           setShowConflictModal(false);
-          setShowRescheduleModal(true);
+          setShowRescheduleOptionsModal(true);
         }}
         eventCount={conflictingEvents.length}
       />
+
       <RescheduleModal
         isOpen={showRescheduleModal}
         onClose={() => {
           setShowRescheduleModal(false);
-          setConflictingEvents([]);
+          setEventToReschedule(null);
+          setPendingRescheduleDate(null);
         }}
-        onConfirm={handleRescheduleEvents}
+        onConfirm={(newDate) => {
+          const targetDateEvents = events.filter(
+            (e) =>
+              e.start.getDate() === newDate.getDate() &&
+              e.start.getMonth() === newDate.getMonth() &&
+              e.start.getFullYear() === newDate.getFullYear(),
+          );
+
+          setPendingRescheduleDate(newDate);
+
+          if (targetDateEvents.length > 0) {
+            setShowRescheduleModal(false);
+            setShowRescheduleOptionsModal(true);
+          } else {
+            handleRescheduleEventConfirm(newDate, "keep");
+          }
+        }}
         currentYear={currentYear}
         currentMonth={currentMonth}
+        isHolidayDay={isHolidayDay}
       />
+
+      <RescheduleOptionsModal
+        isOpen={showRescheduleOptionsModal}
+        onClose={() => {
+          setShowRescheduleOptionsModal(false);
+          setShowRescheduleModal(true);
+        }}
+        onKeep={() => {
+          // If we're rescheduling a single event, delegate to the reschedule handler
+          if (eventToReschedule && pendingRescheduleDate) {
+            handleRescheduleEventConfirm(pendingRescheduleDate, "keep");
+            return;
+          }
+
+          // If no single eventToReschedule, this flow is from marking a holiday with existing events.
+          // "Keep Both" => mark the day as holiday but keep existing events intact.
+          if (pendingRescheduleDate) {
+            setHolidays((prev) => [
+              ...prev,
+              {
+                day: pendingRescheduleDate.getDate(),
+                month: pendingRescheduleDate.getMonth(),
+                year: pendingRescheduleDate.getFullYear(),
+              },
+            ]);
+            setShowRescheduleOptionsModal(false);
+            setConflictingEvents([]);
+            setShowConflictModal(false);
+            setPendingRescheduleDate(null);
+            showToast("Day marked as holiday (events kept).", "success");
+          }
+        }}
+        onPush={() => {
+          // If rescheduling a single event, push that event
+          if (eventToReschedule && pendingRescheduleDate) {
+            handleRescheduleEventConfirm(pendingRescheduleDate, "push");
+            return;
+          }
+
+          // If no single event, push all events of that day forward and mark day as holiday
+          if (pendingRescheduleDate) {
+            handleRescheduleAllEvents(pendingRescheduleDate);
+            // handleRescheduleAllEvents will mark the day as holiday and move events
+            setShowRescheduleOptionsModal(false);
+            setConflictingEvents([]);
+            setShowConflictModal(false);
+            setPendingRescheduleDate(null);
+          }
+        }}
+        isPreponed={isPreponedOperation}
+        onPull={() => {
+          if (eventToReschedule && pendingRescheduleDate) {
+            handlePullExistingEventsBackward(pendingRescheduleDate);
+            return;
+          }
+
+          if (pendingRescheduleDate) {
+            // Pull for the whole day isn't supported in this flow; revert to reschedule modal
+            setShowRescheduleOptionsModal(false);
+            setShowRescheduleModal(true);
+            showToast(
+              "Pull operation is available only when rescheduling a single event.",
+              "info",
+            );
+          }
+        }}
+        onRescheduleAll={handleRescheduleAllEvents}
+      />
+
       {toast && (
         <Toast
           message={toast.message}

@@ -5,6 +5,7 @@ import {
   type DragEvent,
   useEffect,
 } from "react";
+import { useSearchParams } from "react-router";
 import * as XLSX from "xlsx";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { notifications } from "@mantine/notifications";
@@ -47,11 +48,6 @@ interface ExcelRow {
   "POC Emails": string;
 }
 
-interface CreateProjectByBatchProps {
-  batchId?: number;
-  batchName?: string;
-}
-
 interface ApiErrorResponse {
   message: string;
   errors?: { [key: string]: string[] };
@@ -68,10 +64,11 @@ interface Trainee {
   batchName: string;
 }
 
-export default function CreateProjectByBatch({
-  batchId = 1,
-  batchName,
-}: CreateProjectByBatchProps) {
+export default function CreateProjectByBatch() {
+  const [searchParams] = useSearchParams();
+  const batchId = parseInt(searchParams.get("batchId") || "0");
+  const batchName = searchParams.get("batchName") || "";
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [projectsData, setProjectsData] = useState<ProjectData[]>([]);
@@ -82,35 +79,76 @@ export default function CreateProjectByBatch({
   const [batchTrainees, setBatchTrainees] = useState<Trainee[]>([]);
   const [isLoadingTrainees, setIsLoadingTrainees] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"basic" | "detailed">("basic");
-  const [currentBatchName, setCurrentBatchName] = useState<string>("");
+  const [currentBatchName, setCurrentBatchName] = useState<string>(batchName);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
+  // Debug props on mount
   useEffect(() => {
-    fetchBatchData();
+    console.log("🔍 CreateProjectByBatch URL Params:", { batchId, batchName });
+    if (!batchId || batchId === 0) {
+      console.error("❌ ERROR: batchId is missing or invalid!");
+      notifications.show({
+        title: "Error",
+        message:
+          "Batch ID is missing or invalid. Please go back and try again.",
+        color: "red",
+      });
+    }
+    if (!batchName) {
+      console.error("❌ ERROR: batchName is missing or undefined!");
+    }
+  }, [batchId, batchName]);
+
+  useEffect(() => {
+    if (batchId && batchId !== 0) {
+      fetchBatchData();
+    } else {
+      console.error(
+        "❌ Cannot fetch batch data: batchId is missing or invalid",
+      );
+      notifications.show({
+        title: "Error",
+        message: "Batch ID is missing. Cannot load batch data.",
+        color: "red",
+      });
+    }
   }, [batchId]);
 
+  // Update current batch name when prop changes
+  useEffect(() => {
+    if (batchName) {
+      setCurrentBatchName(batchName);
+    }
+  }, [batchName]);
+
   const fetchBatchData = async (): Promise<void> => {
+    if (!batchId || batchId === 0) {
+      console.error(
+        "❌ Cannot fetch batch data: batchId is undefined or invalid",
+      );
+      return;
+    }
+
     try {
       setIsLoadingTrainees(true);
 
       notifications.show({
         id: "loading-batch",
         title: "Loading Batch Data...",
-        message: "Fetching batch information and trainee list...",
+        message: `Fetching information for ${currentBatchName}...`,
         color: "blue",
         loading: true,
         autoClose: false,
       });
 
+      console.log("📡 Fetching trainees for batchId:", batchId);
       const traineesResponse = await ProjectService.getBatchTrainees(batchId);
 
-      console.log("Trainees API Response:", traineesResponse);
+      console.log("✅ Trainees API Response:", traineesResponse);
 
-      // Check if the response has status and data properties (already parsed JSON)
       let traineesData = traineesResponse;
 
-      // If it's a Response object, parse it
       if (traineesResponse.ok !== undefined) {
         if (!traineesResponse.ok) {
           throw new Error(
@@ -120,7 +158,6 @@ export default function CreateProjectByBatch({
         traineesData = await traineesResponse.json();
       }
 
-      // Check for API success
       if (
         traineesData.status !== 200 &&
         traineesData.succeeded === false &&
@@ -130,7 +167,7 @@ export default function CreateProjectByBatch({
       }
 
       let trainees: Trainee[] = [];
-      let batchNameFromApi = batchName || `Batch ${batchId}`;
+      let batchNameFromApi = currentBatchName;
 
       if (traineesData.data && Array.isArray(traineesData.data)) {
         trainees = traineesData.data.map((trainee: any) => ({
@@ -142,7 +179,6 @@ export default function CreateProjectByBatch({
           batchName: trainee.batchName,
         }));
 
-        // Get batch name from first trainee if available and not default 'string'
         if (
           trainees.length > 0 &&
           trainees[0].batchName &&
@@ -160,7 +196,6 @@ export default function CreateProjectByBatch({
           batchName: trainee.batchName,
         }));
 
-        // Get batch name from first trainee if available and not default 'string'
         if (
           trainees.length > 0 &&
           trainees[0].batchName &&
@@ -182,10 +217,7 @@ export default function CreateProjectByBatch({
         autoClose: 3000,
       });
     } catch (error: any) {
-      console.error("Error fetching batch data:", error);
-
-      const fallbackBatchName = batchName || `Batch ${batchId}`;
-      setCurrentBatchName(fallbackBatchName);
+      console.error("❌ Error fetching batch data:", error);
 
       notifications.update({
         id: "loading-batch",
@@ -521,7 +553,6 @@ export default function CreateProjectByBatch({
           .map((member) => member.trim())
           .filter((member) => member !== "");
 
-        // Parse POCs - handle multiple POCs separated by commas
         const pocNames = row["POC Names"]
           .split(",")
           .map((name) => name.trim())
@@ -532,7 +563,6 @@ export default function CreateProjectByBatch({
           .map((email) => email.trim())
           .filter((email) => email !== "");
 
-        // Validate POCs
         if (pocNames.length !== pocEmails.length) {
           errors.push(
             `Row ${rowNumber}: Number of POC names (${pocNames.length}) does not match number of POC emails (${pocEmails.length})`,
@@ -593,7 +623,6 @@ export default function CreateProjectByBatch({
           errors.push(`Row ${rowNumber}: At least one Team Member is required`);
         }
 
-        // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (project.codeMentor && !emailRegex.test(project.codeMentorEmail)) {
           errors.push(`Row ${rowNumber}: Invalid Code Mentor Email format`);
         }
@@ -700,6 +729,15 @@ export default function CreateProjectByBatch({
       return;
     }
 
+    if (!batchId || batchId === 0) {
+      notifications.show({
+        title: "Error",
+        message: "Batch ID is missing. Cannot save projects.",
+        color: "red",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
       setApiError(null);
@@ -743,7 +781,6 @@ export default function CreateProjectByBatch({
           pocs: project.pocs.map((poc) => ({
             name: poc.name,
             email: poc.email,
-            // Removed createdAt and updatedAt
           })),
         })),
       };
@@ -940,19 +977,19 @@ export default function CreateProjectByBatch({
     XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
 
     const colWidths = [
-      { wch: 30 }, // Project Name
-      { wch: 30 }, // Technology
-      { wch: 20 }, // Team Lead
-      { wch: 20 }, // Scrum Master
-      { wch: 50 }, // Team Members
-      { wch: 20 }, // Code Mentor
-      { wch: 30 }, // Code Mentor Email
-      { wch: 20 }, // Project Mentor
-      { wch: 30 }, // Project Mentor Email
-      { wch: 20 }, // BA Mentor
-      { wch: 30 }, // BA Mentor Email
-      { wch: 30 }, // POC Names
-      { wch: 30 }, // POC Emails
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 50 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 30 },
     ];
     worksheet["!cols"] = colWidths;
 
@@ -964,6 +1001,55 @@ export default function CreateProjectByBatch({
   };
 
   const currentColumns = viewMode === "basic" ? basicColumns : detailedColumns;
+
+  // Show error if props are missing
+  if (!batchId || batchId === 0 || !batchName) {
+    return (
+      <div className="mt-10 ml-10 mr-10">
+        <div className="bg-red-50 border border-red-200 rounded-md p-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-6 w-6 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-lg font-medium text-red-800">
+                Missing Required Information
+              </h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p className="mb-2">
+                  This component requires batch information to function
+                  properly:
+                </p>
+                <ul className="list-disc list-inside space-y-1">
+                  {(!batchId || batchId === 0) && (
+                    <li>Batch ID is missing or invalid</li>
+                  )}
+                  {!batchName && <li>Batch Name is missing</li>}
+                </ul>
+                <p className="mt-4">
+                  Please ensure you navigate to this page with proper URL
+                  parameters:
+                </p>
+                <code className="block mt-2 p-2 bg-red-100 rounded">
+                  /upload-project-data?batchId=123&batchName=Batch+Name
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
