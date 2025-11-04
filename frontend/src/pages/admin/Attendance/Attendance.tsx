@@ -14,7 +14,7 @@ const AttendanceImportSlideout = lazy(
 import { useAttendance } from "@features/admin/attendance/hooks/useAttendance";
 
 function Attendance() {
-  const { state, handlers, data } = useAttendance(12345);
+  const { state, handlers, data } = useAttendance();
 
   if (state.queryStatus === "error") {
     return (
@@ -29,6 +29,9 @@ function Attendance() {
       <AttendanceHeader
         dateValue={state.dateValue}
         onDateChange={handlers.onDateChange}
+        batches={state.batches}
+        selectedBatchId={state.selectedBatchId}
+        onBatchChange={handlers.onBatchChange}
         onImport={handlers.openImport}
         onExport={handlers.onExport}
       />

@@ -14,10 +14,10 @@ import { useState } from "react";
 import EditProjectDetailsModal from "../../../ui/ProjectDetails/EditProjectDetailsModal";
 import DocumentSubmissionModal from "../../../ui/DocumentUpload";
 import { createPortal } from "react-dom";
-import { type UseQueryResult } from "@tanstack/react-query";
+import type { SimpleQueryResult } from "@features/trainee/types/SimplerQuery.types";
 
 export interface ProjectCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  query: UseQueryResult<Project>;
+  query: SimpleQueryResult<Project>;
 }
 
 const getProgressBadgeVariant = (
@@ -38,7 +38,7 @@ function ProjectCard({
   ref,
   ...props
 }: ProjectCardProps & { ref?: React.Ref<HTMLDivElement> }) {
-  const { data: project, status } = query;
+  const { data: project, isLoading, isError } = query;
   const [showStepper, setShowStepper] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTechStack, setEditingTechStack] = useState<string[]>([]);
@@ -90,7 +90,7 @@ function ProjectCard({
     }
   };
 
-  if (status === "pending") {
+  if (isLoading) {
     return (
       <Card.Card className={cn("flex justify-between gap-1", className)}>
         <div className="flex justify-between w-full p-6">
@@ -115,7 +115,7 @@ function ProjectCard({
     );
   }
 
-  if (status === "error") {
+  if (isError) {
     return (
       <Card.Card
         className={cn(
@@ -133,7 +133,20 @@ function ProjectCard({
     );
   }
 
-  if (!project) return null;
+  if (!project) {
+    return (
+      <Card.Card
+        className={cn(
+          "flex flex-col h-full items-center justify-center",
+          className,
+        )}
+      >
+        <Card.CardHeader className="text-center">
+          <Card.CardDescription>Project not assigned yet.</Card.CardDescription>
+        </Card.CardHeader>
+      </Card.Card>
+    );
+  }
 
   return (
     <>
@@ -279,6 +292,7 @@ function ProjectCard({
             initialFigmaUrl={editingFigmaUrl}
             saving={saving}
             saveError={saveError}
+            projectId={project.id.toString()}
           />,
           document.body,
         )}
