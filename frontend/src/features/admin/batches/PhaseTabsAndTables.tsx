@@ -87,29 +87,40 @@ const PhaseTabsAndTables: React.FC<PhaseTabsAndTablesProps> = ({
     "Scores",
   ];
 
+  // Check if specialization phase exists in available phases
+  // Only show specialization if:
+  // 1. availablePhases is provided and is an array
+  // 2. availablePhases has at least one item
+  // 3. One of the items matches specialization
+  const hasSpecializationPhase =
+    Array.isArray(availablePhases) &&
+    availablePhases.length > 0 &&
+    availablePhases.some((available) => {
+      if (!available || typeof available !== "string") return false;
+      const lowerPhase = available.toLowerCase();
+      return (
+        lowerPhase === "specialization" ||
+        lowerPhase === "spec" ||
+        lowerPhase.includes("specialization")
+      );
+    });
+
   // Filter phases based on availablePhases if provided
-  const phasesToShow =
-    availablePhases && availablePhases.length > 0
-      ? allPhases.filter((phase) => {
-          // Always show Trainees, Business Orientation, DU, and Scores
-          if (
-            phase === "Trainees" ||
-            phase === "Business Orientation" ||
-            phase === "DU" ||
-            phase === "Scores"
-          )
-            return true;
-          // Only check Specialization phase against availablePhases
-          if (phase === "Specialization") {
-            return availablePhases.some(
-              (available) =>
-                available.toLowerCase().includes("specialization") ||
-                available.toLowerCase().includes("spec"),
-            );
-          }
-          return true;
-        })
-      : allPhases; // If no availablePhases provided, show all
+  const phasesToShow = allPhases.filter((phase) => {
+    // Always show Trainees, Business Orientation, DU, and Scores
+    if (
+      phase === "Trainees" ||
+      phase === "Business Orientation" ||
+      phase === "DU" ||
+      phase === "Scores"
+    )
+      return true;
+    // Only show Specialization phase if it exists in availablePhases
+    if (phase === "Specialization") {
+      return hasSpecializationPhase;
+    }
+    return true;
+  });
 
   // Ensure activePhase is valid - if current phase is not in phasesToShow, switch to first available
   React.useEffect(() => {
@@ -222,73 +233,56 @@ const PhaseTabsAndTables: React.FC<PhaseTabsAndTablesProps> = ({
         />
       )}
 
-      {/* Specialization Table */}
-      {activePhase === "Specialization" &&
-        phasesToShow.includes("Specialization") && (
-          <DataTable
-            columns={[
-              {
-                key: "traineeName",
-                header: "Trainee Name",
-                sortable: true,
-                width: "30%",
-              },
-              {
-                key: "techStack",
-                header: "Tech Stack",
-                sortable: true,
-                width: "25%",
-              },
-              {
-                key: "project",
-                header: "Project Involved",
-                sortable: true,
-                width: "25%",
-              },
-              {
-                key: "action",
-                header: "Action",
-                width: "10%",
-                align: "center",
-                render: (_, row) => (
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    className="transition-transform transform hover:scale-110 hover:text-blue-600"
-                    onClick={() => handleEditRow(row, "Specialization")}
-                  >
-                    <Pencil size={18} />
-                  </ActionIcon>
-                ),
-              },
-            ]}
-            data={specializationData}
-            showHeaderSection
-            headerTitle="Specialization Phase"
-            enableSearch
-            enablePagination
-            pageSize={5}
-            highlightOnHover
-            withBorder
-            enableMultipleFilters
-            columnFilters={{
-              techStack: Array.from(
-                new Set(
-                  specializationData
-                    .map((item) => item.techStack)
-                    .filter((tech) => tech && tech.trim() !== ""),
-                ),
-              ).sort(),
-              project: Array.from(
-                new Set(
-                  specializationData
-                    .map((item) => item.project)
-                    .filter((proj) => proj && proj.trim() !== ""),
-                ),
-              ).sort(),
-            }}
-          />
-        )}
+      {/* Specialization Table - Only shown if specialization phase exists for this batch */}
+      {activePhase === "Specialization" && hasSpecializationPhase && (
+        <DataTable
+          columns={[
+            {
+              key: "traineeName",
+              header: "Trainee Name",
+              sortable: true,
+              width: "35%",
+            },
+            {
+              key: "techStack",
+              header: "Tech Stack",
+              sortable: true,
+              width: "30%",
+            },
+            {
+              key: "project",
+              header: "Project Involved",
+              sortable: true,
+              width: "35%",
+            },
+          ]}
+          data={specializationData}
+          showHeaderSection
+          headerTitle="Specialization Phase"
+          enableSearch
+          enablePagination
+          pageSize={5}
+          highlightOnHover
+          withBorder
+          enableMultipleFilters
+          columnFilters={{
+            techStack: Array.from(
+              new Set(
+                specializationData
+                  .map((item) => item.techStack)
+                  .filter((tech) => tech && tech.trim() !== ""),
+              ),
+            ).sort(),
+            project: Array.from(
+              new Set(
+                specializationData
+                  .map((item) => item.project)
+                  .filter((proj) => proj && proj.trim() !== ""),
+              ),
+            ).sort(),
+          }}
+        />
+      )}
 
       {/* Business Orientation Table */}
       {activePhase === "Business Orientation" && (
