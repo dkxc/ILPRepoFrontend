@@ -46,7 +46,7 @@ function SubmissionRate({
 
   if (loading) {
     return (
-      <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full">
+      <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full shadow-sm">
         {showTitle && (
           <div className="h-6 bg-gray-200 rounded mb-3 w-32 animate-pulse"></div>
         )}
@@ -61,7 +61,7 @@ function SubmissionRate({
   }
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full">
+    <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full shadow-sm">
       {showTitle && (
         <h3 className="text-base font-bold mb-3 text-[#565E6C]">
           {rateData.title}

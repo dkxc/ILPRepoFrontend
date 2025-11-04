@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Button from "../Button";
 import { SquarePen, Plus, X, ChartBarStacked } from "lucide-react";
+import { toast } from "sonner";
 import { getTechStack, updateTechStack } from "./api";
 
 interface TechStackProps {
@@ -58,12 +59,14 @@ function TechStack({ techStack, canEdit = false, projectId }: TechStackProps) {
       if (success) {
         setCurrentTechStack(editTechStackArr);
         setIsEditing(false);
+        toast.success("Tech stack updated successfully!");
       } else {
+        toast.error("Failed to update tech stack");
         throw new Error("Failed to update tech stack");
       }
     } catch (err: any) {
       console.error("Tech stack update error:", err);
-      setSaveError(err?.message || "Failed to save changes");
+      toast.error(err?.message || "Failed to save tech stack changes");
     } finally {
       setSaving(false);
     }
@@ -72,7 +75,7 @@ function TechStack({ techStack, canEdit = false, projectId }: TechStackProps) {
   if (loading) {
     return (
       <div
-        className="bg-white px-4 py-2 rounded-lg border border-[#F8F9FA] flex flex-col"
+        className="bg-white px-4 py-2 rounded-lg border border-[#F8F9FA] flex flex-col shadow-sm"
         style={{ minHeight: "80px", maxHeight: "110px" }}
       >
         <div className="flex items-center justify-between mb-3">
@@ -94,7 +97,7 @@ function TechStack({ techStack, canEdit = false, projectId }: TechStackProps) {
   return (
     <>
       <div
-        className="bg-white px-4 py-2 rounded-lg border border-[#F8F9FA] flex flex-col"
+        className="bg-white px-4 py-2 rounded-lg border border-[#F8F9FA] flex flex-col shadow-sm"
         style={{ minHeight: "80px", maxHeight: "110px" }}
       >
         <div className="flex items-center justify-between mb-3">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FolderPen, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import {
   getBatchMetadata,
   type BatchMetadata as BatchMetadataType,
@@ -78,18 +78,6 @@ function BatchMetadata({
           </h1>
           <span className="px-3 py-1 rounded-full bg-brand text-white text-xs font-semibold shadow-sm select-none border border-blue-200 whitespace-nowrap">
             {metadata.status}
-          </span>
-        </div>
-        <div className="flex items-center gap-4 min-w-[250px]">
-          <FolderPen
-            className="h-5 w-5 flex-shrink-0"
-            style={{ color: "#7B7575" }}
-          />
-          <span className="font-bold text-gray-700 whitespace-nowrap">
-            Batch:
-          </span>
-          <span className="text-gray-800 text-base font-medium truncate">
-            {metadata.name}
           </span>
         </div>
         <div className="flex items-center gap-4 min-w-[180px]">

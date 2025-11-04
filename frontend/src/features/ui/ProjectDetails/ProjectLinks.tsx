@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Button from "../Button";
 import { SquarePen, Copy, Link2 } from "lucide-react";
+import { toast } from "sonner";
 import { getAllProjectLinks, updateProjectLink } from "./api";
 import type { ProjectLink } from "./api";
 
@@ -79,16 +80,18 @@ function ProjectLinks({ canEdit = false, projectId }: ProjectLinksProps) {
         setEditLinkUrl("");
         setCurrentPage(1); // Reset to first page after edit
         console.log("Frontend: UI updated successfully");
+        toast.success("Project link updated successfully!");
       } else {
         console.error("Frontend: API returned false, update failed");
         const errorMessage =
           result.message ||
           "Failed to update project link - API returned false";
+        toast.error(errorMessage);
         throw new Error(errorMessage);
       }
     } catch (err: any) {
       console.error("Frontend: Project link update error:", err);
-      setSaveError(err?.message || "Failed to save changes");
+      toast.error(err?.message || "Failed to save link changes");
     } finally {
       setSaving(false);
     }

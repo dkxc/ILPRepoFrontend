@@ -114,7 +114,7 @@ export default function TeamList({
 
   if (loading) {
     return (
-      <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto animate-pulse">
+      <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto animate-pulse shadow-sm">
         {showTitle && <div className="h-6 bg-gray-300 rounded w-32 mb-6"></div>}
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -126,7 +126,7 @@ export default function TeamList({
   }
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto">
+    <div className="bg-white p-4 md:p-6 rounded-lg mt-4 w-full overflow-x-auto shadow-sm">
       {showTitle && (
         <h2 className="text-base font-semibold mb-6 text-[#565E6C]">{title}</h2>
       )}
