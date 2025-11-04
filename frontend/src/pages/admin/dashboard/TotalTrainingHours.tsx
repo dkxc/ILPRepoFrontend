@@ -67,12 +67,12 @@ function CalendarGrid({
               }}
               type="button"
               className={`h-10 w-10 rounded-md flex items-center justify-center ${d === null
-                  ? "invisible"
-                  : isSunday
-                    ? "bg-white text-gray-400"
-                    : isHoliday
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800 hover:bg-green-200"
+                ? "invisible"
+                : isSunday
+                  ? "bg-white text-gray-400"
+                  : isHoliday
+                    ? "bg-red-100 text-red-800"
+                    : "bg-green-100 text-green-800 hover:bg-green-200"
                 }`}
             >
               {d}
@@ -175,22 +175,27 @@ export default function TotalTrainingHours() {
     setBatchTypes(data);
   };
 
-  const fetchReport = async () => {
-    const params = new URLSearchParams({
-      startDate: from,
-      endDate: to,
-    });
+const fetchReport = async () => {
+  const params = new URLSearchParams({
+    startDate: from,
+    endDate: to,
+  });
 
-    if (batchTypeId) params.append("batchTypeId", batchTypeId);
+  // Only send batchTypeId if not 0 (All)
+  if (batchTypeId !== "0" && batchTypeId !== "") {
+    params.append("batchTypeId", batchTypeId);
+  }
 
-    const res = await fetch(
-      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
-    );
-    const data = await res.json();
+  const res = await fetch(
+    `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
+  );
 
-    setTotalHours(data.totalHours || 0);
-    setRows(data.batchDetails || []);
-  };
+  const data = await res.json();
+
+  setTotalHours(data.totalHours || 0);
+  setRows(data.batchDetails || []);
+};
+
 
   useEffect(() => {
     fetchBatchTypes();
@@ -243,10 +248,10 @@ export default function TotalTrainingHours() {
                     onChange={(e) => setBatchTypeId(e.target.value)}
                     className="border px-3 py-2 rounded"
                   >
+                    {/* <option value="0">All Batch Types</option> */}
 
-                    <option value=""></option>
-                    {batchTypes.map(bt => (
-                      <option key={bt.id} value={bt.batchTypeId}>
+                    {batchTypes.map((bt: any) => (
+                      <option key={bt.id} value={bt.id}>
                         {bt.name}
                       </option>
                     ))}
@@ -268,7 +273,7 @@ export default function TotalTrainingHours() {
               {/* TABLE */}
               <div className="rounded border overflow-hidden">
                 <div className="grid grid-cols-4 bg-gray-50 px-4 py-3 text-sm font-medium">
-                  <div>Name</div>
+                  <div>Batch Name</div>
                   <div className="text-center">Batch Type</div>
                   <div>Hours</div>
                   <div>Days</div>
