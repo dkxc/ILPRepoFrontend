@@ -25,12 +25,28 @@ import {
   exportTemplateXLSX,
   parseAttendanceFile,
 } from "../components/AttendanceImportSlideout/utils/AttendanceImportSlideout.utils";
+import { useBatchesQuery } from "./useBatchQuery";
 
 const now = today(getLocalTimeZone());
 const MAX_DATE_RANGE_DAYS = 90;
 
-export function useAttendance(batchId: number) {
+export function useAttendance() {
   // state is managed inside this hook
+  // get batch
+  const [selectedBatchId, setSelectedBatchId] = useState<number | null>(null);
+  const {
+    data: batches = [],
+    status: batchesQueryStatus,
+    error: batchesQueryError,
+  } = useBatchesQuery();
+
+  useEffect(() => {
+    if (batches.length > 0 && !selectedBatchId) {
+      setSelectedBatchId(batches[0].id);
+    }
+  }, [batches, selectedBatchId]);
+
+  // other states
   const [dateValue, setDateValue] = useState<{
     start: DateValue;
     end: DateValue;
@@ -56,7 +72,7 @@ export function useAttendance(batchId: number) {
     data: attendanceData,
     status: queryStatus,
     error: queryError,
-  } = useAttendanceQuery(batchId, filters);
+  } = useAttendanceQuery(selectedBatchId, filters);
   const updateMutation = useUpdateAttendanceMutation();
   const uploadMutation = useUploadAttendanceMutation();
 
@@ -81,10 +97,7 @@ export function useAttendance(batchId: number) {
       setImportOpen(false);
     }
     if (uploadMutation.isError) {
-      const cause = uploadMutation.error?.cause as any;
-      const errorMessage =
-        cause?.message || "Import failed. Please check the file and try again.";
-      toast.error(`Import failed: ${errorMessage}`);
+      toast.error(`Import failed: ${uploadMutation.error.message}`);
     }
   }, [
     uploadMutation.isSuccess,
@@ -200,7 +213,7 @@ export function useAttendance(batchId: number) {
           ? (attendanceData?.map((p) => p.traineeId) ?? [])
           : Array.from(selectedKeys);
       updateMutation.mutate({
-        batchId: 12345,
+        batchId: selectedBatchId,
         data: {
           traineeIds: traineeIdsToUpdate as number[],
           startDate: dateValue.start.toString(),
@@ -249,7 +262,7 @@ export function useAttendance(batchId: number) {
         toast.error("The selected file is empty or contains no valid data.");
         return;
       }
-      uploadMutation.mutate({ batchId, data: parsedData });
+      uploadMutation.mutate({ batchId: selectedBatchId, data: parsedData });
     } catch (error: any) {
       toast.error(`File parsing failed: ${error.message}`);
     }
@@ -260,6 +273,7 @@ export function useAttendance(batchId: number) {
       dateValue,
       sortDescriptor,
       selectedKeys,
+      selectedBatchId,
       isImportOpen,
       isRangeTooLarge,
       isMultiDateRange,
@@ -267,11 +281,15 @@ export function useAttendance(batchId: number) {
       isUploading: uploadMutation.isPending,
       queryStatus,
       queryError,
+      batches,
+      batchesQueryStatus,
+      batchesQueryError,
     },
     handlers: {
       onDateChange,
       onSortChange: setSortDescriptor,
       onSelectionChange: setSelectedKeys,
+      onBatchChange: setSelectedBatchId,
       onBulkUpdate,
       onRenderAnyway,
       onExport,

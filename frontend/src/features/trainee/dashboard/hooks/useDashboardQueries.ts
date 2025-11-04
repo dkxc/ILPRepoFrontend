@@ -1,72 +1,88 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ApiBatch, Batch } from "../../types/Batch.types";
-import type { ApiSession, Session } from "../../types/Session.types";
-import type {
-  TraineeDocument,
-  ApiTraineeDocument,
-} from "../../types/TraineeDocument.types";
+import type { ApiBatch } from "../../types/Batch.types";
+import type { ApiSession } from "../../types/Session.types";
+import type { ApiTraineeDocument } from "../../types/TraineeDocument.types";
 import type { ProfileData } from "@features/trainee/types/Profile.types";
 import type { Project } from "@features/trainee/types/Project.types";
 import type { Scores } from "@features/trainee/types/scores/Score.types";
+import ApiService from "../../../../services/apiService";
+
+interface DashboardApiResponse {
+  profile: ProfileData;
+  project: Project;
+  batch: ApiBatch;
+  scores: Scores;
+  sessions: ApiSession[];
+  documents: ApiTraineeDocument[];
+}
 
 export function useDashboardData() {
-  const profileQuery = useQuery<ProfileData>({
-    queryKey: ["/api/profile"],
+  const { data, isLoading, isError, error } = useQuery<DashboardApiResponse>({
+    queryKey: ["dashboardData"],
+    queryFn: () => ApiService.get("/profile"),
   });
 
-  const projectId = profileQuery.data?.projectId;
-  const batchId = profileQuery.data?.batchId;
+  // Transform the single query's data into the structure expected by the components
+  const profileData = {
+    data: data?.profile,
+    isLoading,
+    isError,
+    error,
+  };
 
-  // the following queries are dependent on the profile query.
-  // they will only run when `projectId` and `batchId` are available.
-  const projectQuery = useQuery<Project>({
-    queryKey: [`/api/project/${projectId}`],
-    enabled: !!projectId,
-  });
+  const projectData = {
+    data: data?.project,
+    isLoading,
+    isError,
+    error,
+  };
 
-  const batchQuery = useQuery<ApiBatch, Error, Batch>({
-    queryKey: [`/api/batch/${batchId}`],
-    enabled: !!batchId,
-    select: (batchData) => ({
-      ...batchData,
-      startDate: new Date(batchData.startDate),
-      endDate: new Date(batchData.endDate),
-    }),
-  });
+  const batchData = {
+    data: data?.batch
+      ? {
+          ...data.batch,
+          startDate: new Date(data.batch.startDate),
+          endDate: new Date(data.batch.endDate),
+        }
+      : undefined,
+    isLoading,
+    isError,
+    error,
+  };
 
-  const documentsQuery = useQuery<
-    ApiTraineeDocument[],
-    Error,
-    TraineeDocument[]
-  >({
-    queryKey: ["/api/documents"],
-    select: (data) =>
-      data.map((doc) => ({
-        ...doc,
-        uploadDate: new Date(doc.uploadDate),
-      })),
-  });
+  const sessionsData = {
+    data: data?.sessions?.map((session) => ({
+      ...session,
+      date: new Date(session.date),
+    })),
+    isLoading,
+    isError,
+    error,
+  };
 
-  const sessionsQuery = useQuery<ApiSession[], Error, Session[]>({
-    queryKey: [`/api/batch/${batchId}/sessions`],
-    enabled: !!batchId,
-    select: (sessionsData: ApiSession[]) =>
-      sessionsData.map((session: ApiSession) => ({
-        ...session,
-        date: new Date(session.date),
-      })),
-  });
+  const documentsData = {
+    data: data?.documents?.map((doc) => ({
+      ...doc,
+      uploadDate: new Date(doc.uploadDate),
+    })),
+    isLoading,
+    isError,
+    error,
+  };
 
-  const scoresQuery = useQuery<Scores>({
-    queryKey: ["/api/scores"],
-  });
+  const scoresData = {
+    data: data?.scores,
+    isLoading,
+    isError,
+    error,
+  };
 
   return {
-    profileQuery,
-    projectQuery,
-    batchQuery,
-    sessionsQuery,
-    documentsQuery,
-    scoresQuery,
+    profileQuery: profileData,
+    projectQuery: projectData,
+    batchQuery: batchData,
+    sessionsQuery: sessionsData,
+    documentsQuery: documentsData,
+    scoresQuery: scoresData,
   };
 }

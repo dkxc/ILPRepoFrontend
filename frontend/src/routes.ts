@@ -2,6 +2,7 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
   route("login", "./LoginPage.tsx"),
+  route("forgot-password", "./SignUp.tsx"),
   route("/", "./App.tsx", [
     route("signout", "./LogOut.tsx"),
     index("./pages/trainee/Dashboard/Dashboard.tsx"),
@@ -12,7 +13,7 @@ export default [
     route("batches", "./pages/admin/Batches.tsx"),
     route("batches/:id", "./pages/admin/BatchDetailsPage.tsx"),
     route("batchDetails/:id", "./pages/admin/TraineeProfile.tsx"),
-    route("upload-trainee-data", "./pages/admin/UploadTraineeDataPage.tsx"),
+    route("upload-trainee-data/:id", "./pages/admin/UploadTraineeDataPage.tsx"),
     route("upload-project-data", "./pages/admin/CreateProjectByBatch.tsx"),
     route("traineeSettings", "./pages/trainee/TraineeSettings.tsx"),
     route("curriculum", "./pages/trainee/Curriculum.tsx"),

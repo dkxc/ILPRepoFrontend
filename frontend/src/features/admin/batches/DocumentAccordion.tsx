@@ -1551,7 +1551,7 @@ export default function DocumentUpload({
 
       {/* Add Link Type Modal */}
       {showAddLinkTypeModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Add New Link Type</h2>
             <div className="mb-4">
@@ -1595,7 +1595,7 @@ export default function DocumentUpload({
 
       {/* Add Document Type Modal */}
       {showAddDocumentTypeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">
               Add New Document Type
@@ -1670,7 +1670,7 @@ export default function DocumentUpload({
 
       {/* Edit Document Types Modal */}
       {showEditDocumentTypesModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl max-h-[75vh] overflow-hidden">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Manage Document Types</h3>
@@ -1861,7 +1861,7 @@ export default function DocumentUpload({
 
       {/* Add Document Modal */}
       {showAddDocumentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h3 className="text-lg font-semibold mb-4">
               Add Document Requirement
