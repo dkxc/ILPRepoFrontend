@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { notifications } from "@mantine/notifications";
+import { toast } from "sonner";
 
 // Utility function to format date to dd-mm-yyyy
 const formatDateToDDMMYYYY = (dateString: string): string => {
@@ -558,11 +559,7 @@ export default function DocumentUpload({
     );
     if (!selectedLinkTypeId || !batchId) {
       console.log("Save blocked - missing selectedLinkTypeId or batchId");
-      notifications.show({
-        title: "Error",
-        message: "Please select a link type and ensure batch ID is available.",
-        color: "red",
-      });
+      toast.error("Please select a link type and ensure batch ID is available.");
       return;
     }
 
@@ -594,18 +591,10 @@ export default function DocumentUpload({
         }
         setShowAddLinkRecord(false);
         setSelectedLinkTypeId(null);
-        notifications.show({
-          title: "Success",
-          message: `Link type assigned to batch successfully`,
-          color: "green",
-        });
+        toast.success("Link type assigned to batch successfully");
       } else {
         console.log("API call succeeded but response.data.succeeded is false");
-        notifications.show({
-          title: "Error",
-          message: response.data?.message || "Failed to assign link type.",
-          color: "red",
-        });
+        toast.error(response.data?.message || "Failed to assign link type.");
       }
     } catch (err) {
       console.error("API call failed with error:", err);
@@ -613,11 +602,7 @@ export default function DocumentUpload({
         console.log("Error response:", err.response?.data);
         console.log("Error status:", err.response?.status);
       }
-      notifications.show({
-        title: "Error",
-        message: `Failed to assign link type. ${err instanceof Error ? err.message : "Unknown error"}`,
-        color: "red",
-      });
+      toast.error(`Failed to assign link type. ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -640,24 +625,12 @@ export default function DocumentUpload({
           setLinkTypes([...linkTypes, newLinkType]);
           setNewLinkTypeName("");
           setShowAddLinkTypeModal(false);
-          notifications.show({
-            title: "Success",
-            message: `Link type "${newLinkTypeName}" added successfully`,
-            color: "green",
-          });
+          toast.success(`Link type "${newLinkTypeName}" added successfully`);
         } else {
-          notifications.show({
-            title: "Error",
-            message: response.data?.message || "Failed to add link type.",
-            color: "red",
-          });
+          toast.error(response.data?.message || "Failed to add link type.");
         }
       } catch (err) {
-        notifications.show({
-          title: "Error",
-          message: "Failed to add link type.",
-          color: "red",
-        });
+        toast.error("Failed to add link type.");
       }
     }
   };
@@ -702,11 +675,7 @@ export default function DocumentUpload({
   // Document type management functions
   const handleAddDocumentType = async () => {
     if (!newDocumentTypeName.trim()) {
-      notifications.show({
-        title: "Error",
-        message: "Document type name is required",
-        color: "red",
-      });
+      toast.error("Document type name is required");
       return;
     }
 
@@ -736,25 +705,13 @@ export default function DocumentUpload({
         setNewDocumentTypeTemplate(null);
         setShowAddDocumentTypeModal(false);
 
-        notifications.show({
-          title: "Success",
-          message: `Document type "${newDocumentType.name}" added successfully`,
-          color: "green",
-        });
+        toast.success(`Document type "${newDocumentType.name}" added successfully`);
       } else {
-        notifications.show({
-          title: "Error",
-          message: "Failed to create document type",
-          color: "red",
-        });
+        toast.error("Failed to create document type");
       }
     } catch (error) {
       console.error("Error creating document type:", error);
-      notifications.show({
-        title: "Error",
-        message: "Failed to create document type. Please try again.",
-        color: "red",
-      });
+      toast.error("Failed to create document type. Please try again.");
     } finally {
       setIsAddingDocumentType(false);
     }
@@ -1052,19 +1009,11 @@ export default function DocumentUpload({
           setShowAddDocumentModal(false);
           setSelectedDocumentTypeId(null);
           setSelectedDeadline("");
-          notifications.show({
-            title: "Success",
-            message: "Document requirement added successfully",
-            color: "green",
-          });
+          toast.success("Document requirement added successfully");
         }
       } catch (error) {
         console.error("Error creating document requirement:", error);
-        notifications.show({
-          title: "Error",
-          message: "Failed to add document requirement",
-          color: "red",
-        });
+        toast.error("Failed to add document requirement");
       } finally {
         setIsSubmitting(false);
       }
@@ -1776,15 +1725,6 @@ export default function DocumentUpload({
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                              onClick={() =>
-                                handleDeleteDocumentType(docType.id)
-                              }
-                              title="Delete"
-                            >
-                              <Trash2 className="h-4 w-4" />
                             </button>
                           </>
                         )}
