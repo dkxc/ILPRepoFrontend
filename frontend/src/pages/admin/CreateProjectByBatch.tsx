@@ -969,7 +969,7 @@ export default function CreateProjectByBatch({
     <div>
       <div className="mt-4 sm:mt-6 md:mt-10 ml-4 sm:ml-6 md:ml-10 bg">
         <h1 className="text-[#565E6C] text-xl sm:text-2xl font-bold pb-4 font-primary">
-          Create Projects - {currentBatchName}
+          Create Projects {batchName}
         </h1>
 
         {(validationErrors.length > 0 || apiError) && (
