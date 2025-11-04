@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import experionLogo from "./assets/experionlogo.svg";
 import { useAuth } from "./context/AuthContext";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, Link } from "react-router";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -75,9 +75,7 @@ const LoginPage = () => {
             width={140}
             className="mb-2"
           />
-          <p className="text-sm text-gray-500 font-medium">
-            ILP Repository Portal
-          </p>
+          <p className="text-sm text-gray-500 font-medium">ILP Repo</p>
         </div>
 
         <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
@@ -134,9 +132,28 @@ const LoginPage = () => {
                 />
               </svg>
             ) : (
-              "Sign In"
+              "Log in"
             )}
           </button>
+
+          {/* ✅ NEW: Forgot Password Link */}
+          <div className="text-center">
+            <>
+              <Link
+                to="/forgot-password"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Forgot Password?
+              </Link>
+              <div className="ml-2"></div>
+              <Link
+                to="/forgot-password"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Sign Up
+              </Link>
+            </>
+          </div>
         </form>
       </div>
     </div>
