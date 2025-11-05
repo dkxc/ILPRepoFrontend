@@ -104,7 +104,7 @@ export interface NotificationData {
 
 // Base API configuration
 const api = axios.create({
-  baseURL: "https://localhost:7224/api",
+  baseURL: "https://ilprepo.runasp.net/api",
   timeout: 10000,
 });
 
@@ -436,7 +436,7 @@ export const getBatchLinks = async (
 ): Promise<BatchLinkType[] | null> => {
   try {
     const response = await axios.get<BatchLinksResponse>(
-      `https://localhost:7224/api/Links/batch/${batchId}`,
+      `https://ilprepo.runasp.net/api/Links/batch/${batchId}`,
     );
 
     if (response.data.succeeded && response.data.data) {
@@ -497,7 +497,7 @@ export const getBatchDocuments = async (
 ): Promise<BatchDocumentType[] | null> => {
   try {
     const response = await axios.get<BatchDocumentsResponse>(
-      `https://localhost:7224/api/Documents/batch/${batchId}`,
+      `https://ilprepo.runasp.net/api/Documents/batch/${batchId}`,
     );
 
     console.log("Batch Documents Response:", response.data);
@@ -518,7 +518,7 @@ export const getDocumentRequirements = async (
 ): Promise<DocumentRequirementType[] | null> => {
   try {
     const response = await axios.get<DocumentRequirementsResponse>(
-      `https://localhost:7224/api/DocumentRequirements/batch/${batchId}`,
+      `https://ilprepo.runasp.net/api/DocumentRequirements/batch/${batchId}`,
     );
 
     console.log("Document Requirements Response:", response.data);
@@ -539,7 +539,7 @@ export const getDocumentRequirementsByProject = async (
 ): Promise<DocumentRequirementType[] | null> => {
   try {
     const response = await axios.get<DocumentRequirementsResponse>(
-      `https://localhost:7224/api/DocumentRequirements/project/${projectId}`,
+      `https://ilprepo.runasp.net/api/DocumentRequirements/project/${projectId}`,
     );
 
     console.log("Document Requirements by Project Response:", response.data);
@@ -566,7 +566,7 @@ export const createDocumentRequirement = async (
 ): Promise<any> => {
   try {
     const response = await axios.post(
-      "https://localhost:7224/api/DocumentRequirements",
+      "https://ilprepo.runasp.net/api/DocumentRequirements",
       requirementData,
     );
 
@@ -591,7 +591,7 @@ export const deleteDocumentRequirement = async (
 ): Promise<DeleteDocumentRequirementResponse | null> => {
   try {
     const response = await axios.delete(
-      `https://localhost:7224/api/DocumentRequirements?documentTypeId=${documentTypeId}&batchId=${batchId}`,
+      `https://ilprepo.runasp.net/api/DocumentRequirements?documentTypeId=${documentTypeId}&batchId=${batchId}`,
     );
 
     console.log("Delete Document Requirement Response:", response.data);
@@ -610,11 +610,11 @@ export const downloadDocumentTemplate = async (
       `Attempting to download template for documentTypeId: ${documentTypeId}`,
     );
     console.log(
-      `API URL: https://localhost:7224/api/Documents/template/${documentTypeId}`,
+      `API URL: https://ilprepo.runasp.net/api/Documents/template/${documentTypeId}`,
     );
 
     const response = await axios.get(
-      `https://localhost:7224/api/Documents/template/${documentTypeId}`,
+      `https://ilprepo.runasp.net/api/Documents/template/${documentTypeId}`,
       {
         responseType: "blob", // Important for file downloads
       },
@@ -684,7 +684,7 @@ export interface DocumentTypesResponse {
 export const getDocumentTypes = async (): Promise<DocumentType[] | null> => {
   try {
     const response = await axios.get<DocumentTypesResponse>(
-      `https://localhost:7224/api/Documents`,
+      `https://ilprepo.runasp.net/api/Documents`,
     );
 
     if (response.data.succeeded && response.data.data) {
@@ -749,7 +749,7 @@ export const createDocumentType = async (
     console.log("Making API call without manual Content-Type header...");
 
     const response = await axios.post<CreateDocumentTypeResponse>(
-      `https://localhost:7224/api/Documents`,
+      `https://ilprepo.runasp.net/api/Documents`,
       formData,
       // Let axios automatically set headers for FormData
     );
@@ -819,7 +819,7 @@ export const updateDocumentType = async (
     }
 
     const response = await axios.put<UpdateDocumentTypeResponse>(
-      `https://localhost:7224/api/Documents/${id}`,
+      `https://ilprepo.runasp.net/api/Documents/${id}`,
       formData,
     );
 
@@ -983,7 +983,7 @@ export const getSubmittedDocuments = async (
 ): Promise<UploadedDocument[] | null> => {
   try {
     const response = await axios.get<SubmittedDocumentsResponse>(
-      `https://localhost:7224/api/submitted-documents/project/${projectId}`,
+      `https://ilprepo.runasp.net/api/submitted-documents/project/${projectId}`,
     );
 
     console.log("Submitted Documents Response:", response.data);
@@ -1082,7 +1082,7 @@ export const submitDocument = async (
 
     console.log(
       "Making API request to:",
-      "https://localhost:7224/api/submitted-documents/submit",
+      "https://ilprepo.runasp.net/api/submitted-documents/submit",
     );
     console.log("FormData contents:");
     for (let [key, value] of formData.entries()) {
@@ -1285,7 +1285,7 @@ export const updateProjectLink = async (
     );
     console.log(
       "API: Full request URL:",
-      `https://localhost:7224/api/Projects/${projectId}/links`,
+      `https://ilprepo.runasp.net/api/Projects/${projectId}/links`,
     );
     console.log("API: Request body:", { linkId, linkUrl });
 

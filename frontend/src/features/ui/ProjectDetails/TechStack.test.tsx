@@ -200,7 +200,7 @@ describe("TechStack", () => {
       await userEvent.click(saveButton);
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://localhost:7153/api/ProjectDetails/edit-techstack",
+        "https://ilprepo.runasp.net/api/ProjectDetails/edit-techstack",
         expect.objectContaining({
           method: "POST",
           headers: { "Content-Type": "application/json" },

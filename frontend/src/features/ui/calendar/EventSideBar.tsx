@@ -11,7 +11,7 @@ import {
   X,
   Calendar,
 } from "lucide-react";
-import type { CurriculumEvent, ColorKey } from "./types";
+import type { CurriculumEvent } from "./types";
 import { colorClasses } from "./CalendarUtils";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 // components/EventSidebar.tsx (Updated with reschedule option and empty placeholders)

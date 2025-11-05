@@ -15,7 +15,9 @@ interface DashboardSummaryData {
 
 // Define a function to fetch data
 const fetchDashboardSummary = async (): Promise<DashboardSummaryData> => {
-  const res = await fetch("https://localhost:7224/api/AdminDashboard/summary");
+  const res = await fetch(
+    "https://ilprepo.runasp.net/api/AdminDashboard/summary",
+  );
   if (!res.ok) {
     throw new Error("Failed to fetch dashboard summary");
   }
@@ -41,7 +43,7 @@ function Dashboard() {
     });
 
     const res = await fetch(
-      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`,
+      `https://ilprepo.runasp.net/api/AdminDashboard/training-hours-report?${params}`,
     );
 
     if (!res.ok) throw new Error("Failed to fetch total training hours");

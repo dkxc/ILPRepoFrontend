@@ -3,7 +3,7 @@ import type { AxiosInstance, AxiosResponse } from "axios";
 
 // Base API client configuration
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://localhost:7224/api";
+  import.meta.env.VITE_API_BASE_URL || "https://ilprepo.runasp.net/api";
 
 export interface ApiResponse<T> {
   succeeded: boolean;
@@ -56,7 +56,7 @@ class ApiClient {
           if (error.message === "Network Error") {
             errorMessage =
               "Cannot connect to backend server. Please ensure:\n" +
-              "1. Backend is running on http://localhost:5103\n" +
+              "1. Backend is running on http://ilprepo.runasp.net\n" +
               "2. CORS is enabled in backend\n" +
               "3. Check browser console for details";
           } else if (error.code === "ERR_NETWORK") {

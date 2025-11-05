@@ -1,5 +1,4 @@
 import { type Batch } from "../../../types/Batch.types";
-import { type UseQueryResult } from "@tanstack/react-query";
 
 import { GenericErrorCard } from "@ui/card/GenericErrorCard";
 

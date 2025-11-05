@@ -65,7 +65,6 @@ import {
   updateDocumentType,
   createDocumentRequirement,
   deleteDocumentRequirement,
-  downloadDocumentTemplate,
   type BatchLinkType,
   type DocumentRequirementType,
   type DocumentType,
@@ -284,7 +283,7 @@ export default function DocumentUpload({
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
   const [isLoadingLinks, setIsLoadingLinks] = useState(true);
   const [isLoadingDocumentTypes, setIsLoadingDocumentTypes] = useState(true);
-  const [isLoadingLinkTypes, setIsLoadingLinkTypes] = useState(true);
+  const [_isLoadingLinkTypes, setIsLoadingLinkTypes] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // (defaultLinkTypes removed, not used)
@@ -315,7 +314,7 @@ export default function DocumentUpload({
       setIsLoadingLinkTypes(true);
       try {
         const response = await axios.get(
-          "https://localhost:7224/api/Links/types",
+          "https://ilprepo.runasp.net/api/Links/types",
         );
         if (
           response.data &&
@@ -376,7 +375,7 @@ export default function DocumentUpload({
     const cleanLink = link.startsWith("/") ? link.substring(1) : link;
 
     // Construct full URL with base API URL for relative paths
-    return `https://localhost:7224/${cleanLink}`;
+    return `https://ilprepo.runasp.net/${cleanLink}`;
   };
 
   // Helper function to fetch document types
@@ -568,7 +567,7 @@ export default function DocumentUpload({
 
     setIsSubmitting(true);
     try {
-      const url = "https://localhost:7224/api/Links/assign-to-batch";
+      const url = "https://ilprepo.runasp.net/api/Links/assign-to-batch";
       const payload = {
         batchId: Number(batchId),
         linkTypeId: selectedLinkTypeId,
@@ -627,7 +626,7 @@ export default function DocumentUpload({
     if (newLinkTypeName.trim()) {
       try {
         const response = await axios.post(
-          "https://localhost:7224/api/Links/types",
+          "https://ilprepo.runasp.net/api/Links/types",
           {
             name: newLinkTypeName.trim(),
           },

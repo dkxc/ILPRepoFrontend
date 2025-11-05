@@ -9,7 +9,6 @@ import type { TeamMember } from "./TeamList";
 import SendNotificationModal from "./SendNotification";
 import {
   getSubmittedDocuments,
-  getDocumentRequirements,
   getDocumentRequirementsByProject,
   type DocumentRequirementType,
 } from "./api";

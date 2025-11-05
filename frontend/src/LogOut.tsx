@@ -1,7 +1,5 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import LoginPage from "./LoginPage";
-import { LogIn } from "lucide-react";
 
 export default function LogOut() {
   const navigate = useNavigate();

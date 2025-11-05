@@ -21,7 +21,7 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        "https://localhost:7224/api/Auth/login",
+        "https://ilprepo.runasp.net/api/Auth/login",
         {
           email,
           password,

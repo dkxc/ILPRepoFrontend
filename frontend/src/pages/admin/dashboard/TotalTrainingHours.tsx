@@ -2,7 +2,6 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import Card from "../../../features/ui/card/Card";
 import CardContent from "../../../features/ui/card/CardContent";
 import CardHeader from "../../../features/ui/card/CardHeader";
-import BatchSelect from "../../../features/admin/dashboard/BatchSelect";
 
 /* ----------------- CALENDAR COMPONENT (UNCHANGED) ------------------- */
 
@@ -170,7 +169,7 @@ export default function TotalTrainingHours() {
 
   const fetchBatchTypes = async () => {
     const res = await fetch(
-      "https://localhost:7224/api/AdminDashboard/batch-types",
+      "https://ilprepo.runasp.net/api/AdminDashboard/batch-types",
     );
     const data = await res.json();
     setBatchTypes(data);
@@ -180,7 +179,7 @@ export default function TotalTrainingHours() {
   };
   const fetchBatches = async () => {
     const res = await fetch(
-      "https://localhost:7224/api/AdminDashboard/batches",
+      "https://ilprepo.runasp.net/api/AdminDashboard/batches",
     );
     const data = await res.json();
     setBatches(data);
@@ -209,7 +208,7 @@ export default function TotalTrainingHours() {
     };
 
     const res = await fetch(
-      "https://localhost:7224/api/AdminDashboard/update-training-hours",
+      "https://ilprepo.runasp.net/api/AdminDashboard/update-training-hours",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -240,7 +239,7 @@ export default function TotalTrainingHours() {
     }
 
     const res = await fetch(
-      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`,
+      `https://ilprepo.runasp.net/api/AdminDashboard/training-hours-report?${params}`,
     );
 
     const data = await res.json();

@@ -9,7 +9,6 @@ import {
   LogOut,
   Moon,
   Sun,
-  UserRoundCog,
   Settings,
   CheckCircle,
   XCircle,
@@ -22,7 +21,7 @@ import HeaderBar from "./features/ui/header/HeaderBar";
 import HeaderItem from "./features/ui/header/HeaderItem";
 import SearchBar from "./features/ui/header/search/SearchBar";
 
-import { useState, Suspense } from "react";
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 
 import { cn } from "./lib/utils";

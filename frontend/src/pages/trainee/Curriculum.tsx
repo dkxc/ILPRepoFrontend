@@ -7,9 +7,6 @@
 
 //   dayNames,
 // } from "../../features/ui/calendar/CalendarUtils";
-import CalendarGrid from "../../features/ui/calendar/CalendarGrid";
-
-import EventSidebar from "../../features/ui/calendar/EventSideBar";
 // TraineeCurriculumCalendar.tsx
 
 import { useState } from "react";

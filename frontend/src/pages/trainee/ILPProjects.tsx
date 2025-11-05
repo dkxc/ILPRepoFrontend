@@ -1,11 +1,8 @@
 import { useState, useEffect, forwardRef } from "react";
-import { Badge, ActionIcon } from "@mantine/core";
-import { modals } from "@mantine/modals";
+import { Badge } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { Trash2 } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { useNavigate } from "react-router";
-import Button from "../../features/ui/Button";
 import { logos } from "../../assets/projects-svg";
 import { useAuth } from "../../context/AuthContext";
 import { ProjectService } from "../../services/projectService";
@@ -257,27 +254,6 @@ export default function Projects() {
     console.log("Card clicked:", filterType);
     setActiveFilter(filterType);
     setSelectedBatch(null); // Reset batch filter when clicking status cards
-  };
-
-  const handleDelete = (project: Project) => {
-    modals.openConfirmModal({
-      title: "Delete Project",
-      centered: true,
-      children: (
-        <p>
-          Are you sure you want to delete <b>{project.name}</b>?
-        </p>
-      ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
-      confirmProps: { color: "red" },
-      onConfirm: () => {
-        notifications.show({
-          title: "Deleted",
-          message: `${project.name} was removed.`,
-          color: "red",
-        });
-      },
-    });
   };
 
   const handleRowClick = (row: Project) => {

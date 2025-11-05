@@ -34,7 +34,7 @@ interface BatchDetail {
 // } = useQuery({
 //   queryKey: ["batches"],
 //   queryFn: async () => {
-//     const res = await fetch("https://localhost:7224/api/AdminDashboard/batches");
+//     const res = await fetch("https://ilprepo.runasp.net/api/AdminDashboard/batches");
 //     if (!res.ok) throw new Error("Failed to fetch batch list");
 //     return res.json();
 //   },
@@ -43,14 +43,16 @@ interface BatchDetail {
 // Fetch batch details from backend API
 const fetchBatchDetails = async (batchId: string): Promise<BatchDetail> => {
   const res = await fetch(
-    `https://localhost:7224/api/AdminDashboard/batch-details/${batchId}`,
+    `https://ilprepo.runasp.net/api/AdminDashboard/batch-details/${batchId}`,
   );
   if (!res.ok) throw new Error("Failed to load batch details");
   return res.json();
 };
 
 const fetchAllBatches = async () => {
-  const res = await fetch("https://localhost:7224/api/AdminDashboard/batches");
+  const res = await fetch(
+    "https://ilprepo.runasp.net/api/AdminDashboard/batches",
+  );
   if (!res.ok) throw new Error("Failed to fetch batch list");
   return res.json();
 };

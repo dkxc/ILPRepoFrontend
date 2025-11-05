@@ -11,7 +11,7 @@ const ForgotPasswordFlow = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [token, setToken] = useState("");
-  const [userId, setUserId] = useState("");
+  const [_userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -25,7 +25,7 @@ const ForgotPasswordFlow = () => {
 
     try {
       const response = await fetch(
-        "https://localhost:7224/api/Auth/initiate-password-setup",
+        "https://ilprepo.runasp.net/api/Auth/initiate-password-setup",
         {
           method: "POST",
           headers: {
@@ -62,7 +62,7 @@ const ForgotPasswordFlow = () => {
 
     try {
       const response = await fetch(
-        "https://localhost:7224/api/Auth/verify-otp",
+        "https://ilprepo.runasp.net/api/Auth/verify-otp",
         {
           method: "POST",
           headers: {
@@ -117,7 +117,7 @@ const ForgotPasswordFlow = () => {
 
     try {
       const response = await fetch(
-        "https://localhost:7224/api/Auth/set-password",
+        "https://ilprepo.runasp.net/api/Auth/set-password",
         {
           method: "POST",
           headers: {

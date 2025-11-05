@@ -151,9 +151,9 @@ export default function ResultsUp({
       // Determine API endpoint
       let apiUrl = "";
       if (selectedDocType === "Overall Assessment" || hasMultipleSheets) {
-        apiUrl = "https://localhost:7224/api/results/bulk";
+        apiUrl = "https://ilprepo.runasp.net/api/results/bulk";
       } else {
-        apiUrl = "https://localhost:7224/api/results/phase";
+        apiUrl = "https://ilprepo.runasp.net/api/results/phase";
       }
 
       // Construct payload matching backend structure

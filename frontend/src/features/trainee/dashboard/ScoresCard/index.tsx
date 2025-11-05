@@ -5,7 +5,6 @@ import Skeleton from "@ui/skeleton";
 import { cn } from "../../../../lib/utils";
 import { ResponsivePie } from "@nivo/pie";
 import { getPieDataFromPercent } from "../../../../lib/graphs/utils";
-import { type UseQueryResult } from "@tanstack/react-query";
 import type { SimpleQueryResult } from "@features/trainee/types/SimplerQuery.types";
 
 export interface ScoreCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -112,7 +111,7 @@ function ScoreCard({
                     className="text-xl font-semibold"
                     style={{ fill: "var(--color-text-base)" }}
                   >
-                    {`${scores.average}%`}
+                    {`${scores.average.toFixed(2)}%`}
                   </text>
                   <text
                     x={centerX}
@@ -142,14 +141,14 @@ function ScoreCard({
                     >
                       {datum.label}
                     </span>
-                    : {datum.value}%
+                    : {datum.value.toFixed(2)}%
                   </div>
                   <div>
                     {datum.label === "Average Score" &&
                       scores.courses.map((course) => (
                         <div key={course.caption}>
                           <span className="font-medium">{course.caption}</span>:{" "}
-                          {course.value}%
+                          {course.value.toFixed(2)}%
                         </div>
                       ))}
                   </div>

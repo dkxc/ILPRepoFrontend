@@ -350,7 +350,7 @@ export default function Batches() {
             <ul className="list-disc list-inside mt-2 text-left">
               <li>
                 Make sure your backend server is running on
-                http://localhost:5225
+                http://ilprepo.runasp.net
               </li>
               <li>Check that CORS is enabled in your backend</li>
               <li>Verify the API endpoint is accessible</li>

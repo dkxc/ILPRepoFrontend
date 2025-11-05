@@ -71,7 +71,7 @@ export default function DashboardProjects({
     queryKey: ["batches"],
     queryFn: async () => {
       const res = await fetch(
-        "https://localhost:7224/api/AdminDashboard/batches",
+        "https://ilprepo.runasp.net/api/AdminDashboard/batches",
       );
       if (!res.ok) throw new Error("Failed to fetch batches");
       return res.json();
@@ -88,7 +88,7 @@ export default function DashboardProjects({
     queryFn: async () => {
       if (!selectedBatchId) return [];
       const res = await fetch(
-        `https://localhost:7224/api/AdminDashboard/projects/${selectedBatchId}`,
+        `https://ilprepo.runasp.net/api/AdminDashboard/projects/${selectedBatchId}`,
       );
       if (!res.ok) throw new Error("Failed to fetch projects");
       return res.json();

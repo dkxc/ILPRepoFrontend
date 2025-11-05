@@ -1,4 +1,3 @@
-import type { UseQueryResult } from "@tanstack/react-query";
 import type { TraineeDocument } from "../../../types/TraineeDocument.types";
 import { PublicDocumentsCardLoading } from "./components/PublicDocumentsCardLoading";
 import { GenericErrorCard } from "@ui/card/GenericErrorCard";

@@ -69,7 +69,7 @@ function ProjectCard({
     setSaveError(null);
     try {
       const response = await fetch(
-        "https://localhost:7153/api/ProjectDetails/edit-details",
+        "https://ilprepo.runasp.net/api/ProjectDetails/edit-details",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

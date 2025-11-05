@@ -20,8 +20,6 @@ const RescheduleModal = ({
   isOpen,
   onClose,
   onConfirm,
-  currentYear,
-  currentMonth,
   isHolidayDay,
 }: RescheduleModalProps) => {
   const [selectedDate, setSelectedDate] = useState("");

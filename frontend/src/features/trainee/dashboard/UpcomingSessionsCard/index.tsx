@@ -4,7 +4,6 @@ import Skeleton from "@ui/skeleton";
 
 import { cn } from "../../../../lib/utils";
 import UpcomingSessionCardItem from "./UpcomingSessionCardItem";
-import { type UseQueryResult } from "@tanstack/react-query";
 import type { SimpleQueryResult } from "@features/trainee/types/SimplerQuery.types";
 
 export interface UpcomingSessionCardProps

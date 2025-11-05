@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const validateToken = async () => {
       try {
         const response = await fetch(
-          "https://localhost:7224/api/Auth/validate-token",
+          "https://ilprepo.runasp.net/api/Auth/validate-token",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

@@ -1,6 +1,6 @@
 import { getAuthToken } from "../utils/auth";
 
-const API_BASE_URL = "https://localhost:7224/api";
+const API_BASE_URL = "https://ilprepo.runasp.net/api";
 
 class ApiService {
   static async getHeaders() {

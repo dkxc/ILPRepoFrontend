@@ -16,6 +16,7 @@ interface TeamListProps {
   title?: string;
   showTitle?: boolean;
   projectId?: string;
+  canDelete?: boolean;
 }
 
 const defaultData: TeamMember[] = [
