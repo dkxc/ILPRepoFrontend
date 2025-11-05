@@ -37,6 +37,15 @@ function TraineeProfile() {
     staleTime: 30000,
   });
 
+  // Fetch trainee specialization data (tech stack and projects involved)
+  const { data: apiSpecializationData } = useQuery({
+    queryKey: ["specializationData", actualTraineeId],
+    queryFn: () =>
+      traineeService.getTraineeSpecializationData(actualTraineeId!),
+    enabled: !!actualTraineeId,
+    staleTime: 30000,
+  });
+
   // Update trainee mutation
   const updateTraineeMutation = useMutation({
     mutationFn: (data: any) => {
@@ -115,13 +124,13 @@ function TraineeProfile() {
   });
 
   const [officialInfoData, setOfficialInfoData] = useState({
-    batch: "ILP 2025-26 Batch-1",
-    techStack: "React, Node.js, MongoDB",
-    projectsInvolved: "Carbon Zero, HR Portal",
-    buddy: "Rohit Verma",
-    ojtMentor: "Anita Das",
-    duAllocation: "Banking DU",
-    location: "Bangalore",
+    batch: "Loading...",
+    techStack: "Loading...",
+    projectsInvolved: "Loading...",
+    buddy: "Loading...",
+    ojtMentor: "Loading...",
+    duAllocation: "Loading...",
+    location: "Loading...",
   });
 
   const [contactInfoData, setContactInfoData] = useState({
@@ -196,18 +205,28 @@ function TraineeProfile() {
         (apiTrainingDetails as any).data || apiTrainingDetails;
 
       if (trainingData) {
-        setOfficialInfoData({
+        setOfficialInfoData((prev) => ({
+          ...prev,
           batch: trainingData.batchName || "N/A",
-          techStack: officialInfoData.techStack, // Keep existing as API doesn't provide this
-          projectsInvolved: officialInfoData.projectsInvolved, // Keep existing as API doesn't provide this
           buddy: trainingData.buddyName || "N/A",
           ojtMentor: trainingData.ojtMentor || "N/A",
           duAllocation: trainingData.duAllocated || "N/A",
           location: trainingData.location || "N/A",
-        });
+        }));
       }
     }
   }, [apiTrainingDetails]);
+
+  // Update tech stack and projects when specialization data is loaded
+  useEffect(() => {
+    if (apiSpecializationData) {
+      setOfficialInfoData((prev) => ({
+        ...prev,
+        techStack: apiSpecializationData.techStack || "Not Assigned",
+        projectsInvolved: apiSpecializationData.project || "Not Assigned",
+      }));
+    }
+  }, [apiSpecializationData]);
 
   // Card data formatting
   const personalInfo = [

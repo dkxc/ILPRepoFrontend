@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { User, Briefcase, Phone, MapPin } from "lucide-react";
+import { User, Briefcase, Phone, MapPin, FileText } from "lucide-react";
 import InfoCard from "../../features/ui/TraineeProfile/InfoCard";
 import EditModal from "../../features/ui/TraineeProfile/EditModel";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { traineeService } from "../../services/traineeService";
 import { notifications } from "@mantine/notifications";
@@ -11,6 +11,7 @@ function TraineeProfile() {
   const { id } = useParams<{ id: string }>();
   const traineeId = id ? parseInt(id) : null;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Store the actual trainee ID from backend (different from userId)
   const [actualTraineeId, setActualTraineeId] = useState<number | null>(null);
@@ -30,6 +31,15 @@ function TraineeProfile() {
   const { data: apiTrainingDetails } = useQuery({
     queryKey: ["trainingDetails", actualTraineeId],
     queryFn: () => traineeService.getTraineeTrainingDetails(actualTraineeId!),
+    enabled: !!actualTraineeId,
+    staleTime: 30000,
+  });
+
+  // Fetch trainee specialization data (tech stack and projects involved)
+  const { data: apiSpecializationData } = useQuery({
+    queryKey: ["specializationData", actualTraineeId],
+    queryFn: () =>
+      traineeService.getTraineeSpecializationData(actualTraineeId!),
     enabled: !!actualTraineeId,
     staleTime: 30000,
   });
@@ -117,13 +127,13 @@ function TraineeProfile() {
   });
 
   const [officialInfoData, setOfficialInfoData] = useState({
-    batch: "ILP 2025-26 Batch-1",
-    techStack: "React, Node.js, MongoDB",
-    projectsInvolved: "Carbon Zero, HR Portal",
-    buddy: "Rohit Verma",
-    ojtMentor: "Anita Das",
-    duAllocation: "Banking DU",
-    location: "Bangalore",
+    batch: "Loading...",
+    techStack: "Loading...",
+    projectsInvolved: "Loading...",
+    buddy: "Loading...",
+    ojtMentor: "Loading...",
+    duAllocation: "Loading...",
+    location: "Loading...",
   });
 
   const [contactInfoData, setContactInfoData] = useState({
@@ -196,18 +206,28 @@ function TraineeProfile() {
         (apiTrainingDetails as any).data || apiTrainingDetails;
 
       if (trainingData) {
-        setOfficialInfoData({
+        setOfficialInfoData((prev) => ({
+          ...prev,
           batch: trainingData.batchName || "N/A",
-          techStack: officialInfoData.techStack, // Keep existing as API doesn't provide this
-          projectsInvolved: officialInfoData.projectsInvolved, // Keep existing as API doesn't provide this
           buddy: trainingData.buddyName || "N/A",
           ojtMentor: trainingData.ojtMentor || "N/A",
           duAllocation: trainingData.duAllocated || "N/A",
           location: trainingData.location || "N/A",
-        });
+        }));
       }
     }
   }, [apiTrainingDetails]);
+
+  // Update tech stack and projects when specialization data is loaded
+  useEffect(() => {
+    if (apiSpecializationData) {
+      setOfficialInfoData((prev) => ({
+        ...prev,
+        techStack: apiSpecializationData.techStack || "Not Assigned",
+        projectsInvolved: apiSpecializationData.project || "Not Assigned",
+      }));
+    }
+  }, [apiSpecializationData]);
 
   // Card data formatting
   const personalInfo = [
@@ -542,6 +562,17 @@ function TraineeProfile() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* View Results Button */}
+        <div>
+          <button
+            onClick={() => navigate("/results")}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            View Results
+          </button>
         </div>
       </div>
 

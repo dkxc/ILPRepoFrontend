@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
 import { useNavigate } from "react-router";
-import Button from "../../features/ui/Button";
+
 import { logos } from "../../assets/projects-svg";
 import { useAuth } from "../../context/AuthContext";
 import { ProjectService } from "../../services/projectService";
@@ -33,7 +33,7 @@ interface Project {
   name: string;
   batch: string;
   teamLead: string;
-  status: "In Progress" | "Live" | "On Hold";
+  status: "In Progress" | "Live" | "On Hold" | "Completed";
   startDate: string;
   endDate: string;
 }
@@ -387,7 +387,7 @@ function EditModal({
 
 // ============= MAIN COMPONENT =============
 export default function Projects() {
-  const { isLoggedIn, authData } = useAuth();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Projects");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -414,18 +414,45 @@ export default function Projects() {
     const documents: ProjectDocument[] = [];
 
     apiProjects.forEach((project) => {
-      const statusMap: { [key: number]: "In Progress" | "Live" | "On Hold" } = {
-        0: "On Hold",
-        1: "Live",
-        2: "In Progress",
-      };
+      // Handle both string and integer status values
+      let status: "In Progress" | "Live" | "On Hold" | "Completed" = "On Hold";
+
+      if (typeof project.status === "string") {
+        // Handle string status values from API
+        const statusString = project.status.toLowerCase();
+        if (statusString === "live") {
+          status = "Live";
+        } else if (statusString === "completed") {
+          status = "Completed";
+        } else if (
+          statusString === "in progress" ||
+          statusString === "inprogress"
+        ) {
+          status = "In Progress";
+        } else if (statusString === "on hold" || statusString === "onhold") {
+          status = "On Hold";
+        } else {
+          status = "On Hold"; // Default fallback
+        }
+      } else if (typeof project.status === "number") {
+        // Handle integer status values (legacy support)
+        const statusMap: {
+          [key: number]: "In Progress" | "Live" | "On Hold" | "Completed";
+        } = {
+          0: "On Hold",
+          1: "Live",
+          2: "In Progress",
+          3: "Completed",
+        };
+        status = statusMap[project.status] || "On Hold";
+      }
 
       projects.push({
         id: project.id,
         name: project.projectName,
         batch: project.batchName || "N/A",
         teamLead: project.teamLead || "N/A",
-        status: statusMap[project.status] || "On Hold",
+        status: status,
         startDate: project.createdAt ? project.createdAt.split("T")[0] : "",
         endDate: project.updatedAt ? project.updatedAt.split("T")[0] : "",
       });
@@ -578,7 +605,8 @@ export default function Projects() {
     if (activeFilter === "all") return true;
     if (activeFilter === "inProgress") return project.status === "In Progress";
     if (activeFilter === "live") return project.status === "Live";
-    if (activeFilter === "notLive") return project.status === "On Hold";
+    if (activeFilter === "notLive")
+      return project.status === "On Hold" || project.status === "Completed";
     return true;
   });
 
@@ -586,7 +614,9 @@ export default function Projects() {
     all: projectsData.length,
     inProgress: projectsData.filter((p) => p.status === "In Progress").length,
     live: projectsData.filter((p) => p.status === "Live").length,
-    notLive: projectsData.filter((p) => p.status === "On Hold").length,
+    notLive: projectsData.filter(
+      (p) => p.status === "On Hold" || p.status === "Completed",
+    ).length,
   };
 
   // Debug effect to track state changes
@@ -607,6 +637,8 @@ export default function Projects() {
         return "green";
       case "On Hold":
         return "red";
+      case "Completed":
+        return "blue";
       default:
         return "gray";
     }
@@ -687,12 +719,7 @@ export default function Projects() {
         const apiData = {
           id: updatedData.id,
           projectName: updatedData.name,
-          status:
-            updatedData.status === "Live"
-              ? 1
-              : updatedData.status === "On Hold"
-                ? 0
-                : 2,
+          status: updatedData.status, // Send status as-is since API expects string values
           batchName: updatedData.batch,
           teamLead: updatedData.teamLead,
           progress: 0,
@@ -1176,7 +1203,7 @@ export default function Projects() {
         {
           key: "status",
           label: "Status",
-          options: ["In Progress", "Live", "On Hold"],
+          options: ["In Progress", "Live", "On Hold", "Completed"],
         },
         { key: "startDate", label: "Start Date", type: "date" },
         { key: "endDate", label: "End Date", type: "date" },
