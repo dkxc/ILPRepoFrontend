@@ -433,12 +433,16 @@ const PhaseTabsAndTables: React.FC<PhaseTabsAndTablesProps> = ({
               width: hasSpecializationPhase ? "18%" : "22%",
               render: (v) => v || "-",
             },
-            ...(hasSpecializationPhase ? [{
-              key: "specializationScore",
-              header: "Specialization Score",
-              sortable: true,
-              width: "18%",
-            }] : []),
+            ...(hasSpecializationPhase
+              ? [
+                  {
+                    key: "specializationScore",
+                    header: "Specialization Score",
+                    sortable: true,
+                    width: "18%",
+                  },
+                ]
+              : []),
             {
               key: "boScore",
               header: "BO Score",
