@@ -75,7 +75,7 @@ export default function UploadDetails() {
     onSuccess: (response: { data: string | any[] }) => {
       queryClient.invalidateQueries({ queryKey: ["trainees", batchId] });
       setSuccessMessage(
-        `${response.data?.length || 0} trainees created successfully`,
+        `${response.data?.length || 0} trainees created successfully`
       );
       setShowSuccessModal(true);
     },
@@ -96,7 +96,7 @@ export default function UploadDetails() {
     onSuccess: (response: { data: string | any[] }) => {
       queryClient.invalidateQueries({ queryKey: ["boPhases", batchId] });
       setSuccessMessage(
-        `${response.data?.length || 0} BO phase assignments created successfully`,
+        `${response.data?.length || 0} BO phase assignments created successfully`
       );
       setShowSuccessModal(true);
     },
@@ -117,7 +117,7 @@ export default function UploadDetails() {
     onSuccess: (response: { data: string | any[] }) => {
       queryClient.invalidateQueries({ queryKey: ["traineeDus", batchId] });
       setSuccessMessage(
-        `${response.data?.length || 0} DU assignments created successfully`,
+        `${response.data?.length || 0} DU assignments created successfully`
       );
       setShowSuccessModal(true);
     },
@@ -188,10 +188,10 @@ export default function UploadDetails() {
     // Validate headers
     const requiredHeaders = expectedHeaders[selectedType as UploadType];
     const missingHeaders = requiredHeaders.filter(
-      (header: string) => !headers.includes(header),
+      (header: string) => !headers.includes(header)
     );
     const extraHeaders = headers.filter(
-      (header: string) => !requiredHeaders.includes(header),
+      (header: string) => !requiredHeaders.includes(header)
     );
 
     if (missingHeaders.length > 0) {
@@ -243,8 +243,165 @@ export default function UploadDetails() {
       }));
     }
 
-    console.log("Parsed data:", parsedData);
-    setData(parsedData);
+    // Validate for empty required fields and completely empty rows
+    const emptyFieldErrors: string[] = [];
+    const completelyEmptyRows: number[] = [];
+
+    if (selectedType === "Trainee Details") {
+      parsedData.forEach((row, index) => {
+        const rowNum = index + 1;
+
+        // Check if entire row is empty
+        const hasAnyData =
+          row.fullName?.trim() || row.email?.trim() || row.phoneNumber?.trim();
+        if (!hasAnyData) {
+          completelyEmptyRows.push(rowNum);
+          return; // Skip individual field validation for empty rows
+        }
+
+        // Check required fields
+        if (!row.fullName?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Full Name is empty (required field)`
+          );
+        }
+        if (!row.email?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Email is empty (required field)`
+          );
+        }
+        if (!row.phoneNumber?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Phone Number is empty (required field)`
+          );
+        }
+      });
+    } else if (selectedType === "BO Details") {
+      parsedData.forEach((row, index) => {
+        const rowNum = index + 1;
+
+        // Check if entire row is empty
+        const hasAnyData =
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.buddy?.trim() ||
+          row.buddyDU?.trim();
+        if (!hasAnyData) {
+          completelyEmptyRows.push(rowNum);
+          return; // Skip individual field validation for empty rows
+        }
+
+        // Check required fields
+        if (!row.traineeName?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Name is empty (required field)`
+          );
+        }
+        if (!row.traineeEmail?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Email is empty (required field)`
+          );
+        }
+        if (!row.buddy?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Buddy is empty (required field)`
+          );
+        }
+        if (!row.buddyDU?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Buddy's DU is empty (required field)`
+          );
+        }
+      });
+    } else if (selectedType === "DU Details") {
+      parsedData.forEach((row, index) => {
+        const rowNum = index + 1;
+
+        // Check if entire row is empty
+        const hasAnyData =
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.duAllocated?.trim() ||
+          row.location?.trim() ||
+          row.ojtMentor?.trim();
+        if (!hasAnyData) {
+          completelyEmptyRows.push(rowNum);
+          return; // Skip individual field validation for empty rows
+        }
+
+        // Check required fields
+        if (!row.traineeName?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Name is empty (required field)`
+          );
+        }
+        if (!row.traineeEmail?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Email is empty (required field)`
+          );
+        }
+        // Note: DU allocated, Location, and OJT mentor might be optional based on current validation logic
+        // Add validation for these if they are truly required:
+        if (!row.duAllocated?.trim()) {
+          emptyFieldErrors.push(`Row ${rowNum}: DU allocated is empty`);
+        }
+        if (!row.location?.trim()) {
+          emptyFieldErrors.push(`Row ${rowNum}: Location is empty`);
+        }
+        if (!row.ojtMentor?.trim()) {
+          emptyFieldErrors.push(`Row ${rowNum}: OJT mentor is empty`);
+        }
+      });
+    }
+
+    // Add completely empty row errors
+    if (completelyEmptyRows.length > 0) {
+      emptyFieldErrors.unshift(
+        `Found ${completelyEmptyRows.length} completely empty row(s): ${completelyEmptyRows.join(", ")}`
+      );
+    }
+
+    // If there are empty field errors, show validation modal
+    if (emptyFieldErrors.length > 0) {
+      const totalErrors =
+        emptyFieldErrors.length - (completelyEmptyRows.length > 0 ? 1 : 0);
+      const errorSummary =
+        totalErrors > 0
+          ? `Found validation issues in the uploaded Excel file:`
+          : `Found empty rows in the uploaded Excel file:`;
+      setValidationErrors([errorSummary, ...emptyFieldErrors]);
+      setShowValidationModal(true);
+      return;
+    }
+
+    // Filter out completely empty rows from the final data
+    let filteredData = parsedData;
+    if (selectedType === "Trainee Details") {
+      filteredData = parsedData.filter(
+        (row) =>
+          row.fullName?.trim() || row.email?.trim() || row.phoneNumber?.trim()
+      );
+    } else if (selectedType === "BO Details") {
+      filteredData = parsedData.filter(
+        (row) =>
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.buddy?.trim() ||
+          row.buddyDU?.trim()
+      );
+    } else if (selectedType === "DU Details") {
+      filteredData = parsedData.filter(
+        (row) =>
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.duAllocated?.trim() ||
+          row.location?.trim() ||
+          row.ojtMentor?.trim()
+      );
+    }
+
+    console.log("Parsed data:", filteredData);
+    setData(filteredData);
   };
 
   const handleFileSelect = async (file: File | null) => {
@@ -329,7 +486,7 @@ export default function UploadDetails() {
     XLSX.utils.book_append_sheet(workbook, worksheet, selectedType);
     XLSX.writeFile(
       workbook,
-      `${selectedType.replace(/\s/g, "_").toLowerCase()}_template.xlsx`,
+      `${selectedType.replace(/\s/g, "_").toLowerCase()}_template.xlsx`
     );
   };
 
@@ -378,14 +535,14 @@ export default function UploadDetails() {
         // Validate email format
         if (!trainee.email || !emailRegex.test(trainee.email)) {
           errors.push(
-            `Row ${rowNum}: Invalid email format - "${trainee.email || ""}"`,
+            `Row ${rowNum}: Invalid email format - "${trainee.email || ""}"`
           );
         }
 
         // Validate phone number (must be exactly 10 digits)
         if (!trainee.phoneNo || !phoneRegex.test(trainee.phoneNo)) {
           errors.push(
-            `Row ${rowNum}: Phone number must be exactly 10 digits - "${trainee.phoneNo || ""}"`,
+            `Row ${rowNum}: Phone number must be exactly 10 digits - "${trainee.phoneNo || ""}"`
           );
         }
 
@@ -409,7 +566,7 @@ export default function UploadDetails() {
       const existingTrainees = allTraineesData?.data || allTraineesData || [];
       console.log(
         "All existing trainees data (across all batches):",
-        existingTrainees,
+        existingTrainees
       );
 
       if (Array.isArray(existingTrainees)) {
@@ -419,7 +576,7 @@ export default function UploadDetails() {
             existingEmails.add(normalizedEmail);
             console.log(
               "Added existing email from all batches:",
-              normalizedEmail,
+              normalizedEmail
             );
           }
         });
@@ -427,7 +584,7 @@ export default function UploadDetails() {
 
       console.log(
         "All existing emails across all batches:",
-        Array.from(existingEmails),
+        Array.from(existingEmails)
       );
 
       // Find duplicates
@@ -482,14 +639,24 @@ export default function UploadDetails() {
         // Check if email is missing
         if (!bp.email) {
           errors.push(
-            `Row ${rowNum}: Email is required for trainee "${bp.traineeName || "Unknown"}". Please include "Trainee Email" column.`,
+            `Row ${rowNum}: Email is required for trainee "${bp.traineeName || "Unknown"}". Please include "Trainee Email" column.`
           );
         }
         // Check if email format is valid
         else if (!emailRegex.test(bp.email)) {
           errors.push(
-            `Row ${rowNum}: Invalid email format for trainee "${bp.traineeName}" - "${bp.email}"`,
+            `Row ${rowNum}: Invalid email format for trainee "${bp.traineeName}" - "${bp.email}"`
           );
+        }
+
+        // Check if buddy name is missing
+        if (!bp.buddyName) {
+          errors.push(`Row ${rowNum}: Buddy name is required`);
+        }
+
+        // Check if buddy's DU is missing
+        if (!bp.duName) {
+          errors.push(`Row ${rowNum}: Buddy's DU is required`);
         }
       });
 
@@ -501,7 +668,7 @@ export default function UploadDetails() {
         batchTraineesData?.data || batchTraineesData || [];
       console.log(
         "Existing trainees data for BO validation (current batch only):",
-        existingTrainees,
+        existingTrainees
       );
 
       if (Array.isArray(existingTrainees)) {
@@ -515,7 +682,7 @@ export default function UploadDetails() {
 
       console.log(
         "All existing emails for BO validation (current batch):",
-        Array.from(existingEmails),
+        Array.from(existingEmails)
       );
 
       boPhases.forEach((bp, index) => {
@@ -526,7 +693,7 @@ export default function UploadDetails() {
 
           if (!existingEmails.has(normalizedEmail)) {
             errors.push(
-              `Row ${rowNum}: Trainee with email "${bp.email}" does not exist in this batch. Please add the trainee first.`,
+              `Row ${rowNum}: Trainee with email "${bp.email}" does not exist in this batch. Please add the trainee first.`
             );
             console.log("BO email not found:", bp.email);
           }
@@ -574,13 +741,13 @@ export default function UploadDetails() {
         // Check if email is missing
         if (!td.email) {
           errors.push(
-            `Row ${rowNum}: Email is required for trainee "${td.traineeName || "Unknown"}". Please include "Trainee Email" column.`,
+            `Row ${rowNum}: Email is required for trainee "${td.traineeName || "Unknown"}". Please include "Trainee Email" column.`
           );
         }
         // Check if email format is valid
         else if (!emailRegex.test(td.email)) {
           errors.push(
-            `Row ${rowNum}: Invalid email format for trainee "${td.traineeName}" - "${td.email}"`,
+            `Row ${rowNum}: Invalid email format for trainee "${td.traineeName}" - "${td.email}"`
           );
         }
       });
@@ -593,7 +760,7 @@ export default function UploadDetails() {
         batchTraineesData?.data || batchTraineesData || [];
       console.log(
         "Existing trainees data for DU validation (current batch only):",
-        existingTrainees,
+        existingTrainees
       );
 
       if (Array.isArray(existingTrainees)) {
@@ -607,7 +774,7 @@ export default function UploadDetails() {
 
       console.log(
         "All existing emails for DU validation (current batch):",
-        Array.from(existingEmails),
+        Array.from(existingEmails)
       );
 
       traineeDus.forEach((td, index) => {
@@ -618,7 +785,7 @@ export default function UploadDetails() {
 
           if (!existingEmails.has(normalizedEmail)) {
             errors.push(
-              `Row ${rowNum}: Trainee with email "${td.email}" does not exist in this batch. Please add the trainee first.`,
+              `Row ${rowNum}: Trainee with email "${td.email}" does not exist in this batch. Please add the trainee first.`
             );
             console.log("DU email not found:", td.email);
           }

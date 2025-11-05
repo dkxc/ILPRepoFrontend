@@ -2,7 +2,6 @@ import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { notifications } from "@mantine/notifications";
 
 import Button from "../../features/ui/Button";
 import DataTable, { type ColumnDef } from "../../features/ui/Table";
@@ -10,6 +9,8 @@ import BatchDetailsModal from "../../features/admin/batches/BatchDetailsModal";
 import StatusBadge from "../../features/ui/StatusBadge";
 import { batchService } from "../../services/batchService";
 import { traineeService } from "../../services/allServices";
+import { useBatchToast } from "../../hooks/useBatchToast";
+import BatchToastContainer from "../../components/BatchToastContainer";
 
 // ---------------------- Types ----------------------
 interface Batch {
@@ -28,6 +29,7 @@ export default function Batches() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [batches, setBatches] = useState<Batch[]>([]);
+  const { toasts, show: showToast, removeToast } = useBatchToast();
 
   // Fetch batch types for ID lookup
   const { data: apiBatchTypes } = useQuery({
@@ -36,17 +38,54 @@ export default function Batches() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Calculate training hours from dates
+  // Note: AdminDashboard/training-hours-report endpoint is not available
+  // Using enhanced client-side calculation with 6-day training week (Mon-Sat)
+
+  // Enhanced training hours calculation (similar to TotalTrainingHours.tsx logic)
   const calculateTrainingHours = (
     startDate?: string,
-    endDate?: string,
+    endDate?: string
   ): number => {
     if (!startDate || !endDate) return 0;
+    
     const start = new Date(startDate);
     const end = new Date(endDate);
+    
+    // Validate dates
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+    if (start >= end) return 0;
+    
+    // Calculate total days (inclusive)
     const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays * 8; // Assuming 8 hours per day
+    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    
+    // Count 6 days of the week (Monday to Saturday) - excluding only Sunday
+    let trainingDays = 0;
+    const currentDate = new Date(start);
+    
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay();
+      // 1 = Monday, 2 = Tuesday, ..., 6 = Saturday (excluding 0 = Sunday)
+      if (dayOfWeek >= 1 && dayOfWeek <= 6) {
+        trainingDays++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // Apply 8 hours per training day (6 days a week)
+    const trainingHours = trainingDays * 8;
+    
+    console.log(`Training hours calculation for ${startDate} to ${endDate}: ${totalDays} total days, ${trainingDays} training days (Mon-Sat), ${trainingHours} hours`);
+    
+    return trainingHours;
+  };
+
+  // Enhanced training hours calculation (similar to TotalTrainingHours.tsx logic)
+  const getTrainingHoursForBatch = (_batchId: number, batchName: string, startDate?: string, endDate?: string): number => {
+    // Use enhanced client-side calculation since AdminDashboard API is not available
+    const calculatedHours = calculateTrainingHours(startDate, endDate);
+    console.log(`Calculated training hours for batch ${batchName}: ${calculatedHours} hours`);
+    return calculatedHours;
   };
 
   // Fetch all batches
@@ -79,7 +118,7 @@ export default function Batches() {
         console.log(
           `Batch ${b.batchName} status from API:`,
           b.status,
-          typeof b.status,
+          typeof b.status
         );
 
         // Handle integer status values
@@ -103,13 +142,32 @@ export default function Batches() {
             b.batchType?.name ||
             (typeof b.batchType === "string" ? b.batchType : "Unknown"),
           totalTrainees: 0, // Will be updated by fetching trainee counts
-          totalTrainingHours: calculateTrainingHours(b.startDate, b.endDate),
+          totalTrainingHours: getTrainingHoursForBatch(b.id, b.batchName, b.startDate, b.endDate),
           status,
           startDate: b.startDate,
           endDate: b.endDate,
         };
       });
-      setBatches(transformed);
+
+      // Sort batches by start date in descending order (most recent first)
+      const sortedBatches = transformed.sort((a: any, b: any) => {
+        // Handle cases where dates might be null or undefined
+        if (!a.startDate && !b.startDate) return 0;
+        if (!a.startDate) return 1; // Put batches without dates at the end
+        if (!b.startDate) return -1;
+        
+        // Convert dates to Date objects for comparison
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        
+        // Sort in descending order (most recent first)
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      // Log batch transformation for debugging
+      console.log(`Transformed and sorted ${sortedBatches.length} batches by start date (descending)`);
+
+      setBatches(sortedBatches);
 
       // Fetch trainee counts for all batches
       const fetchTraineeCounts = async () => {
@@ -132,14 +190,14 @@ export default function Batches() {
               } catch (error) {
                 console.error(
                   `Failed to fetch trainees for batch ${batch.id}:`,
-                  error,
+                  error
                 );
                 return {
                   batchId: batch.id,
                   traineeCount: 0,
                 };
               }
-            },
+            }
           );
 
           const traineeCountResults = await Promise.all(traineeCountPromises);
@@ -148,12 +206,12 @@ export default function Batches() {
           setBatches((prevBatches) =>
             prevBatches.map((batch) => {
               const result = traineeCountResults.find(
-                (r) => r.batchId === batch.id,
+                (r) => r.batchId === batch.id
               );
               return result
                 ? { ...batch, totalTrainees: result.traineeCount }
                 : batch;
-            }),
+            })
           );
         } catch (error) {
           console.error("Failed to fetch trainee counts:", error);
@@ -170,14 +228,14 @@ export default function Batches() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["batches"] });
       setIsModalOpen(false);
-      notifications.show({
+      showToast({
         title: "Success",
         message: "Batch created successfully",
         color: "green",
       });
     },
     onError: (error: Error) => {
-      notifications.show({
+      showToast({
         title: "Error",
         message: error.message || "Failed to create batch",
         color: "red",
@@ -206,7 +264,7 @@ export default function Batches() {
       : (apiBatchTypes as any)?.$values || (apiBatchTypes as any)?.data || [];
 
     const selectedBatchType = batchTypeArray.find(
-      (bt: any) => bt.name === data.batchType,
+      (bt: any) => bt.name === data.batchType
     );
 
     // Process phases with ISO dates at noon UTC to avoid timezone issues
@@ -230,28 +288,21 @@ export default function Batches() {
   };
 
   const columns: ColumnDef<Batch>[] = [
-    { key: "name", header: "Batch Name", sortable: true, width: "25%" },
-    { key: "type", header: "Batch Type", sortable: true, width: "18%" },
+    { key: "name", header: "Batch Name", sortable: true, width: "35%" },
+    { key: "type", header: "Batch Type", sortable: true, width: "25%" },
     {
       key: "totalTrainees",
       header: "Total Trainees",
       align: "center",
       sortable: true,
-      width: "15%",
-    },
-    {
-      key: "totalTrainingHours",
-      header: "Training Hours",
-      align: "center",
-      sortable: true,
-      width: "15%",
+      width: "20%",
     },
     {
       key: "status",
       header: "Status",
       align: "center",
       sortable: true,
-      width: "15%",
+      width: "20%",
       render: (value) => <StatusBadge status={value as Batch["status"]} />,
     },
   ];
@@ -359,6 +410,8 @@ export default function Batches() {
         onSubmit={handleAddBatch}
         title="Create Batch"
       />
+
+      <BatchToastContainer toasts={toasts} onRemoveToast={removeToast} />
     </div>
   );
 }
