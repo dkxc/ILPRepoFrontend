@@ -16,7 +16,6 @@ interface CalendarGridProps {
   trainingHours: Record<number, number>;
   onUpdateHours: (day: number, hours: number) => void;
   onSaveHours: (day: number) => void;
-
 }
 
 function CalendarGrid({
@@ -28,7 +27,7 @@ function CalendarGrid({
   setPopupDay,
   trainingHours,
   onUpdateHours,
-  onSaveHours
+  onSaveHours,
 }: CalendarGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -68,14 +67,15 @@ function CalendarGrid({
                 }
               }}
               type="button"
-              className={`h-10 w-10 rounded-md flex items-center justify-center ${d === null
-                ? "invisible"
-                : isSunday
-                  ? "bg-white text-gray-400"
-                  : isHoliday
-                    ? "bg-red-100 text-red-800"
-                    : "bg-green-100 text-green-800 hover:bg-green-200"
-                }`}
+              className={`h-10 w-10 rounded-md flex items-center justify-center ${
+                d === null
+                  ? "invisible"
+                  : isSunday
+                    ? "bg-white text-gray-400"
+                    : isHoliday
+                      ? "bg-red-100 text-red-800"
+                      : "bg-green-100 text-green-800 hover:bg-green-200"
+              }`}
             >
               {d}
             </button>
@@ -106,13 +106,12 @@ function CalendarGrid({
                     <button
                       className="bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200"
                       onClick={() => {
-                        onSaveHours(d);    // ✅ triggers API call
+                        onSaveHours(d); // ✅ triggers API call
                         setPopupDay(null);
                       }}
                     >
                       Save
                     </button>
-
 
                     <button
                       className="bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200"
@@ -147,7 +146,6 @@ export default function TotalTrainingHours() {
   const [batchTypes, setBatchTypes] = useState([]);
   const [batches, setBatches] = useState([]);
 
-
   /* Output */
   const [totalHours, setTotalHours] = useState(0);
   const [rows, setRows] = useState([]);
@@ -181,7 +179,9 @@ export default function TotalTrainingHours() {
     }
   };
   const fetchBatches = async () => {
-    const res = await fetch("https://localhost:7224/api/AdminDashboard/batches");
+    const res = await fetch(
+      "https://localhost:7224/api/AdminDashboard/batches",
+    );
     const data = await res.json();
     setBatches(data);
 
@@ -205,7 +205,7 @@ export default function TotalTrainingHours() {
     const body = {
       batchId: Number(selectedBatch),
       trainingDate,
-      hours
+      hours,
     };
 
     const res = await fetch(
@@ -214,7 +214,7 @@ export default function TotalTrainingHours() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      }
+      },
     );
 
     if (!res.ok) {
@@ -227,8 +227,6 @@ export default function TotalTrainingHours() {
 
     alert("Training hours updated successfully");
   };
-
-
 
   const fetchReport = async () => {
     const params = new URLSearchParams({
@@ -261,9 +259,8 @@ export default function TotalTrainingHours() {
 
   useEffect(() => {
     fetchBatchTypes(); // left panel
-    fetchBatches();    // right panel
+    fetchBatches(); // right panel
   }, []);
-
 
   /* -------------------- RENDER --------------------- */
 
@@ -421,7 +418,7 @@ export default function TotalTrainingHours() {
                   setPopupDay={setSelectedDay}
                   trainingHours={trainingHours}
                   onUpdateHours={handleUpdateHours}
-                  onSaveHours={(day) => saveTrainingHoursToApi(day)} 
+                  onSaveHours={(day) => saveTrainingHoursToApi(day)}
                 />
               </div>
             </div>

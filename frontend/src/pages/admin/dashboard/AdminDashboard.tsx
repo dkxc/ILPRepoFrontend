@@ -41,7 +41,7 @@ function Dashboard() {
     });
 
     const res = await fetch(
-      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
+      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`,
     );
 
     if (!res.ok) throw new Error("Failed to fetch total training hours");
@@ -102,19 +102,20 @@ function Dashboard() {
             : isHoursError
               ? "0"
               : (() => {
-                if (typeof trainingHours?.totalHours === "number") {
-                  return trainingHours.totalHours; // ✅ always correct for All Batches
-                }
+                  if (typeof trainingHours?.totalHours === "number") {
+                    return trainingHours.totalHours; // ✅ always correct for All Batches
+                  }
 
-                if (Array.isArray(trainingHours?.batchDetails)) {
-                  return trainingHours.batchDetails.reduce(
-                    (sum:number, b:{ totalTrainingHours?: number }) => sum + (b.totalTrainingHours ?? 0),
-                    0
-                  );
-                }
+                  if (Array.isArray(trainingHours?.batchDetails)) {
+                    return trainingHours.batchDetails.reduce(
+                      (sum: number, b: { totalTrainingHours?: number }) =>
+                        sum + (b.totalTrainingHours ?? 0),
+                      0,
+                    );
+                  }
 
-                return 0;
-              })()}
+                  return 0;
+                })()}
         </span>
       ),
       icon: <img src={clockIcon} alt="Hours" />,
