@@ -283,7 +283,20 @@ export default function RecentBatches({
                           {new Date(p.endDate).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-6 text-sm text-gray-600">
-                          {p.days}
+                          {(() => {
+                            const start = new Date(p.startDate);
+                            const end = new Date(p.endDate);
+
+                            let count = 0;
+                            const current = new Date(start);
+
+                            while (current <= end) {
+                              if (current.getDay() !== 0) count++; // exclude only Sundays
+                              current.setDate(current.getDate() + 1);
+                            }
+
+                            return count;
+                          })()}
                         </td>
                       </tr>
                     ))}
