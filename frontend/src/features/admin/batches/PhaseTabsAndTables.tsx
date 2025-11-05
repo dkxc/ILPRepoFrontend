@@ -48,6 +48,7 @@ interface DUData {
 interface ResultsData {
   id: number;
   traineeName: string;
+  techFundamentalScore?: string | number;
   specializationScore: string;
   boScore: string;
   overallScore: string;
@@ -422,30 +423,42 @@ const PhaseTabsAndTables: React.FC<PhaseTabsAndTablesProps> = ({
               key: "traineeName",
               header: "Trainee Name",
               sortable: true,
-              width: "20%",
+              width: hasSpecializationPhase ? "18%" : "22%",
             },
             {
-              key: "specializationScore",
-              header: "Specialization Score",
+              key: "techFundamentalScore",
+              header: "TechFundamentals Score",
               sortable: true,
-              width: "20%",
+              align: "center",
+              width: hasSpecializationPhase ? "18%" : "22%",
+              render: (v) => v || "-",
             },
+            ...(hasSpecializationPhase
+              ? [
+                  {
+                    key: "specializationScore",
+                    header: "Specialization Score",
+                    sortable: true,
+                    width: "18%",
+                  },
+                ]
+              : []),
             {
               key: "boScore",
               header: "BO Score",
               sortable: true,
-              width: "15%",
+              width: hasSpecializationPhase ? "14%" : "18%",
             },
             {
               key: "overallScore",
               header: "Overall Score",
               sortable: true,
-              width: "15%",
+              width: hasSpecializationPhase ? "14%" : "18%",
             },
             {
               key: "action",
               header: "Action",
-              width: "10%",
+              width: "8%",
               align: "center",
               render: (_, row) => (
                 <ActionIcon

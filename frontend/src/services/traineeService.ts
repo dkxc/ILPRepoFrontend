@@ -243,6 +243,54 @@ class TraineeService {
       data,
     );
   }
+
+  /**
+   * Get trainee specialization data
+   * This method gets the trainee's batch and then fetches specialization data for that trainee
+   */
+  async getTraineeSpecializationData(traineeId: number): Promise<{
+    techStack: string;
+    project: string;
+  } | null> {
+    try {
+      // First get all trainees to find the batch ID for this trainee
+      const allTrainees = await this.getAllTrainees();
+      const traineeData = (allTrainees as any).data || allTrainees;
+
+      const trainee = Array.isArray(traineeData)
+        ? traineeData.find(
+            (t: any) => t.id === traineeId || t.traineeId === traineeId,
+          )
+        : null;
+
+      if (!trainee || !trainee.batchId) {
+        return null;
+      }
+
+      // Import batchService to get specialization data
+      const { batchService } = await import("./batchService");
+      const specializationData =
+        await batchService.getSpecializationPhaseByBatch(trainee.batchId);
+
+      // Find this trainee's specialization data
+      const specArray = (specializationData as any).data || specializationData;
+      const traineeSpec = Array.isArray(specArray)
+        ? specArray.find((spec: any) => spec.traineeId === traineeId)
+        : null;
+
+      if (traineeSpec) {
+        return {
+          techStack: traineeSpec.techStack || "Not Assigned",
+          project: traineeSpec.project || "Not Assigned",
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error fetching trainee specialization data:", error);
+      return null;
+    }
+  }
 }
 
 export const traineeService = new TraineeService();

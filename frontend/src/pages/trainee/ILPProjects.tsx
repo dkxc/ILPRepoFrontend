@@ -24,7 +24,7 @@ interface Project {
   name: string;
   batch: string;
   teamLead: string;
-  status: "In Progress" | "Live" | "Not Live";
+  status: "In Progress" | "Live" | "On Hold";
   startDate: string;
   endDate: string;
 }
@@ -98,20 +98,50 @@ export default function Projects() {
   // ============= DATA TRANSFORMATION =============
   const transformApiData = (apiProjects: any[]): Project[] => {
     return apiProjects.map((project) => {
-      // Status mapping: 0 = Not Live, 1 = Live, 2 = In Progress
-      const statusMap: { [key: number]: "In Progress" | "Live" | "Not Live" } =
-        {
-          0: "Not Live",
+      // Handle both string and integer status values
+      let status: "In Progress" | "Live" | "On Hold" = "On Hold";
+
+      if (typeof project.status === "string") {
+        // Handle string status values from API
+        const statusString = project.status.toLowerCase();
+        if (statusString === "live") {
+          status = "Live";
+        } else if (statusString === "completed") {
+          status = "On Hold"; // Map completed to On Hold
+        } else if (
+          statusString === "in progress" ||
+          statusString === "inprogress"
+        ) {
+          status = "In Progress";
+        } else if (
+          statusString === "on hold" ||
+          statusString === "onhold" ||
+          statusString === "not live"
+        ) {
+          status = "On Hold";
+        } else {
+          status = "On Hold"; // Default fallback
+        }
+      } else if (typeof project.status === "number") {
+        // Handle integer status values (legacy support)
+        const statusMap: {
+          [key: number]: "In Progress" | "Live" | "On Hold";
+        } = {
+          0: "On Hold", // Changed from "Not Live" to "On Hold"
           1: "Live",
           2: "In Progress",
+          3: "On Hold",
+          4: "On Hold", // Map completed (4) to On Hold
         };
+        status = statusMap[project.status] || "On Hold";
+      }
 
       return {
         id: project.id,
         name: project.projectName,
         batch: project.batchName || "N/A",
         teamLead: project.teamLead || "N/A",
-        status: statusMap[project.status] || "Not Live",
+        status: status,
         startDate: project.createdAt ? project.createdAt.split("T")[0] : "",
         endDate: project.updatedAt ? project.updatedAt.split("T")[0] : "",
       };
@@ -216,7 +246,7 @@ export default function Projects() {
         return "yellow";
       case "Live":
         return "green";
-      case "Not Live":
+      case "On Hold":
         return "red";
       default:
         return "gray";
@@ -288,7 +318,7 @@ export default function Projects() {
     } else if (activeFilter === "live") {
       statusMatch = project.status === "Live";
     } else if (activeFilter === "notLive") {
-      statusMatch = project.status === "Not Live";
+      statusMatch = project.status === "On Hold";
     }
 
     // Apply batch filter
@@ -301,7 +331,7 @@ export default function Projects() {
     all: projectsData.length,
     inProgress: projectsData.filter((p) => p.status === "In Progress").length,
     live: projectsData.filter((p) => p.status === "Live").length,
-    notLive: projectsData.filter((p) => p.status === "Not Live").length,
+    notLive: projectsData.filter((p) => p.status === "On Hold").length,
   };
 
   const uniqueBatches = Array.from(
@@ -310,13 +340,13 @@ export default function Projects() {
 
   const getHeaderTitle = () => {
     if (selectedBatch) {
-      return `${selectedBatch} Projects${activeFilter !== "all" ? ` - ${activeFilter === "inProgress" ? "In Progress" : activeFilter === "live" ? "Live" : "Not Live"}` : ""}`;
+      return `${selectedBatch} Projects${activeFilter !== "all" ? ` - ${activeFilter === "inProgress" ? "In Progress" : activeFilter === "live" ? "Live" : "On Hold"}` : ""}`;
     }
 
     if (activeFilter === "all") return "All Projects";
     if (activeFilter === "inProgress") return "Projects In Progress";
     if (activeFilter === "live") return "Live Projects";
-    if (activeFilter === "notLive") return "Not Live Projects";
+    if (activeFilter === "notLive") return "On Hold Projects";
 
     return "All Projects";
   };
@@ -375,7 +405,7 @@ export default function Projects() {
         />
         <ProjectCard
           type="notLive"
-          title="Not Live Projects"
+          title="On Hold Projects"
           value={stats.notLive}
           className="text-sm w-60 h-16"
           isActive={activeFilter === "notLive"}

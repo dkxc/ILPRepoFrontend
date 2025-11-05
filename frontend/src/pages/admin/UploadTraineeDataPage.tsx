@@ -243,8 +243,165 @@ export default function UploadDetails() {
       }));
     }
 
-    console.log("Parsed data:", parsedData);
-    setData(parsedData);
+    // Validate for empty required fields and completely empty rows
+    const emptyFieldErrors: string[] = [];
+    const completelyEmptyRows: number[] = [];
+
+    if (selectedType === "Trainee Details") {
+      parsedData.forEach((row, index) => {
+        const rowNum = index + 1;
+
+        // Check if entire row is empty
+        const hasAnyData =
+          row.fullName?.trim() || row.email?.trim() || row.phoneNumber?.trim();
+        if (!hasAnyData) {
+          completelyEmptyRows.push(rowNum);
+          return; // Skip individual field validation for empty rows
+        }
+
+        // Check required fields
+        if (!row.fullName?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Full Name is empty (required field)`,
+          );
+        }
+        if (!row.email?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Email is empty (required field)`,
+          );
+        }
+        if (!row.phoneNumber?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Phone Number is empty (required field)`,
+          );
+        }
+      });
+    } else if (selectedType === "BO Details") {
+      parsedData.forEach((row, index) => {
+        const rowNum = index + 1;
+
+        // Check if entire row is empty
+        const hasAnyData =
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.buddy?.trim() ||
+          row.buddyDU?.trim();
+        if (!hasAnyData) {
+          completelyEmptyRows.push(rowNum);
+          return; // Skip individual field validation for empty rows
+        }
+
+        // Check required fields
+        if (!row.traineeName?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Name is empty (required field)`,
+          );
+        }
+        if (!row.traineeEmail?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Email is empty (required field)`,
+          );
+        }
+        if (!row.buddy?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Buddy is empty (required field)`,
+          );
+        }
+        if (!row.buddyDU?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Buddy's DU is empty (required field)`,
+          );
+        }
+      });
+    } else if (selectedType === "DU Details") {
+      parsedData.forEach((row, index) => {
+        const rowNum = index + 1;
+
+        // Check if entire row is empty
+        const hasAnyData =
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.duAllocated?.trim() ||
+          row.location?.trim() ||
+          row.ojtMentor?.trim();
+        if (!hasAnyData) {
+          completelyEmptyRows.push(rowNum);
+          return; // Skip individual field validation for empty rows
+        }
+
+        // Check required fields
+        if (!row.traineeName?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Name is empty (required field)`,
+          );
+        }
+        if (!row.traineeEmail?.trim()) {
+          emptyFieldErrors.push(
+            `Row ${rowNum}: Trainee Email is empty (required field)`,
+          );
+        }
+        // Note: DU allocated, Location, and OJT mentor might be optional based on current validation logic
+        // Add validation for these if they are truly required:
+        if (!row.duAllocated?.trim()) {
+          emptyFieldErrors.push(`Row ${rowNum}: DU allocated is empty`);
+        }
+        if (!row.location?.trim()) {
+          emptyFieldErrors.push(`Row ${rowNum}: Location is empty`);
+        }
+        if (!row.ojtMentor?.trim()) {
+          emptyFieldErrors.push(`Row ${rowNum}: OJT mentor is empty`);
+        }
+      });
+    }
+
+    // Add completely empty row errors
+    if (completelyEmptyRows.length > 0) {
+      emptyFieldErrors.unshift(
+        `Found ${completelyEmptyRows.length} completely empty row(s): ${completelyEmptyRows.join(", ")}`,
+      );
+    }
+
+    // If there are empty field errors, show validation modal
+    if (emptyFieldErrors.length > 0) {
+      const totalErrors =
+        emptyFieldErrors.length - (completelyEmptyRows.length > 0 ? 1 : 0);
+      const errorSummary =
+        totalErrors > 0
+          ? `Found validation issues in the uploaded Excel file:`
+          : `Found empty rows in the uploaded Excel file:`;
+      setValidationErrors([errorSummary, ...emptyFieldErrors]);
+      setShowValidationModal(true);
+      return;
+    }
+
+    // Filter out completely empty rows from the final data
+    let filteredData = parsedData;
+    if (selectedType === "Trainee Details") {
+      filteredData = parsedData.filter(
+        (row) =>
+          row.fullName?.trim() || row.email?.trim() || row.phoneNumber?.trim(),
+      );
+    } else if (selectedType === "BO Details") {
+      filteredData = parsedData.filter(
+        (row) =>
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.buddy?.trim() ||
+          row.buddyDU?.trim(),
+      );
+    } else if (selectedType === "DU Details") {
+      filteredData = parsedData.filter(
+        (row) =>
+          row.traineeName?.trim() ||
+          row.traineeEmail?.trim() ||
+          row.duAllocated?.trim() ||
+          row.location?.trim() ||
+          row.ojtMentor?.trim(),
+      );
+    }
+
+    console.log("Parsed data:", filteredData);
+    setData(filteredData);
   };
 
   const handleFileSelect = async (file: File | null) => {
@@ -490,6 +647,16 @@ export default function UploadDetails() {
           errors.push(
             `Row ${rowNum}: Invalid email format for trainee "${bp.traineeName}" - "${bp.email}"`,
           );
+        }
+
+        // Check if buddy name is missing
+        if (!bp.buddyName) {
+          errors.push(`Row ${rowNum}: Buddy name is required`);
+        }
+
+        // Check if buddy's DU is missing
+        if (!bp.duName) {
+          errors.push(`Row ${rowNum}: Buddy's DU is required`);
         }
       });
 

@@ -58,13 +58,13 @@ const adminNavItems = [
 ];
 
 const dropDownItems = [
-  { to: "/profile", label: "My Profile", icon: UserRoundCog },
+  // { to: "/profile", label: "My Profile", icon: UserRoundCog },
   { to: "/traineeSettings", label: "Settings", icon: Settings },
   { to: "/signout", label: "Sign Out", icon: LogOut },
 ];
 
 const adminDropDownItems = [
-  { to: "/profile", label: "My Profile", icon: UserRoundCog },
+  // { to: "/profile", label: "My Profile", icon: UserRoundCog },
   { to: "/adminSettings", label: "Settings", icon: Settings },
   { to: "/signout", label: "Sign Out", icon: LogOut },
 ];

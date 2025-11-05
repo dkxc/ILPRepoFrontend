@@ -1,233 +1,171 @@
-import { Trash2 } from "lucide-react";
-import { ActionIcon } from "@mantine/core";
-import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
-import DataTable, { type ColumnDef } from "../../features/ui/Table";
-import type { BatchAssessment } from "../../features/trainee/types/Batch.types";
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { Code, Palette, Server } from "lucide-react";
+import type {
+  ResultFeedback,
+  Phase,
+} from "../../features/trainee/types/Result.types";
+import ResultCard from "../../features/trainee/results/ResultsCard";
+import * as Card from "../../features/ui/card";
 
-export default function Results() {
-  const navigate = useNavigate();
-
-  // Mock data - replace with API call
-  const batchesData: BatchAssessment[] = [
+const resultData: ResultFeedback = {
+  overallScore: 82,
+  boScore: 79,
+  phases: [
     {
-      id: 1,
-      title: "ILP 2025-26 Batch 7",
-      type: "Developer Trainee",
-      totalTrainees: 36,
-      status: "Pending",
-    },
-    {
-      id: 2,
-      title: "ILP 2025-26 Batch 7",
-      type: "Developer Trainee",
-      totalTrainees: 36,
-      status: "Pending",
-    },
-    {
-      id: 3,
-      title: "ILP 2025-26 Batch 7",
-      type: "Developer Trainee",
-      totalTrainees: 36,
-      status: "Completed",
-    },
-    {
-      id: 4,
-      title: "ILP 2025-26 Batch 7",
-      type: "Developer Trainee",
-      totalTrainees: 36,
-      status: "Completed",
-    },
-    {
-      id: 5,
-      title: "ILP 2025-26 Batch 7",
-      type: "Developer Trainee",
-      totalTrainees: 36,
-      status: "Completed",
-    },
-    {
-      id: 6,
-      title: "ILP 2025-26 Batch 7",
-      type: "Developer Trainee",
-      totalTrainees: 36,
-      status: "Completed",
-    },
-    {
-      id: 7,
-      title: "ILP 2025-26 Batch 8",
-      type: "Developer Trainee",
-      totalTrainees: 40,
-      status: "Pending",
-    },
-    {
-      id: 8,
-      title: "ILP 2025-26 Batch 9",
-      type: "Developer Trainee",
-      totalTrainees: 35,
-      status: "Completed",
-    },
-  ];
-
-  const handleDelete = (batch: BatchAssessment) => {
-    modals.openConfirmModal({
-      title: "Delete Batch",
-      centered: true,
-      children: (
-        <p>
-          Are you sure you want to delete <b>{batch.title}</b>?
-        </p>
-      ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
-      confirmProps: { color: "red" },
-      onConfirm: () => {
-        notifications.show({
-          title: "Deleted",
-          message: `${batch.title} was removed.`,
-          color: "red",
-        });
+      phaseName: "Tech Fundamentals",
+      score: 78,
+      feedback: {
+        conceptualClarity:
+          "Strong understanding of core programming concepts and data structures.",
+        codingSkills:
+          "Good coding practices, but could improve code optimization techniques.",
+        analyticalSkills:
+          "Excellent problem-solving approach with logical thinking.",
+        qualityOfWork:
+          "Code quality is good but attention to edge cases needs improvement.",
       },
-    });
-  };
-
-  const handleRowClick = (row: BatchAssessment) => {
-    navigate(`/trainee-assessment/${row.id}`, { state: { batch: row } });
-  };
-
-  const columns: ColumnDef<BatchAssessment>[] = [
-    {
-      key: "title",
-      header: "Name",
-      sortable: true,
-      width: "35%",
+      strengths: [
+        "Strong algorithmic thinking",
+        "Good understanding of time complexity",
+        "Clean code structure",
+      ],
+      improvements: [
+        "Practice more edge case handling",
+        "Improve code documentation",
+        "Learn advanced optimization techniques",
+      ],
     },
     {
-      key: "type",
-      header: "Type",
-      sortable: true,
-      width: "25%",
-    },
-    {
-      key: "totalTrainees",
-      header: "Total Trainees",
-      sortable: true,
-      align: "center",
-      width: "20%",
-    },
-    {
-      key: "status",
-      header: "Status",
-      sortable: true,
-      width: "15%",
-      render: (value) => {
-        const isCompleted = value === "Completed";
-        return (
-          <span
-            className={`px-3 py-1 rounded-lg text-sm font-medium ${
-              isCompleted
-                ? "bg-[#EBFFE6] text-green-700"
-                : "bg-[#E6E6E6] text-gray-700"
-            }`}
-            style={{
-              display: "inline-block",
-              minWidth: "90px",
-              textAlign: "center",
-            }}
-          >
-            {value}
-          </span>
-        );
+      phaseName: "Frontend Development",
+      score: 81,
+      feedback: {
+        conceptualClarity:
+          "Good understanding of component-based architecture and React hooks.",
+        codingSkills:
+          "Clean and modular code, needs improvement in accessibility practices.",
+        analyticalSkills:
+          "Handles UI problems effectively with optimized solutions.",
+        qualityOfWork:
+          "Neat UI, consistent theming, but code comments can be improved.",
       },
+      strengths: [
+        "Component reuse",
+        "Consistent styling approach",
+        "Understanding of responsive layouts",
+      ],
+      improvements: [
+        "Improve accessibility testing",
+        "Add more inline documentation",
+      ],
     },
     {
-      key: "action",
-      header: "Action",
-      align: "center",
-      width: "10%",
-      render: (_, row) => (
-        <ActionIcon
-          variant="Subtle"
-          color="gray"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete(row);
-          }}
-          style={{
-            transition: "0.2s",
-          }}
-          onMouseEnter={(e) =>
-            ((e.currentTarget as HTMLElement).style.backgroundColor = "#F0F4FE")
-          }
-          onMouseLeave={(e) =>
-            ((e.currentTarget as HTMLElement).style.backgroundColor =
-              "transparent")
-          }
-        >
-          <Trash2 size={18} />
-        </ActionIcon>
-      ),
+      phaseName: "Backend Development",
+      score: 74,
+      feedback: {
+        conceptualClarity:
+          "Good understanding of API endpoints and REST principles.",
+        codingSkills:
+          "Needs improvement in handling edge cases and error management.",
+        analyticalSkills:
+          "Strong logic, but optimization in database queries required.",
+        qualityOfWork: "Stable backend but lacks detailed exception handling.",
+      },
+      strengths: ["Good API structuring", "Secure authentication handling"],
+      improvements: [
+        "Improve database query optimization",
+        "Handle more failure scenarios",
+      ],
     },
-  ];
+  ],
+};
+
+function Results() {
+  const [activePhase, setActivePhase] = useState<Phase>("Tech Fundamentals");
+  const currentPhaseData = resultData.phases.find(
+    (phase) => phase.phaseName === activePhase,
+  );
+
+  const getPhaseIcon = (phaseName: Phase) => {
+    switch (phaseName) {
+      case "Tech Fundamentals":
+        return <Code size={18} />;
+      case "Frontend Development":
+        return <Palette size={18} />;
+      case "Backend Development":
+        return <Server size={18} />;
+    }
+  };
 
   return (
-    <div className="p-4 sm:p-6 w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between  sm:px-4 px-2 py-3  ">
-        <h1
-          className="text-2xl font-bold ml-10 text-[#565E6C] font-primary"
-          style={{ color: "#565E6C" }}
-        >
-          Trainee Assessment
-        </h1>
-      </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Page Header */}
+        {/* <h1 className="text-2xl font-semibold text-gray-900 mb-6">Results</h1> */}
 
-      <div className=" p-2 sm:p-0 mb-4 rounded-lg overflow-x-auto">
-        <DataTable
-          columns={columns}
-          data={batchesData}
-          showHeaderSection={true}
-          headerTitle="Select Batch"
-          headerTitleStyle={{ fontSize: "16px", fontWeight: 500 }}
-          enableSearch={true}
-          searchPlaceholder="Search batches..."
-          enablePagination={true}
-          enableFilter={true}
-          filterColumn="status"
-          filterOptions={["Pending", "Completed"]}
-          filterPlaceholder="Filter"
-          pageSize={5}
-          pageSizeOptions={[5, 10, 25, 50]}
-          striped={false}
-          highlightOnHover={true}
-          withBorder={false}
-          onRowClick={handleRowClick}
-          tableStyle={{
-            width: "100%",
-            borderRadius: "8px",
-            backgroundColor: "white",
-            paddingLeft: "0",
-            paddingRight: "0",
-          }}
-          rowStyle={{
-            fontSize: "16px",
-            height: "56px",
-            lineHeight: "1",
-            cursor: "pointer",
-            transition: "background-color 0.2s",
-          }}
-          headerStyle={{
-            fontWeight: 500,
-            fontSize: "16px",
-            height: "40px",
-            background: "#F8F9FA",
-            textAlign: "left",
-          }}
-          headerRightContent={
-            <div className="flex flex-wrap items-center gap-2 md:gap-4">
-              {/* filter + search go here */}
+        {/* Overall Score Card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 flex-wrap">
+          <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-700">
+                Overall Score
+              </span>
+              <span className="text-4xl font-bold text-brand-600">
+                {resultData.overallScore}%
+              </span>
             </div>
-          }
-        />
+          </Card.Card>
+
+          <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-700">
+                Business Orientation Score
+              </span>
+              <span className="text-4xl font-bold text-brand-600">
+                {resultData.boScore}%
+              </span>
+            </div>
+          </Card.Card>
+        </div>
+        {/* Phase-wise Feedback Section */}
+        <Card.Card className="bg-card p-4 border border-gray-200 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Phase-wise Feedback
+          </h2>
+
+          {/* Phase Tabs */}
+          <div className="flex flex-wrap justify-between mb-6 bg-bg-results-tabs px-3 py-1.5 rounded-lg">
+            {resultData.phases.map((phase) => (
+              <button
+                key={phase.phaseName}
+                onClick={() => setActivePhase(phase.phaseName)}
+                className={`flex items-center gap-2 px-16 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
+                  phase.phaseName === activePhase
+                    ? "bg-blue-50 text-brand-600"
+                    : "text-gray-600 hover:bg-gray-100 "
+                }`}
+              >
+                {getPhaseIcon(phase.phaseName)}
+                <span>{phase.phaseName}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Phase Score */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium text-gray-700">Score</span>
+              <span className="text-3xl font-bold text-brand-600">
+                {currentPhaseData?.score}%
+              </span>
+            </div>
+          </div>
+
+          {/* Results Card */}
+          {currentPhaseData && <ResultCard data={currentPhaseData} />}
+        </Card.Card>
       </div>
     </div>
   );
 }
+
+export default Results;
