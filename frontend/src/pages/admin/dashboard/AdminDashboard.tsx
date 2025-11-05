@@ -27,28 +27,27 @@ function Dashboard() {
   const [selectedBatchId, setSelectedBatchId] = useState<string>("1");
   // ✅ Fetch total training hours for last 5 years
   const fetchTotalTrainingHours = async () => {
+    // ✅ Always fixed start date (01-01-2020)
+    const startDate = "2020-01-01";
+
+    // ✅ Current date as end date (YYYY-MM-DD)
     const today = new Date();
     const endDate = today.toISOString().split("T")[0];
-
-    const last5Years = new Date();
-    last5Years.setFullYear(today.getFullYear() - 5);
-    const startDate = last5Years.toISOString().split("T")[0];
 
     const params = new URLSearchParams({
       startDate,
       endDate,
+      // ❌ DO NOT send batchTypeId — API treats missing id as "All Batches"
     });
 
-    // ✅ fetch all batch types total hours (batchTypeId empty)
     const res = await fetch(
-      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`,
+      `https://localhost:7224/api/AdminDashboard/training-hours-report?${params}`
     );
 
     if (!res.ok) throw new Error("Failed to fetch total training hours");
 
     return res.json();
   };
-
   const {
     data: trainingHours,
     isLoading: isHoursLoading,
@@ -103,23 +102,19 @@ function Dashboard() {
             : isHoursError
               ? "0"
               : (() => {
-                  // ✅ If API returns { totalHours: number }
-                  if (typeof trainingHours?.totalHours === "number") {
-                    return trainingHours.totalHours + 100;
-                  }
+                if (typeof trainingHours?.totalHours === "number") {
+                  return trainingHours.totalHours; // ✅ always correct for All Batches
+                }
 
-                  // ✅ If API returns batchDetails instead
-                  if (Array.isArray(trainingHours?.batchDetails)) {
-                    return trainingHours.batchDetails.reduce(
-                      (sum: number, batch: any) =>
-                        sum + (batch.totalTrainingHours ?? 0),
-                      0,
-                    );
-                  }
+                if (Array.isArray(trainingHours?.batchDetails)) {
+                  return trainingHours.batchDetails.reduce(
+                    (sum:number, b:{ totalTrainingHours?: number }) => sum + (b.totalTrainingHours ?? 0),
+                    0
+                  );
+                }
 
-                  // ✅ Default
-                  return 0;
-                })()}
+                return 0;
+              })()}
         </span>
       ),
       icon: <img src={clockIcon} alt="Hours" />,

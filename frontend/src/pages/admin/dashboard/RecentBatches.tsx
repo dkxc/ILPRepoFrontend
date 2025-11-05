@@ -103,13 +103,12 @@ function CalendarGrid({
               type="button"
               onMouseEnter={() => setHoverDate(date)}
               onMouseLeave={() => setHoverDate(null)}
-              className={`h-10 w-10 rounded-md flex items-center justify-center hover:bg-green-100 transition-colors ${
-                isSunday
+              className={`h-10 w-10 rounded-md flex items-center justify-center hover:bg-green-100 transition-colors ${isSunday
                   ? "text-gray-400"
                   : isToday
                     ? "bg-green-600 text-white hover:bg-green-500"
                     : "hover:text-green-800"
-              }`}
+                }`}
             >
               {d}
             </button>
@@ -210,11 +209,10 @@ export default function RecentBatches({
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Batch Status</div>
                   <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm ${
-                      batchDetails.batchStatus.toLowerCase() === "ongoing"
+                    className={`inline-block px-3 py-1 rounded-full text-sm ${batchDetails.batchStatus.toLowerCase() === "ongoing"
                         ? "bg-orange-100 text-orange-700"
                         : "bg-purple-100 text-purple-700"
-                    }`}
+                      }`}
                   >
                     {batchDetails.batchStatus}
                   </span>
@@ -283,7 +281,20 @@ export default function RecentBatches({
                           {new Date(p.endDate).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-6 text-sm text-gray-600">
-                          {p.days}
+                          {(() => {
+                            const start = new Date(p.startDate);
+                            const end = new Date(p.endDate);
+
+                            let count = 0;
+                            const current = new Date(start);
+
+                            while (current <= end) {
+                              if (current.getDay() !== 0) count++; // exclude only Sundays
+                              current.setDate(current.getDate() + 1);
+                            }
+
+                            return count;
+                          })()}
                         </td>
                       </tr>
                     ))}

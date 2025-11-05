@@ -2,9 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import Card from "../../../features/ui/card/Card";
 import CardContent from "../../../features/ui/card/CardContent";
 import CardHeader from "../../../features/ui/card/CardHeader";
-import BatchSelect, {
-  sampleBatches,
-} from "../../../features/admin/dashboard/BatchSelect";
+import BatchSelect from "../../../features/admin/dashboard/BatchSelect";
 
 /* ----------------- CALENDAR COMPONENT (UNCHANGED) ------------------- */
 
@@ -17,6 +15,8 @@ interface CalendarGridProps {
   setPopupDay: (d: number | null) => void;
   trainingHours: Record<number, number>;
   onUpdateHours: (day: number, hours: number) => void;
+  onSaveHours: (day: number) => void;
+
 }
 
 function CalendarGrid({
@@ -28,6 +28,7 @@ function CalendarGrid({
   setPopupDay,
   trainingHours,
   onUpdateHours,
+  onSaveHours
 }: CalendarGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -67,15 +68,14 @@ function CalendarGrid({
                 }
               }}
               type="button"
-              className={`h-10 w-10 rounded-md flex items-center justify-center ${
-                d === null
-                  ? "invisible"
-                  : isSunday
-                    ? "bg-white text-gray-400"
-                    : isHoliday
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800 hover:bg-green-200"
-              }`}
+              className={`h-10 w-10 rounded-md flex items-center justify-center ${d === null
+                ? "invisible"
+                : isSunday
+                  ? "bg-white text-gray-400"
+                  : isHoliday
+                    ? "bg-red-100 text-red-800"
+                    : "bg-green-100 text-green-800 hover:bg-green-200"
+                }`}
             >
               {d}
             </button>
@@ -106,12 +106,13 @@ function CalendarGrid({
                     <button
                       className="bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200"
                       onClick={() => {
-                        onUpdateHours(d, 8);
+                        onSaveHours(d);    // ✅ triggers API call
                         setPopupDay(null);
                       }}
                     >
                       Save
                     </button>
+
 
                     <button
                       className="bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200"
@@ -144,13 +145,15 @@ export default function TotalTrainingHours() {
   const [to, setTo] = useState("2025-12-31");
   const [batchTypeId, setBatchTypeId] = useState("");
   const [batchTypes, setBatchTypes] = useState([]);
+  const [batches, setBatches] = useState([]);
+
 
   /* Output */
   const [totalHours, setTotalHours] = useState(0);
   const [rows, setRows] = useState([]);
 
   /* Right Panel States */
-  const [selectedBatch, setSelectedBatch] = useState(sampleBatches[0].id);
+  const [selectedBatch, setSelectedBatch] = useState<string>("0");
   const [month, setMonth] = useState(9);
   const [holidays] = useState<number[]>([]);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
@@ -173,7 +176,59 @@ export default function TotalTrainingHours() {
     );
     const data = await res.json();
     setBatchTypes(data);
+    if (data.length > 0 && !selectedBatch) {
+      setSelectedBatch(data[0].id.toString());
+    }
   };
+  const fetchBatches = async () => {
+    const res = await fetch("https://localhost:7224/api/AdminDashboard/batches");
+    const data = await res.json();
+    setBatches(data);
+
+    if (data.length > 0 && !selectedBatch) {
+      setSelectedBatch(data[0].id.toString());
+    }
+  };
+
+  const saveTrainingHoursToApi = async (day: number) => {
+    if (!selectedBatch || selectedBatch === "0") {
+      alert("Please select a batch");
+      return;
+    }
+
+    // Build proper UTC date (ignore time)
+    const date = new Date(2025, month - 1, day);
+    const trainingDate = date.toISOString(); // backend accepts this
+
+    const hours = trainingHours[day] ?? 8; // default 8
+
+    const body = {
+      batchId: Number(selectedBatch),
+      trainingDate,
+      hours
+    };
+
+    const res = await fetch(
+      "https://localhost:7224/api/AdminDashboard/update-training-hours",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    );
+
+    if (!res.ok) {
+      alert("Failed to update training hours");
+      return;
+    }
+
+    const result = await res.json();
+    console.log("Hours saved:", result);
+
+    alert("Training hours updated successfully");
+  };
+
+
 
   const fetchReport = async () => {
     const params = new URLSearchParams({
@@ -203,6 +258,12 @@ export default function TotalTrainingHours() {
   useEffect(() => {
     fetchReport();
   }, [from, to, batchTypeId]);
+
+  useEffect(() => {
+    fetchBatchTypes(); // left panel
+    fetchBatches();    // right panel
+  }, []);
+
 
   /* -------------------- RENDER --------------------- */
 
@@ -316,11 +377,21 @@ export default function TotalTrainingHours() {
           <CardContent>
             <div className="space-y-4">
               {/* Batch Select */}
-              <BatchSelect
+              <select
                 value={selectedBatch}
-                onChange={(id) => setSelectedBatch(id)}
+                onChange={(e) => setSelectedBatch(e.target.value)}
                 className="w-full border border-gray-200 rounded px-3 py-2"
-              />
+              >
+                {batches.length === 0 ? (
+                  <option>Loading...</option>
+                ) : (
+                  batches.map((b: any) => (
+                    <option key={b.id} value={b.id.toString()}>
+                      {b.name}
+                    </option>
+                  ))
+                )}
+              </select>
 
               {/* Calendar */}
               <div className="mt-3 border border-gray-200 rounded p-2">
@@ -350,6 +421,7 @@ export default function TotalTrainingHours() {
                   setPopupDay={setSelectedDay}
                   trainingHours={trainingHours}
                   onUpdateHours={handleUpdateHours}
+                  onSaveHours={(day) => saveTrainingHoursToApi(day)} 
                 />
               </div>
             </div>
