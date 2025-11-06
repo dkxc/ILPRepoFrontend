@@ -90,10 +90,7 @@ export function useAttendance() {
 
   useEffect(() => {
     if (uploadMutation.isSuccess) {
-      const { updatedRecordCount, newTraineesCount } = uploadMutation.data;
-      toast.success(
-        `Import successful! ${updatedRecordCount} records updated, ${newTraineesCount} new trainees added.`,
-      );
+      toast.success(`Import successful! ${uploadMutation.data.message}`);
       setImportOpen(false);
     }
     if (uploadMutation.isError) {
